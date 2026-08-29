@@ -106,8 +106,13 @@ def _merge_defaults(defaults: dict[str, Any], raw: dict[str, Any]) -> Site:
         )
 
     title = str(raw.get("title") or "").strip()
-    if not title:
-        raise ConfigError(f"{domain}: `title` is required (it becomes the site name)")
+    if not title and state == "new":
+        raise ConfigError(
+            f"{domain}: `title` is required for a new site -- it is the name "
+            "WordPress is installed with."
+        )
+    # On a live site an absent title means "keep the name the site already has",
+    # which is safer than overwriting it with a guess.
 
     brand_defaults = dict(defaults.get("brand") or {})
     brand_raw = dict(raw.get("brand") or {})
@@ -128,18 +133,24 @@ def _merge_defaults(defaults: dict[str, Any], raw: dict[str, Any]) -> Site:
     )
 
     site_wp = dict(raw.get("wp") or {})
+    site_theme = dict(raw.get("theme") or {})
+    site_plugins = list(raw.get("plugins") or [])
+
     wp = dict(defaults.get("wp") or {})
     wp.update(site_wp)
-    # `public` toggles search-engine indexing. Inheriting the default on a site
-    # that is already live and indexed would quietly de-index it, so on a live
-    # site indexing changes only when that site asks for it explicitly.
-    if state == "live" and "public" not in site_wp:
-        wp.pop("public", None)
-
     theme = dict(defaults.get("theme") or {})
-    theme.update(dict(raw.get("theme") or {}))
+    theme.update(site_theme)
+    plugins = list(site_plugins or defaults.get("plugins") or [])
 
-    plugins = list(raw.get("plugins") or defaults.get("plugins") or [])
+    # The defaults block describes how to BUILD a new site. Inheriting it onto
+    # a site that is already live would change things nobody asked to change:
+    # swap a working theme, activate plugins on production, drop the site out
+    # of Google. So on a live site only settings written on that site itself
+    # take effect; anything absent is left exactly as it is.
+    if state == "live":
+        wp = site_wp
+        theme = site_theme
+        plugins = site_plugins
 
     return Site(
         domain=domain,

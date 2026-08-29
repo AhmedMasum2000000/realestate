@@ -136,19 +136,31 @@ class WpSite:
     # -- configuration ------------------------------------------------------
 
     def set_options(
-        self, title: str, tagline: str, timezone: str, public: bool | None
+        self,
+        title: str = "",
+        tagline: str = "",
+        timezone: str = "",
+        public: bool | None = None,
+        permalinks: str = "",
     ) -> None:
-        """Apply site settings. `public=None` leaves indexing untouched --
-        important on a live site, where forcing it off would drop the site out
-        of Google."""
-        self.wp("option", "update", "blogname", title)
-        self.wp("option", "update", "blogdescription", tagline)
-        self.wp("option", "update", "timezone_string", timezone)
+        """Apply site settings. Every argument is skippable, and an empty or
+        None value means "leave this alone".
+
+        That matters on a live site: forcing `public` off would drop it out of
+        Google, and rewriting the permalink structure would change the URL of
+        every post already published. Neither is something to do by default.
+        """
+        if title:
+            self.wp("option", "update", "blogname", title)
+        if tagline:
+            self.wp("option", "update", "blogdescription", tagline)
+        if timezone:
+            self.wp("option", "update", "timezone_string", timezone)
         if public is not None:
             self.wp("option", "update", "blog_public", "1" if public else "0")
-        # Pretty permalinks: required for the listings archive to resolve.
-        self.wp("rewrite", "structure", "/%postname%/", "--hard")
-        self.wp("rewrite", "flush", "--hard")
+        if permalinks:
+            self.wp("rewrite", "structure", permalinks, "--hard")
+            self.wp("rewrite", "flush", "--hard")
 
     def installed_plugins(self) -> set[str]:
         if self.runner.dry_run:
@@ -185,6 +197,20 @@ class WpSite:
         else:
             self.wp("theme", "activate", child_slug, allow_fail=True)
         return child_slug
+
+    def active_theme(self) -> str:
+        """The stylesheet slug currently active, or "" when unknown."""
+        if self.runner.dry_run:
+            return ""
+        res = self.wp("theme", "list", "--status=active", "--field=name", allow_fail=True)
+        return res.stdout.strip().splitlines()[-1].strip() if res.stdout.strip() else ""
+
+    def post_type_exists(self, name: str) -> bool:
+        """Whether some plugin or theme already registers this post type."""
+        if self.runner.dry_run:
+            return False
+        res = self.wp("post-type", "list", "--field=name", allow_fail=True)
+        return name in {line.strip() for line in res.stdout.splitlines()}
 
     def set_logo(self, local_logo: Path) -> None:
         """Upload a logo to the media library and set it as the site logo."""

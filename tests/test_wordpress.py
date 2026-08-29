@@ -64,10 +64,29 @@ class TestSetOptions:
         site.set_options("T", "Tag", "Asia/Bangkok", public=True)
         assert any("blog_public 1" in c for c in runner.commands)
 
-    def test_always_sets_pretty_permalinks(self):
+    def test_permalinks_untouched_unless_asked(self):
+        # Rewriting the structure changes the URL of every published post.
         site, runner = make_site()
         site.set_options("T", "Tag", "Asia/Bangkok", public=None)
-        assert any("rewrite structure" in c for c in runner.commands)
+        assert not any("rewrite" in c for c in runner.commands)
+
+    def test_permalinks_set_when_given(self):
+        site, runner = make_site()
+        site.set_options(permalinks="/%postname%/")
+        assert any("rewrite structure /%postname%/" in c for c in runner.commands)
+        assert any("rewrite flush" in c for c in runner.commands)
+
+    def test_empty_title_leaves_the_site_name_alone(self):
+        site, runner = make_site()
+        site.set_options(title="", tagline="", timezone="")
+        assert not any("blogname" in c for c in runner.commands)
+        assert not any("blogdescription" in c for c in runner.commands)
+        assert not any("timezone_string" in c for c in runner.commands)
+
+    def test_no_arguments_is_a_no_op(self):
+        site, runner = make_site()
+        site.set_options()
+        assert runner.commands == []
 
 
 class TestIdempotence:

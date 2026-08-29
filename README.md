@@ -24,6 +24,31 @@ checks what is already there before changing anything.
 `live` means WordPress is already installed and we only configure it.
 `new` means the domain and WordPress still have to be created.
 
+### The rule for live sites
+
+**A `live` site inherits nothing from the `defaults:` block.** Only settings
+written on that site's own entry are applied; everything else is left exactly
+as it is.
+
+This exists because the defaults describe how to *build* a site, and applying
+them to one that is already running would change things nobody asked to
+change. On `pattayahomespro.com` — a working site with the `real-estate-golden`
+theme, a `wdk-listing` plugin and published listings — the defaults would have:
+
+- replaced its theme with Astra,
+- installed and activated four plugins on production,
+- rewritten every URL by forcing `/%postname%/` permalinks with a hard flush,
+- renamed the site to a title that was guessed rather than observed,
+- and de-indexed it from Google.
+
+So on a live site: no theme change, no plugin installs, no permalink change,
+no indexing change, and no rename — unless you write that setting on the site
+yourself. A `new` site still gets the full defaults.
+
+The toolkit also refuses to install its listing content type if the site
+already runs a plugin registering a `listing` post type, rather than
+colliding with it.
+
 ## Quick start
 
 ```bash

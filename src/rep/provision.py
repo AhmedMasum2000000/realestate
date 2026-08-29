@@ -179,30 +179,58 @@ def provision_site(
 
     # -- 4. settings, theme, plugins ----------------------------------------
     public = site.wp.get("public")
+    # Pretty permalinks are set when we build the site, because the listings
+    # archive needs them. On a live site the structure is whatever its URLs
+    # already use, and rewriting it would break every published link -- so it
+    # changes only if this site explicitly asks for a structure.
+    permalinks = site.wp.get("permalink_structure") or (
+        "/%postname%/" if site.is_new else ""
+    )
     wp.set_options(
         title=site.title,
         tagline=site.tagline,
-        timezone=site.wp.get("timezone", "Asia/Bangkok"),
+        timezone=site.wp.get("timezone", ""),
         public=public,
+        permalinks=permalinks,
     )
+    changed = [
+        label
+        for label, value in (
+            ("title", site.title), ("tagline", site.tagline),
+            ("timezone", site.wp.get("timezone", "")), ("permalinks", permalinks),
+        )
+        if value
+    ]
+    if public is not None:
+        changed.append("indexing ON" if public else "indexing OFF")
     report.add(
         "settings",
-        "planned" if dry else "done",
-        "indexing left as-is" if public is None
-        else ("indexing ON" if public else "indexing OFF"),
+        ("planned" if dry else "done") if changed else "skipped",
+        ", ".join(changed) if changed else "nothing to change; left as-is",
     )
 
-    theme_slug = site.theme.get("slug", "astra")
-    active = wp.ensure_theme(theme_slug, child=bool(site.theme.get("child", True)))
-    report.add("theme", "planned" if dry else "done", active)
+    theme_slug = site.theme.get("slug")
+    if not theme_slug:
+        current = wp.active_theme()
+        report.add(
+            "theme",
+            "skipped",
+            f"left as-is ({current})" if current else "left as-is",
+        )
+    else:
+        active = wp.ensure_theme(theme_slug, child=bool(site.theme.get("child", True)))
+        report.add("theme", "planned" if dry else "done", active)
 
-    added = wp.ensure_plugins(site.plugins)
-    report.add(
-        "plugins",
-        "planned" if dry else "done",
-        f"{len(site.plugins)} requested"
-        + (f", {len(added)} newly installed" if added else ""),
-    )
+    if not site.plugins:
+        report.add("plugins", "skipped", "none listed for this site")
+    else:
+        added = wp.ensure_plugins(site.plugins)
+        report.add(
+            "plugins",
+            "planned" if dry else "done",
+            f"{len(site.plugins)} requested"
+            + (f", {len(added)} newly installed" if added else ""),
+        )
 
     # -- 5. branding --------------------------------------------------------
     logo = site.brand.logo_path()
@@ -215,11 +243,31 @@ def provision_site(
         report.add("logo", "skipped", "no logo set in sites.yml")
 
     # -- 6. listing content type -------------------------------------------
-    wp.install_mu_plugin(MU_PLUGIN)
-    report.add("listing type", "planned" if dry else "done", "casa-listings.php")
+    # A live site may already run a listings plugin (wdk-listing, for one) that
+    # registers the same post type. Two registrations of one slug is a
+    # collision, and importing into a plugin's own schema is a different job
+    # from importing into ours -- so stop and say so rather than guess.
+    ours_present = runner.exists(
+        f"{docroot}/wp-content/mu-plugins/{MU_PLUGIN.name}"
+    )
+    foreign_cpt = wp.post_type_exists("listing") and not ours_present
+    if foreign_cpt:
+        report.add(
+            "listing type",
+            "skipped",
+            "a `listing` post type is already registered by another plugin on "
+            "this site. Not installing ours over it -- tell me which plugin "
+            "owns the listings and I will import into that instead.",
+        )
+    else:
+        wp.install_mu_plugin(MU_PLUGIN)
+        report.add("listing type", "planned" if dry else "done", "casa-listings.php")
 
     # -- 7. listings --------------------------------------------------------
     csv_path = site.listings.csv_path()
+    if foreign_cpt:
+        report.add("listings", "skipped", "blocked: the listing type above is not ours")
+        return report
     if not do_listings:
         report.add("listings", "skipped", "--no-listings")
     elif not csv_path:

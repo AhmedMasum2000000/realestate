@@ -95,6 +95,17 @@ three live sites, tell me its name and I will match it.
 the toolkit will configure them but never reinstall. If any of them is actually
 an empty domain, change its state to `new` in `config/sites.yml`.
 
+`pattayahomespro.com` is confirmed live — it runs the `real-estate-golden`
+theme with a `wdk-listing` plugin and has published listings. Because of that
+it now changes nothing by default. If you want something applied to it, write
+it on that site's entry in `config/sites.yml` and it will be applied.
+
+**Which plugin owns the listings on pattayahomespro.com?** It already has
+`wdk-listing` managing properties. Importing your CSV into *that* plugin's
+schema is a different job from importing into ours, and the toolkit will stop
+rather than guess. Tell me which one you want to keep and I will wire the
+import to it.
+
 **Which site do we do first?** You said one at a time. I would start with a
 `new` one — `thaihomespro.com` — because a mistake there costs nothing, unlike
 on a live site.

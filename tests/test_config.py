@@ -208,3 +208,91 @@ sites:
         for site in load_sites():
             if site.state == "live":
                 assert site.wp.get("public") is None, f"{site.domain} would be de-indexed"
+
+
+class TestLiveSitesInheritNothing:
+    """Defaults describe how to build a NEW site; they must not touch a live one."""
+
+    LIVE_AND_NEW = """
+defaults:
+  theme: {slug: astra, child: true}
+  plugins: [wordfence, wp-super-cache]
+  wp: {public: false, timezone: Asia/Bangkok}
+sites:
+  - {domain: live.com, state: live, title: Live}
+  - {domain: new.com, state: new, title: New}
+"""
+
+    def test_live_site_inherits_no_theme(self, tmp_path):
+        live, _ = load_sites(write_sites(tmp_path, self.LIVE_AND_NEW))
+        assert live.theme == {}, "would have replaced the site's working theme"
+
+    def test_live_site_inherits_no_plugins(self, tmp_path):
+        live, _ = load_sites(write_sites(tmp_path, self.LIVE_AND_NEW))
+        assert live.plugins == [], "would have activated plugins on production"
+
+    def test_new_site_still_inherits_everything(self, tmp_path):
+        _, new = load_sites(write_sites(tmp_path, self.LIVE_AND_NEW))
+        assert new.theme["slug"] == "astra"
+        assert new.plugins == ["wordfence", "wp-super-cache"]
+        assert new.wp["public"] is False
+
+    def test_live_site_can_opt_into_a_theme(self, tmp_path):
+        path = write_sites(tmp_path, """
+defaults:
+  theme: {slug: astra}
+sites:
+  - domain: live.com
+    state: live
+    title: Live
+    theme: {slug: real-estate-golden, child: true}
+""")
+        site, = load_sites(path)
+        assert site.theme["slug"] == "real-estate-golden"
+
+    def test_live_site_can_opt_into_plugins(self, tmp_path):
+        path = write_sites(tmp_path, """
+defaults:
+  plugins: [wordfence]
+sites:
+  - domain: live.com
+    state: live
+    title: Live
+    plugins: [wordpress-seo]
+""")
+        site, = load_sites(path)
+        assert site.plugins == ["wordpress-seo"]
+
+    def test_shipped_config_touches_no_live_site(self):
+        """The real sites.yml must be safe to run against the three live sites."""
+        for site in load_sites():
+            if site.state != "live":
+                continue
+            assert site.theme == {}, f"{site.domain}: would change its theme"
+            assert site.plugins == [], f"{site.domain}: would install plugins"
+            assert site.wp.get("public") is None, f"{site.domain}: would change indexing"
+
+
+class TestLiveSiteTitles:
+    def test_live_site_may_omit_its_title(self, tmp_path):
+        site, = load_sites(write_sites(tmp_path, """
+sites:
+  - {domain: live.com, state: live}
+"""))
+        assert site.title == ""      # empty means "keep the name it has"
+
+    def test_new_site_still_requires_a_title(self, tmp_path):
+        with pytest.raises(ConfigError, match="title"):
+            load_sites(write_sites(tmp_path, """
+sites:
+  - {domain: new.com, state: new}
+"""))
+
+    def test_live_site_inherits_no_timezone(self, tmp_path):
+        live, = load_sites(write_sites(tmp_path, """
+defaults:
+  wp: {timezone: Asia/Bangkok, locale: en_US}
+sites:
+  - {domain: live.com, state: live, title: Live}
+"""))
+        assert live.wp == {}

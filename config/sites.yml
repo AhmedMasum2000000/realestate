@@ -43,10 +43,19 @@ defaults:
 # ---------------------------------------------------------------------------
 
 sites:
+  # Observed live on 2026-08-29 (from the public site, not from cPanel):
+  #   theme:   real-estate-golden
+  #   plugins: wdk-listing (property listings), cookieadmin-pro
+  #   content: real property listings already published, prices shown in USD
+  # Because this site is `live`, it inherits NOTHING from `defaults` above:
+  # no theme change, no plugin installs, no indexing change. Anything you want
+  # applied here has to be written on this entry explicitly.
   - domain: pattayahomespro.com
     state: live
-    title: "Pattaya Homes Pro"
-    tagline: "Condos, houses and villas across Pattaya"
+    # Blank = keep whatever name and tagline the site already has. Fill these
+    # in only if you actually want them changed.
+    title: ""
+    tagline: ""
     logo: ""
     listings:
       csv: ""
@@ -54,8 +63,10 @@ sites:
 
   - domain: secondpassportpro.com
     state: live
-    title: "Second Passport Pro"
-    tagline: "Residency and second-citizenship guidance"
+    # Blank = keep whatever name and tagline the site already has. Fill these
+    # in only if you actually want them changed.
+    title: ""
+    tagline: ""
     logo: ""
     listings:
       csv: ""
@@ -63,8 +74,10 @@ sites:
 
   - domain: moveinthailand.com
     state: live
-    title: "Move In Thailand"
-    tagline: "Relocation, visas and property in Thailand"
+    # Blank = keep whatever name and tagline the site already has. Fill these
+    # in only if you actually want them changed.
+    title: ""
+    tagline: ""
     logo: ""
     listings:
       csv: ""
