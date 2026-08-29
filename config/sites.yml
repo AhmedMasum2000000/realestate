@@ -1,0 +1,116 @@
+# ---------------------------------------------------------------------------
+# Site inventory. This is the ONE file you edit to change what gets built.
+# Everything in bin/ reads from here. No credentials live in this file --
+# those go in config/.env (see config/.env.example).
+# ---------------------------------------------------------------------------
+
+defaults:
+  wp:
+    locale: en_US
+    timezone: Asia/Bangkok
+    # Admin user is created only when a site has no WordPress yet.
+    # The password is generated per-site and written to secrets/wp-admins.txt.
+    admin_user: casaadmin
+    admin_email: almasum5495@gmail.com
+    # Search-engine indexing. Applies to `state: new` sites only, so a first
+    # run can never de-index a site that is already live and ranking.
+    # To change indexing on a live site, set `public:` on that site directly.
+    public: false
+
+  theme:
+    slug: astra
+    child: true          # build a child theme so updates never eat your edits
+
+  plugins:
+    - classic-editor
+    - wordpress-seo
+    - wp-super-cache
+    - wordfence
+
+  # Applied to every site unless overridden below.
+  brand:
+    primary_color: "#1a3a5c"
+    accent_color: "#c9a227"
+
+# ---------------------------------------------------------------------------
+# The eight domains.
+#
+#   state: live     -> WordPress already installed; we configure, never reinstall
+#   state: new      -> needs domain creation + WordPress install
+#
+# Set `logo:` to a file you drop in assets/logos/. Leave blank to skip.
+# Set `listings.csv` to a file you drop in data/. Leave blank to skip import.
+# ---------------------------------------------------------------------------
+
+sites:
+  - domain: pattayahomespro.com
+    state: live
+    title: "Pattaya Homes Pro"
+    tagline: "Condos, houses and villas across Pattaya"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: secondpassportpro.com
+    state: live
+    title: "Second Passport Pro"
+    tagline: "Residency and second-citizenship guidance"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: moveinthailand.com
+    state: live
+    title: "Move In Thailand"
+    tagline: "Relocation, visas and property in Thailand"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: secondhomethailand.com
+    state: new
+    title: "Second Home Thailand"
+    tagline: "Your second home in the Kingdom"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: mysecondhomepro.com
+    state: new
+    title: "My Second Home Pro"
+    tagline: "Buying abroad, handled properly"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: propertiesshare.com
+    state: new
+    title: "Properties Share"
+    tagline: "Shared and fractional property ownership"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: thaihomespro.com
+    state: new
+    title: "Thai Homes Pro"
+    tagline: "Property across Thailand"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: pattayahomepro.com
+    state: new
+    title: "Pattaya Home Pro"
+    tagline: "Pattaya property specialists"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}

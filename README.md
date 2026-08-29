@@ -1,0 +1,130 @@
+# Domain + WordPress provisioning
+
+Automation for standing up and configuring the eight property sites on one
+cPanel account: creates the domain, database and WordPress install, applies
+branding, registers a property-listing content type, and imports listings from
+a CSV export.
+
+Built to be run **one site at a time**, and to be safe to re-run: every step
+checks what is already there before changing anything.
+
+## The sites
+
+| Domain | State | Purpose |
+| --- | --- | --- |
+| pattayahomespro.com | live | Pattaya property |
+| secondpassportpro.com | live | Residency / second citizenship |
+| moveinthailand.com | live | Relocation and visas |
+| secondhomethailand.com | new | Second homes |
+| mysecondhomepro.com | new | Buying abroad |
+| propertiesshare.com | new | Shared / fractional ownership |
+| thaihomespro.com | new | Thailand-wide property |
+| pattayahomepro.com | new | Pattaya property |
+
+`live` means WordPress is already installed and we only configure it.
+`new` means the domain and WordPress still have to be created.
+
+## Quick start
+
+```bash
+pip install -r requirements.txt
+
+cp config/.env.example config/.env     # then fill it in -- see SETUP.md
+./bin/check                            # prove the credentials work
+./bin/provision thaihomespro.com       # dry run: prints the plan, changes nothing
+./bin/provision thaihomespro.com --apply
+```
+
+**Dry run is the default.** Nothing is created, changed or deleted until you
+add `--apply`. Read the plan first; it is short.
+
+## Commands
+
+| Command | What it does |
+| --- | --- |
+| `bin/check` | Preflight. Validates config, tests cPanel + SSH, reports per-site readiness. Read-only. |
+| `bin/inspect-csv <file>` | Shows how a listings CSV will be read: which columns were understood, which were not, and a preview of the first rows. Touches no server. |
+| `bin/provision <domain>` | Provisions one site. Add `--apply` to make it real. |
+| `bin/provision --all` | Every site in one pass. Prefer one at a time. |
+
+Useful flags on `provision`:
+
+- `--no-listings` — skip the CSV import (when only settings changed)
+- `--sideload-images` — pull each listing's first photo into the media library.
+  Slow, and shared hosting may throttle it, so it is off by default.
+
+## What a run actually does
+
+1. **Domain** — creates the addon domain in cPanel if it is not already there.
+2. **Database** — creates the database and user, grants privileges. Names are
+   derived from the domain, so they are stable across runs.
+3. **WordPress** — downloads core, writes `wp-config.php`, runs the install.
+   Skipped entirely if WordPress is already installed.
+4. **Settings** — title, tagline, timezone, pretty permalinks. Search-engine
+   indexing is left **off** until you set `public: true` in `config/sites.yml`.
+5. **Theme and plugins** — installs the theme, builds a child theme so your
+   edits survive updates, installs and activates the plugin list.
+6. **Branding** — uploads the logo and sets it as the site logo and favicon.
+7. **Listing content type** — installs `wp/mu-plugin/casa-listings.php` as a
+   must-use plugin, registering the `listing` post type with locations,
+   property types and features.
+8. **Listings** — parses the CSV and imports it. Listings are matched on their
+   reference, so re-importing an updated export **updates** rows rather than
+   duplicating them.
+9. **SSL** — asks AutoSSL to issue certificates for anything newly created.
+
+## Configuration
+
+Everything you routinely change lives in `config/sites.yml`: titles, taglines,
+logo paths, which CSV feeds which site, plugins, theme.
+
+Credentials live in `config/.env`, which is gitignored and never committed.
+
+To feed one shared export into several sites, filter it per site:
+
+```yaml
+  - domain: pattayahomespro.com
+    listings:
+      csv: "data/listings-all.csv"
+      filter:
+        location: pattaya       # only rows whose location contains "pattaya"
+```
+
+If a column is read wrongly, map it explicitly — run `bin/inspect-csv` first to
+see the exact header text:
+
+```yaml
+    listings:
+      csv: "data/listings-all.csv"
+      columns:
+        price: "Asking Price (THB)"
+        size_sqm: "Interior (sqm)"
+```
+
+## Layout
+
+```
+bin/           the three commands
+config/        sites.yml (edit this) and .env (credentials, gitignored)
+src/rep/       the implementation
+  config.py      loads and validates sites.yml / .env
+  cpanel.py      cPanel UAPI client -- domains, databases, SSL
+  ssh.py         SSH/SFTP transport
+  wordpress.py   WP-CLI driver -- install and configure
+  listings.py    CSV parsing and column matching
+  provision.py   orchestrates the steps above
+wp/            code that runs inside WordPress
+data/          your CSV exports (gitignored)
+assets/logos/  your logo files (gitignored)
+tests/         run with: python3 -m pytest tests/
+```
+
+## Safety notes
+
+- Dry run by default; `--apply` is always required to change anything.
+- Generated passwords are written to `secrets/credentials.txt` (gitignored,
+  mode 0600). Move them into a password manager and delete the file.
+- The toolkit never deletes a domain, database or site. Removal is manual, on
+  purpose.
+- New sites launch with indexing disabled so Google does not index a
+  half-finished site. Flip `public: true` per site when you are ready.

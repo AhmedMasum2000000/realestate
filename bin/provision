@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+"""Provision one site (or, with --all, every site) from config/sites.yml.
+
+    bin/provision pattayahomespro.com            # dry run -- shows the plan
+    bin/provision pattayahomespro.com --apply    # actually do it
+
+Dry run is the default on purpose: these commands create domains and databases
+on a live server, and the plan is worth reading before it runs.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from rep.cli import (  # noqa: E402
+    add_common_args, banner, die, load_or_die, make_cpanel, make_ssh,
+    pick_site, server_home,
+)
+from rep.cpanel import CpanelError  # noqa: E402
+from rep.provision import SiteReport, provision_site, write_secret  # noqa: E402
+from rep.ssh import SshError  # noqa: E402
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        prog="bin/provision",
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument(
+        "domain",
+        nargs="?",
+        help="the single site to work on, e.g. pattayahomespro.com",
+    )
+    parser.add_argument(
+        "--all",
+        action="store_true",
+        help="work through every site in sites.yml instead of just one",
+    )
+    parser.add_argument(
+        "--no-listings",
+        action="store_true",
+        help="skip the CSV import (useful when only settings changed)",
+    )
+    parser.add_argument(
+        "--sideload-images",
+        action="store_true",
+        help="download each listing's first photo into the media library (slow)",
+    )
+    add_common_args(parser)
+
+    args = parser.parse_args()
+    if not args.domain and not args.all:
+        parser.error("give a domain, or --all to do every site")
+    if args.domain and args.all:
+        parser.error("give a domain or --all, not both")
+    return args
+
+
+def print_report(report: SiteReport) -> None:
+    print(f"\n{report.domain}")
+    print("-" * len(report.domain))
+    for step in report.steps:
+        print(step.line())
+
+
+def main() -> int:
+    args = parse_args()
+    sites, env = load_or_die()
+
+    targets = sites if args.all else [pick_site(sites, args.domain)]
+    dry = not args.apply
+
+    banner(f"{'PLAN (dry run)' if dry else 'APPLYING CHANGES'} -- {len(targets)} site(s)")
+    if dry:
+        print("  Nothing will be written. Re-run with --apply to make it real.")
+        print("  Note: steps that depend on what is already on the server (is")
+        print("  WordPress installed? does the database exist?) cannot be checked")
+        print("  in a dry run, so they show as planned. A real run skips them.")
+
+    try:
+        cp = make_cpanel(env, dry_run=dry)
+        runner = make_ssh(env, dry_run=dry)
+    except SystemExit:
+        raise
+
+    home = server_home(env, dry_run=dry)
+
+    # One read of the account's domain list, shared across sites.
+    existing: set[str] = set()
+    main_domain: str | None = None
+    domains_known = True
+    try:
+        data = cp.list_domains()
+        main_domain = (data.get("main_domain") or "").lower() or None
+        existing = cp.all_domains()
+        print(f"  cPanel account serves {len(existing)} domains; main = {main_domain}")
+    except CpanelError as exc:
+        if not dry:
+            die(f"could not read the domain list from cPanel.\n       {exc}")
+        domains_known = False
+        print(f"  [.] cPanel not reachable yet -- {exc}")
+        print("      Continuing anyway: a dry run is meant to be readable before")
+        print("      credentials exist. Every site is treated as not-yet-created.")
+
+    reports: list[SiteReport] = []
+    try:
+        with runner:
+            for site in targets:
+                try:
+                    report = provision_site(
+                        site, cp, runner, home, existing, main_domain,
+                        domains_known=domains_known,
+                        do_listings=not args.no_listings,
+                        sideload_images=args.sideload_images,
+                    )
+                except (CpanelError, SshError) as exc:
+                    report = SiteReport(domain=site.domain)
+                    report.add("aborted", "failed", str(exc))
+                reports.append(report)
+                print_report(report)
+    finally:
+        runner.close()
+
+    # -- credentials --------------------------------------------------------
+    secret_lines: list[str] = []
+    stamp = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    for report in reports:
+        if report.admin_password or report.db_password:
+            secret_lines.append(f"# {report.domain}  ({stamp})")
+            if report.admin_password:
+                secret_lines.append(f"  wp-admin password: {report.admin_password}")
+            if report.db_password:
+                secret_lines.append(f"  database password: {report.db_password}")
+
+    if secret_lines and not dry:
+        path = write_secret("credentials.txt", secret_lines)
+        print(f"\n  Generated passwords written to {path}")
+        print("  This file is gitignored. Move them into your password manager, then delete it.")
+
+    # -- SSL ----------------------------------------------------------------
+    created_domains = [
+        r for r in reports
+        if any(s.name == "domain" and s.status in ("done", "planned") for s in r.steps)
+    ]
+    if created_domains:
+        try:
+            cp.request_autossl()
+            print(f"\n  AutoSSL requested for the account "
+                  f"({'would be' if dry else 'certificates usually land within ~15 minutes'}).")
+        except CpanelError as exc:
+            print(f"\n  [!] AutoSSL request failed: {exc}")
+            print("      Not fatal -- issue certificates from cPanel -> SSL/TLS Status.")
+
+    banner("Result")
+    failed = [r for r in reports if r.failed]
+    for report in reports:
+        mark = "FAILED " if report.failed else "ok     "
+        print(f"  {mark} {report.domain}")
+
+    if dry:
+        print("\n  This was a dry run. Re-run with --apply to make the changes.\n")
+    elif failed:
+        print(f"\n  {len(failed)} site(s) had failures -- see the detail above.\n")
+    else:
+        print("\n  Done. Log in at https://<domain>/wp-admin/\n")
+
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,128 @@
+#!/usr/bin/env python3
+"""Preflight: prove the config and credentials work before touching anything.
+
+    bin/check
+
+Reads config/sites.yml and config/.env, then makes read-only calls to cPanel
+and SSH. Nothing is created, changed or deleted.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from rep.cli import banner, load_or_die, make_cpanel, make_ssh, server_home  # noqa: E402
+from rep.config import REQUIRED_FOR_CPANEL, REQUIRED_FOR_SSH, missing_keys  # noqa: E402
+from rep.cpanel import CpanelError  # noqa: E402
+from rep.listings import load_csv  # noqa: E402
+from rep.ssh import HAVE_PARAMIKO, SshError  # noqa: E402
+
+
+def main() -> int:
+    sites, env = load_or_die()
+    problems: list[str] = []
+
+    banner("1. Config")
+    print(f"  [+] config/sites.yml parsed -- {len(sites)} sites")
+    for site in sites:
+        print(f"      - {site.domain:26} state={site.state:5} title={site.title!r}")
+
+    banner("2. Credentials")
+    cp_missing = missing_keys(env, REQUIRED_FOR_CPANEL)
+    ssh_missing = missing_keys(env, REQUIRED_FOR_SSH)
+    if cp_missing:
+        print(f"  [!] cPanel: missing {', '.join(cp_missing)} in config/.env")
+        problems.append("cPanel credentials incomplete")
+    else:
+        print(f"  [+] cPanel: {env['CPANEL_USER']}@{env['CPANEL_HOST']}:{env.get('CPANEL_PORT', 2083)}")
+    if ssh_missing:
+        print(f"  [!] SSH: missing {', '.join(ssh_missing)} in config/.env")
+        problems.append("SSH credentials incomplete")
+    else:
+        auth = "key" if env.get("SSH_KEY_PATH") else "password" if env.get("SSH_PASSWORD") else "NONE"
+        print(f"  [+] SSH: {env['SSH_USER']}@{env['SSH_HOST']}:{env.get('SSH_PORT', 22)} (auth: {auth})")
+        if auth == "NONE":
+            problems.append("SSH has neither SSH_KEY_PATH nor SSH_PASSWORD")
+    if not HAVE_PARAMIKO:
+        print("  [.] paramiko not installed -- will shell out to the `ssh` binary")
+
+    banner("3. cPanel connection")
+    account_domains: set[str] = set()
+    if cp_missing:
+        print("  [.] skipped -- no credentials")
+    else:
+        try:
+            cp = make_cpanel(env, dry_run=False)
+            data = cp.list_domains()
+            account_domains = cp.all_domains()
+            print(f"  [+] connected. main domain: {data.get('main_domain')}")
+            print(f"      {len(account_domains)} domains on this account")
+        except CpanelError as exc:
+            print(f"  [!] {exc}")
+            problems.append("cannot reach cPanel")
+
+    banner("4. SSH connection")
+    if ssh_missing:
+        print("  [.] skipped -- no credentials")
+    else:
+        try:
+            runner = make_ssh(env, dry_run=False)
+            with runner:
+                home = runner.run("pwd").check().stdout.strip()
+                print(f"  [+] connected. home: {home}")
+                wp = runner.run("command -v wp")
+                if wp.ok:
+                    version = runner.run("wp --version --allow-root").stdout.strip()
+                    print(f"  [+] WP-CLI present: {version or wp.stdout.strip()}")
+                else:
+                    print("  [.] WP-CLI not on PATH -- provision will install it to ~/bin")
+        except SshError as exc:
+            print(f"  [!] {exc}")
+            problems.append("cannot reach the server over SSH")
+
+    banner("5. Per-site readiness")
+    for site in sites:
+        flags: list[str] = []
+        on_account = site.domain in account_domains if account_domains else None
+        if on_account is True:
+            flags.append("on cPanel")
+        elif on_account is False:
+            flags.append("NOT on cPanel")
+            if site.state == "live":
+                problems.append(f"{site.domain} is marked live but is not on this account")
+
+        logo = site.brand.logo_path()
+        if logo:
+            flags.append(f"logo {'ok' if logo.exists() else 'MISSING'}")
+
+        csv_path = site.listings.csv_path()
+        if csv_path and csv_path.exists():
+            try:
+                rows, mapping = load_csv(csv_path, overrides=site.listings.columns)
+                flags.append(f"csv {len(rows)} rows, {len(mapping.mapped)} cols mapped")
+                if not mapping.looks_like_listings:
+                    problems.append(f"{site.domain}: {csv_path.name} may not be a listings export")
+            except (ValueError, OSError) as exc:
+                flags.append(f"csv ERROR: {exc}")
+                problems.append(f"{site.domain}: cannot read {csv_path.name}")
+        elif csv_path:
+            flags.append("csv MISSING")
+            problems.append(f"{site.domain}: {csv_path} not found")
+
+        print(f"  {site.domain:26} {' | '.join(flags) if flags else '(nothing configured yet)'}")
+
+    banner("Summary")
+    if problems:
+        for p in problems:
+            print(f"  [!] {p}")
+        print(f"\n  {len(problems)} thing(s) to fix before provisioning.\n")
+        return 1
+    print("  [+] All checks passed. Next: bin/provision <domain>\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

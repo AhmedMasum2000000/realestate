@@ -1,0 +1,7 @@
+# Runtime dependencies for the provisioning toolkit.
+PyYAML>=6.0
+requests>=2.31
+paramiko>=3.4          # SSH/SFTP; without it we shell out to `ssh`/`scp`
+
+# Development only
+pytest>=8.0
