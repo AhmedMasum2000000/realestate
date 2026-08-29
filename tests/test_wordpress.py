@@ -101,3 +101,48 @@ class TestIdempotence:
         monkeypatch.setattr(site, "has_core_files", lambda: True)
         site.download_core()
         assert not any("core download" in c for c in runner.commands)
+
+
+class TestStateMismatchGuard:
+    """A `new` site that already has WordPress must be refused, not overwritten."""
+
+    def _run(self, state: str, installed: bool):
+        import sys
+        from pathlib import Path as _P
+        sys.path.insert(0, str(_P(__file__).resolve().parents[1] / "src"))
+        from rep.config import Site
+        from rep.cpanel import CpanelClient
+        from rep.provision import provision_site
+        import rep.wordpress as wpmod
+
+        runner = RecordingRunner()
+        cp = CpanelClient(host="192.0.2.1", user="cp", token="t", dry_run=True)
+        site = Site(domain="example.com", state=state, title="X")
+
+        original = wpmod.WpSite.is_installed
+        wpmod.WpSite.is_installed = lambda self: installed
+        try:
+            return provision_site(
+                site, cp, runner, "/home/cp", {"example.com"}, None,
+                domains_known=True, do_listings=False,
+            )
+        finally:
+            wpmod.WpSite.is_installed = original
+
+    def test_new_site_with_existing_wordpress_is_refused(self):
+        report = self._run("new", installed=True)
+        assert report.failed
+        state_step = next(s for s in report.steps if s.name == "state")
+        assert "already installed" in state_step.detail
+        # It must stop before doing anything else to the site.
+        assert not any(s.name in ("theme", "plugins", "settings") for s in report.steps)
+
+    def test_new_site_with_no_wordpress_proceeds(self):
+        report = self._run("new", installed=False)
+        assert not report.failed
+        assert any(s.name == "wordpress" for s in report.steps)
+
+    def test_live_site_with_existing_wordpress_proceeds(self):
+        report = self._run("live", installed=True)
+        assert not report.failed
+        assert not any(s.name == "state" for s in report.steps)

@@ -10,16 +10,19 @@ checks what is already there before changing anything.
 
 ## The sites
 
-| Domain | State | Purpose |
+States below are what `bin/survey` found on 2026-08-29, not assumptions.
+See [docs/SITE-SURVEY.md](docs/SITE-SURVEY.md) for the detail.
+
+| Domain | State | What is actually there |
 | --- | --- | --- |
-| pattayahomespro.com | live | Pattaya property |
-| secondpassportpro.com | live | Residency / second citizenship |
-| moveinthailand.com | live | Relocation and visas |
-| secondhomethailand.com | new | Second homes |
-| mysecondhomepro.com | new | Buying abroad |
-| propertiesshare.com | new | Shared / fractional ownership |
-| thaihomespro.com | new | Thailand-wide property |
-| pattayahomepro.com | new | Pattaya property |
+| pattayahomespro.com | live | Real-estate site, published listings |
+| secondpassportpro.com | live | Visa / immigration site |
+| moveinthailand.com | live | Relocation site |
+| secondhomethailand.com | live | Installed but unfinished |
+| mysecondhomepro.com | live | Installed but unfinished |
+| propertiesshare.com | new | Does not resolve |
+| thaihomespro.com | new | **Exposed CMS installer — see the survey** |
+| pattayahomepro.com | live | Real-estate site, published listings |
 
 `live` means WordPress is already installed and we only configure it.
 `new` means the domain and WordPress still have to be created.
@@ -49,11 +52,17 @@ The toolkit also refuses to install its listing content type if the site
 already runs a plugin registering a `listing` post type, rather than
 colliding with it.
 
+And it does not trust `state:` blindly. If a domain marked `new` turns out to
+have WordPress installed, provisioning stops and asks a human to reconcile it
+rather than writing over the site. Four of these eight domains were originally
+mis-labelled `new`, so this guard is not hypothetical.
+
 ## Quick start
 
 ```bash
 pip install -r requirements.txt
 
+./bin/survey                           # what is actually on these domains?
 cp config/.env.example config/.env     # then fill it in -- see SETUP.md
 ./bin/check                            # prove the credentials work
 ./bin/provision thaihomespro.com       # dry run: prints the plan, changes nothing
@@ -67,6 +76,7 @@ add `--apply`. Read the plan first; it is short.
 
 | Command | What it does |
 | --- | --- |
+| `bin/survey` | Checks what is actually served at each domain, from its public homepage. No credentials. Run this first. |
 | `bin/check` | Preflight. Validates config, tests cPanel + SSH, reports per-site readiness. Read-only. |
 | `bin/inspect-csv <file>` | Shows how a listings CSV will be read: which columns were understood, which were not, and a preview of the first rows. Touches no server. |
 | `bin/provision <domain>` | Provisions one site. Add `--apply` to make it real. |
@@ -137,6 +147,7 @@ src/rep/       the implementation
   ssh.py         SSH/SFTP transport
   wordpress.py   WP-CLI driver -- install and configure
   listings.py    CSV parsing and column matching
+  survey.py      fingerprints a public site (theme, plugins, installers)
   provision.py   orchestrates the steps above
 wp/            code that runs inside WordPress
 data/          your CSV exports (gitignored)

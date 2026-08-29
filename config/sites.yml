@@ -43,10 +43,11 @@ defaults:
 # ---------------------------------------------------------------------------
 
 sites:
-  # Observed live on 2026-08-29 (from the public site, not from cPanel):
-  #   theme:   real-estate-golden
-  #   plugins: wdk-listing (property listings), cookieadmin-pro
-  #   content: real property listings already published, prices shown in USD
+  # Surveyed 2026-08-29 (bin/survey -- public assets, not cPanel):
+  #   WordPress 7.1, theme `nexproperty`
+  #   listings run on essential-real-estate + wpdirectorykit
+  #   also: elementor, elementinvader, classified-ads, bikit-business-directory
+  #   real property listings already published
   # Because this site is `live`, it inherits NOTHING from `defaults` above:
   # no theme change, no plugin installs, no indexing change. Anything you want
   # applied here has to be written on this entry explicitly.
@@ -83,24 +84,34 @@ sites:
       csv: ""
       filter: {}
 
+  # Surveyed 2026-08-29: WordPress IS installed -- theme `blocksy`, All in One
+  # SEO. The homepage was serving an unrelated cleaning-service template, so
+  # the install exists but was never finished. NOT an empty domain.
   - domain: secondhomethailand.com
-    state: new
-    title: "Second Home Thailand"
-    tagline: "Your second home in the Kingdom"
+    state: live
+    title: ""
+    tagline: ""
     logo: ""
     listings:
       csv: ""
       filter: {}
 
+  # Surveyed 2026-08-29: WordPress 6.9.7, theme `tourze-lite` (a travel
+  # theme) with placeholder content. Plugins gutenverse, ibtana-visual-editor
+  # and hostinger-reach. An unfinished install, not an empty domain.
   - domain: mysecondhomepro.com
-    state: new
-    title: "My Second Home Pro"
-    tagline: "Buying abroad, handled properly"
+    state: live
+    title: ""
+    tagline: ""
     logo: ""
     listings:
       csv: ""
       filter: {}
 
+  # Surveyed 2026-08-29: does not resolve. Either the domain is
+  # not registered, or its nameservers are not pointed at the host yet. This
+  # is the only genuinely empty one -- and DNS has to resolve before AutoSSL
+  # can issue a certificate for it.
   - domain: propertiesshare.com
     state: new
     title: "Properties Share"
@@ -110,6 +121,11 @@ sites:
       csv: ""
       filter: {}
 
+  # Surveyed 2026-08-29: NOT WordPress. It is serving the public installer of
+  # a CodeCanyon PHP CMS -- a "System configuration" page asking for admin
+  # credentials and MySQL details. See docs/SITE-SURVEY.md; this needs dealing
+  # with before anything else. Left as `new` because there is no WordPress to
+  # protect, but do not provision over it until the installer is removed.
   - domain: thaihomespro.com
     state: new
     title: "Thai Homes Pro"
@@ -119,10 +135,16 @@ sites:
       csv: ""
       filter: {}
 
+  # Surveyed 2026-08-29: a FULLY LIVE real estate site -- "Pattaya Home Pro -
+  # Find the best homes in Pattaya, Best Deals in 2026" -- with real listings
+  # priced in baht, area guides and staff profiles. WordPress 7.1, theme
+  # `hello-elementor`, running elementor-pro + essential-real-estate +
+  # wpdirectorykit. This was wrongly marked `new`; provisioning it as such
+  # would have replaced its theme and rewritten every URL.
   - domain: pattayahomepro.com
-    state: new
-    title: "Pattaya Home Pro"
-    tagline: "Pattaya property specialists"
+    state: live
+    title: ""
+    tagline: ""
     logo: ""
     listings:
       csv: ""

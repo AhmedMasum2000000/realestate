@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Check what is actually being served at each domain, before provisioning.
+
+    bin/survey                     # every site in sites.yml
+    bin/survey thaihomespro.com    # just one
+
+Reads only the public homepage of each domain -- no credentials, no SSH,
+nothing written anywhere. Its job is to catch a `state:` in sites.yml that no
+longer matches reality, because treating a live site as empty is how a working
+site gets overwritten.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from rep.cli import load_or_die, pick_site  # noqa: E402
+from rep.survey import survey  # noqa: E402
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(prog="bin/survey", description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("domain", nargs="?", help="check just this one site")
+    args = parser.parse_args()
+
+    sites, _ = load_or_die()
+    targets = [pick_site(sites, args.domain)] if args.domain else sites
+
+    mismatches: list[str] = []
+    alerts: list[str] = []
+
+    for site in targets:
+        facts = survey(site.domain)
+        print(f"\n{site.domain}")
+        print("-" * len(site.domain))
+        print(f"  verdict:   {facts.verdict}")
+        if facts.error:
+            print(f"  error:     {facts.error[:120]}")
+        if facts.title:
+            print(f"  title:     {facts.title}")
+        if facts.generator:
+            print(f"  generator: {facts.generator}")
+        if facts.theme:
+            print(f"  theme:     {facts.theme}")
+        if facts.plugins:
+            print(f"  plugins:   {', '.join(facts.plugins)}")
+
+        if facts.installer_exposed:
+            alerts.append(
+                f"{site.domain}: a public installer/setup page is exposed. Anyone "
+                f"who loads it can complete the install and own the site."
+            )
+
+        # Only flag the dangerous direction: config says empty, reality says not.
+        if facts.is_wordpress and site.is_new:
+            mismatches.append(
+                f"{site.domain}: sites.yml says `state: new` but WordPress is "
+                f"live here. Set `state: live` before provisioning."
+            )
+
+        print(f"  sites.yml: state={site.state}   (survey suggests: {facts.expected_state})")
+
+    print("\n" + "=" * 60)
+    for alert in alerts:
+        print(f"  [SECURITY] {alert}")
+    for m in mismatches:
+        print(f"  [MISMATCH] {m}")
+    if not alerts and not mismatches:
+        print("  No mismatches. sites.yml agrees with what is being served.")
+    print()
+    return 1 if (alerts or mismatches) else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -132,6 +132,23 @@ def provision_site(
     wp.ensure_wp_cli(server_home)
     already_installed = wp.is_installed()
 
+    # Trust the server over sites.yml. A domain marked `new` that already has
+    # WordPress on it is live, whatever the config claims -- and applying
+    # build-time defaults to it would replace its theme, activate plugins on
+    # production and rewrite its URLs. A stale `state:` is exactly how that
+    # happens, so stop and make a human reconcile it rather than guessing.
+    if already_installed and site.is_new:
+        report.add(
+            "state",
+            "failed",
+            "sites.yml says `state: new`, but WordPress is already installed "
+            f"at {docroot}. Refusing to touch it. If this site is meant to be "
+            "kept, set `state: live` for it in config/sites.yml and re-run; if "
+            "it is meant to be replaced, take a backup and remove the existing "
+            "install by hand first.",
+        )
+        return report
+
     if already_installed:
         report.add("database", "skipped", "WordPress already connected to its DB")
         db_password = ""
