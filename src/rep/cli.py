@@ -9,7 +9,9 @@ from .config import (
     REQUIRED_FOR_CPANEL,
     REQUIRED_FOR_SSH,
     ConfigError,
+    Host,
     Site,
+    load_all,
     load_env,
     load_sites,
     missing_keys,
@@ -34,6 +36,14 @@ def load_or_die() -> tuple[list[Site], dict[str, str]]:
         die(str(exc))
 
 
+def load_all_or_die() -> tuple[list[Site], dict[str, Host], dict[str, str]]:
+    try:
+        sites, hosts = load_all()
+        return sites, hosts, load_env()
+    except ConfigError as exc:
+        die(str(exc))
+
+
 def require_env(env: dict[str, str], keys: tuple[str, ...], purpose: str) -> None:
     missing = missing_keys(env, keys)
     if missing:
@@ -47,6 +57,48 @@ def require_env(env: dict[str, str], keys: tuple[str, ...], purpose: str) -> Non
 # They never reach the network: every mutating call is short-circuited by
 # dry_run, and the one read (list_domains) is allowed to fail.
 _PLACEHOLDER = "(not-set)"
+
+
+def make_clients(
+    host: Host, env: dict[str, str], dry_run: bool
+) -> tuple[CpanelClient | None, SshRunner]:
+    """Build the connections for one host.
+
+    Returns (cpanel_or_None, ssh). A host declared `kind: ssh` gets no cPanel
+    client at all -- the provisioner then does everything WP-CLI can do and
+    refuses only the steps that genuinely need a control panel.
+    """
+    ssh = SshRunner(
+        host=host.ssh_host or host.env_key("SSH_HOST", env) or _PLACEHOLDER,
+        user=host.ssh_user or host.env_key("SSH_USER", env) or _PLACEHOLDER,
+        port=host.ssh_port,
+        key_path=host.env_key("SSH_KEY_PATH", env),
+        password=host.env_key("SSH_PASSWORD", env),
+        dry_run=dry_run,
+    )
+    if not dry_run and ssh.host == _PLACEHOLDER:
+        die(
+            f"host {host.name!r}: no SSH host. Set ssh_host in sites.yml, or "
+            f"SSH_HOST_{host.name.upper()} (or SSH_HOST) in config/.env."
+        )
+
+    if not host.can_create_sites:
+        return None, ssh
+
+    cpanel = CpanelClient(
+        host=host.cpanel_host or host.env_key("CPANEL_HOST", env) or _PLACEHOLDER,
+        user=host.cpanel_user or host.env_key("CPANEL_USER", env) or _PLACEHOLDER,
+        token=host.env_key("CPANEL_API_TOKEN", env) or _PLACEHOLDER,
+        port=host.cpanel_port,
+        dry_run=dry_run,
+    )
+    if not dry_run and cpanel.token == _PLACEHOLDER:
+        die(
+            f"host {host.name!r}: no cPanel API token. Set "
+            f"CPANEL_API_TOKEN_{host.name.upper()} (or CPANEL_API_TOKEN) in "
+            f"config/.env, or mark this host `kind: ssh` if it has no cPanel."
+        )
+    return cpanel, ssh
 
 
 def make_cpanel(env: dict[str, str], dry_run: bool) -> CpanelClient:

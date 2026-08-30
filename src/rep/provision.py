@@ -85,7 +85,7 @@ def write_secret(filename: str, lines: list[str]) -> Path:
 
 def provision_site(
     site: Site,
-    cp: CpanelClient,
+    cp: CpanelClient | None,
     runner: SshRunner,
     server_home: str,
     existing_domains: set[str],
@@ -96,12 +96,25 @@ def provision_site(
     sideload_images: bool = False,
 ) -> SiteReport:
     report = SiteReport(domain=site.domain)
-    dry = cp.dry_run
+    dry = cp.dry_run if cp is not None else runner.dry_run
     docroot = resolve_docroot(site, server_home, existing_domains, main_domain)
+
+    # Without a control panel we can still do everything WP-CLI can: settings,
+    # theme, plugins, branding, content types, listings. What we cannot do is
+    # conjure a domain or a database. That only matters for a site that does
+    # not exist yet, which is the minority case here.
+    panel = cp is not None
 
     # -- 1. domain ----------------------------------------------------------
     if site.domain in existing_domains:
         report.add("domain", "skipped", f"already on the account -> {docroot}")
+    elif not panel:
+        report.add(
+            "domain",
+            "skipped",
+            "no control panel for this host; assuming the domain already "
+            "resolves here (it cannot be created without one)",
+        )
     elif not domains_known:
         # We could not ask cPanel what it serves, so we cannot contradict
         # sites.yml. Report what we would do and move on.
@@ -119,12 +132,14 @@ def provision_site(
         )
         return report
     else:
+        assert cp is not None
         subdomain = site.domain.split(".")[0]
         cp.add_addon_domain(site.domain, docroot, subdomain)
         report.add("domain", "planned" if dry else "done", f"addon domain -> {docroot}")
 
     # -- 2. database --------------------------------------------------------
-    db_name, db_user = db_names(cp.user, site.slug)
+    db_prefix = db_prefix_for(cp, site)
+    db_name, db_user = db_names(db_prefix, site.slug) if db_prefix else ("", "")
     wp = WpSite(runner=runner, docroot=docroot)
     # WP-CLI has to exist before is_installed() can mean anything: a missing
     # `wp` binary would look identical to a missing WordPress, and we would
@@ -152,7 +167,17 @@ def provision_site(
     if already_installed:
         report.add("database", "skipped", "WordPress already connected to its DB")
         db_password = ""
+    elif not panel:
+        report.add(
+            "database",
+            "failed",
+            "this host has no control panel, so a database cannot be created "
+            "here, and WordPress is not installed yet. Either install "
+            "WordPress once by hand, or give this host `kind: cpanel`.",
+        )
+        return report
     else:
+        assert cp is not None
         existing_dbs = set() if dry else set(cp.list_databases())
         existing_users = set() if dry else set(cp.list_database_users())
         db_password = generate_password()
@@ -316,6 +341,11 @@ def provision_site(
             report.add("listings", "planned" if dry else "done", detail)
 
     return report
+
+
+def db_prefix_for(cp: CpanelClient | None, site: Site) -> str:
+    """The prefix cPanel/MySQL will put in front of database and user names."""
+    return cp.user if cp is not None else ""
 
 
 def _push_listings(

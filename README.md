@@ -108,6 +108,35 @@ Useful flags on `provision`:
    duplicating them.
 9. **SSL** — asks AutoSSL to issue certificates for anything newly created.
 
+## Hosts
+
+Sites do not have to be on the same server. `hosts:` in `config/sites.yml`
+names each one, and each site says which it is on.
+
+A host is one of two kinds:
+
+| kind | Can do | Needs |
+| --- | --- | --- |
+| `cpanel` | Everything, including creating domains and databases | cPanel API token + SSH |
+| `ssh` | Everything WP-CLI can do on a site that already exists | SSH only |
+
+**Most of the work needs no control panel.** Settings, theme, plugins, logo,
+the listing content type and the CSV import all run over SSH and WP-CLI, which
+work the same on cPanel, Hostinger, Plesk or a plain VPS. cPanel is required
+for exactly two things: creating a domain that does not exist yet, and creating
+a database for a fresh WordPress install.
+
+Seven of these eight domains already exist, so for them cPanel is needed for
+nothing but requesting an SSL certificate.
+
+If a site is on a host with no cPanel API, mark that host `kind: ssh`. The
+toolkit then skips the two steps it cannot do, says so plainly, and runs the
+rest. It refuses only one thing: installing WordPress from scratch on a host
+where it cannot create a database.
+
+Credentials are per host. `SSH_KEY_PATH` applies everywhere;
+`SSH_KEY_PATH_HOSTINGER` overrides it for the host named `hostinger`.
+
 ## Configuration
 
 Everything you routinely change lives in `config/sites.yml`: titles, taglines,

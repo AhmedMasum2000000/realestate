@@ -14,65 +14,75 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from rep.cli import banner, load_or_die, make_cpanel, make_ssh, server_home  # noqa: E402
-from rep.config import REQUIRED_FOR_CPANEL, REQUIRED_FOR_SSH, missing_keys  # noqa: E402
+from rep.cli import banner, load_all_or_die, make_clients  # noqa: E402
 from rep.cpanel import CpanelError  # noqa: E402
 from rep.listings import load_csv  # noqa: E402
 from rep.ssh import HAVE_PARAMIKO, SshError  # noqa: E402
 
 
 def main() -> int:
-    sites, env = load_or_die()
+    sites, hosts, env = load_all_or_die()
     problems: list[str] = []
 
     banner("1. Config")
-    print(f"  [+] config/sites.yml parsed -- {len(sites)} sites")
+    print(f"  [+] config/sites.yml parsed -- {len(sites)} sites across {len(hosts)} host(s)")
     for site in sites:
-        print(f"      - {site.domain:26} state={site.state:5} title={site.title!r}")
+        print(f"      - {site.domain:26} state={site.state:5} host={site.host}")
 
-    banner("2. Credentials")
-    cp_missing = missing_keys(env, REQUIRED_FOR_CPANEL)
-    ssh_missing = missing_keys(env, REQUIRED_FOR_SSH)
-    if cp_missing:
-        print(f"  [!] cPanel: missing {', '.join(cp_missing)} in config/.env")
-        problems.append("cPanel credentials incomplete")
-    else:
-        print(f"  [+] cPanel: {env['CPANEL_USER']}@{env['CPANEL_HOST']}:{env.get('CPANEL_PORT', 2083)}")
-    if ssh_missing:
-        print(f"  [!] SSH: missing {', '.join(ssh_missing)} in config/.env")
-        problems.append("SSH credentials incomplete")
-    else:
-        auth = "key" if env.get("SSH_KEY_PATH") else "password" if env.get("SSH_PASSWORD") else "NONE"
-        print(f"  [+] SSH: {env['SSH_USER']}@{env['SSH_HOST']}:{env.get('SSH_PORT', 22)} (auth: {auth})")
-        if auth == "NONE":
-            problems.append("SSH has neither SSH_KEY_PATH nor SSH_PASSWORD")
-    if not HAVE_PARAMIKO:
-        print("  [.] paramiko not installed -- will shell out to the `ssh` binary")
-
-    banner("3. cPanel connection")
     account_domains: set[str] = set()
-    if cp_missing:
-        print("  [.] skipped -- no credentials")
-    else:
-        try:
-            cp = make_cpanel(env, dry_run=False)
-            data = cp.list_domains()
-            account_domains = cp.all_domains()
-            print(f"  [+] connected. main domain: {data.get('main_domain')}")
-            print(f"      {len(account_domains)} domains on this account")
-        except CpanelError as exc:
-            print(f"  [!] {exc}")
-            problems.append("cannot reach cPanel")
 
-    banner("4. SSH connection")
-    if ssh_missing:
-        print("  [.] skipped -- no credentials")
-    else:
+    for name, host in hosts.items():
+        used_by = [s for s in sites if s.host == name]
+        if not used_by:
+            continue
+
+        banner(f"2. Host: {name} ({host.kind}) -- {len(used_by)} site(s)")
+
+        ssh_host = host.ssh_host or host.env_key("SSH_HOST", env)
+        ssh_user = host.ssh_user or host.env_key("SSH_USER", env)
+        key = host.env_key("SSH_KEY_PATH", env)
+        password = host.env_key("SSH_PASSWORD", env)
+
+        if not ssh_host or not ssh_user:
+            print(f"  [!] SSH: set ssh_host/ssh_user in sites.yml, or "
+                  f"SSH_HOST_{name.upper()} / SSH_USER_{name.upper()} in config/.env")
+            problems.append(f"host {name}: SSH connection details missing")
+            continue
+
+        auth = "key" if key else "password" if password else "NONE"
+        print(f"  [+] SSH: {ssh_user}@{ssh_host}:{host.ssh_port} (auth: {auth})")
+        if auth == "NONE":
+            problems.append(f"host {name}: neither SSH_KEY_PATH nor SSH_PASSWORD set")
+            continue
+
+        if host.kind == "ssh":
+            print("  [.] no control panel on this host -- domains and databases")
+            print("      cannot be created here; everything else still runs")
+        elif not host.env_key("CPANEL_API_TOKEN", env):
+            print(f"  [!] cPanel: no API token. Set CPANEL_API_TOKEN_{name.upper()} "
+                  f"(or CPANEL_API_TOKEN) in config/.env")
+            problems.append(f"host {name}: cPanel API token missing")
+
         try:
-            runner = make_ssh(env, dry_run=False)
+            cp, runner = make_clients(host, env, dry_run=False)
+        except SystemExit:
+            problems.append(f"host {name}: could not build a connection")
+            continue
+
+        if cp is not None:
+            try:
+                data = cp.list_domains()
+                account_domains |= cp.all_domains()
+                print(f"  [+] cPanel reachable. main domain: {data.get('main_domain')}")
+                print(f"      {len(account_domains)} domains on this account")
+            except CpanelError as exc:
+                print(f"  [!] cPanel: {exc}")
+                problems.append(f"host {name}: cannot reach cPanel")
+
+        try:
             with runner:
                 home = runner.run("pwd").check().stdout.strip()
-                print(f"  [+] connected. home: {home}")
+                print(f"  [+] SSH connected. home: {home}")
                 wp = runner.run("command -v wp")
                 if wp.ok:
                     version = runner.run("wp --version --allow-root").stdout.strip()
@@ -80,10 +90,10 @@ def main() -> int:
                 else:
                     print("  [.] WP-CLI not on PATH -- provision will install it to ~/bin")
         except SshError as exc:
-            print(f"  [!] {exc}")
-            problems.append("cannot reach the server over SSH")
+            print(f"  [!] SSH: {exc}")
+            problems.append(f"host {name}: cannot connect over SSH")
 
-    banner("5. Per-site readiness")
+    banner("3. Per-site readiness")
     for site in sites:
         flags: list[str] = []
         on_account = site.domain in account_domains if account_domains else None

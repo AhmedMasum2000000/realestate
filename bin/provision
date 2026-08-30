@@ -17,9 +17,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+from itertools import groupby  # noqa: E402
+
 from rep.cli import (  # noqa: E402
-    add_common_args, banner, die, load_or_die, make_cpanel, make_ssh,
-    pick_site, server_home,
+    add_common_args, banner, die, load_all_or_die, make_clients, pick_site,
 )
 from rep.cpanel import CpanelError  # noqa: E402
 from rep.provision import SiteReport, provision_site, write_secret  # noqa: E402
@@ -71,7 +72,7 @@ def print_report(report: SiteReport) -> None:
 
 def main() -> int:
     args = parse_args()
-    sites, env = load_or_die()
+    sites, hosts, env = load_all_or_die()
 
     targets = sites if args.all else [pick_site(sites, args.domain)]
     dry = not args.apply
@@ -83,49 +84,65 @@ def main() -> int:
         print("  WordPress installed? does the database exist?) cannot be checked")
         print("  in a dry run, so they show as planned. A real run skips them.")
 
-    try:
-        cp = make_cpanel(env, dry_run=dry)
-        runner = make_ssh(env, dry_run=dry)
-    except SystemExit:
-        raise
-
-    home = server_home(env, dry_run=dry)
-
-    # One read of the account's domain list, shared across sites.
-    existing: set[str] = set()
-    main_domain: str | None = None
-    domains_known = True
-    try:
-        data = cp.list_domains()
-        main_domain = (data.get("main_domain") or "").lower() or None
-        existing = cp.all_domains()
-        print(f"  cPanel account serves {len(existing)} domains; main = {main_domain}")
-    except CpanelError as exc:
-        if not dry:
-            die(f"could not read the domain list from cPanel.\n       {exc}")
-        domains_known = False
-        print(f"  [.] cPanel not reachable yet -- {exc}")
-        print("      Continuing anyway: a dry run is meant to be readable before")
-        print("      credentials exist. Every site is treated as not-yet-created.")
-
     reports: list[SiteReport] = []
-    try:
-        with runner:
-            for site in targets:
-                try:
-                    report = provision_site(
-                        site, cp, runner, home, existing, main_domain,
-                        domains_known=domains_known,
-                        do_listings=not args.no_listings,
-                        sideload_images=args.sideload_images,
+    ssl_wanted: list[tuple[object, str]] = []
+
+    # Sites are grouped by host so each server is connected to once, and so a
+    # host with no control panel simply gets a narrower set of steps rather
+    # than blocking the whole run.
+    targets = sorted(targets, key=lambda s: s.host)
+    for host_name, group in groupby(targets, key=lambda s: s.host):
+        group = list(group)
+        host = hosts[host_name]
+        cp, runner = make_clients(host, env, dry_run=dry)
+        home = host.resolved_home(env) or "/home/(unset)"
+
+        banner(f"host: {host_name} ({host.kind}) -- {len(group)} site(s)")
+        if cp is None:
+            print("  No control panel on this host. Domains and databases cannot")
+            print("  be created here; everything WP-CLI can do still runs.")
+
+        existing: set[str] = set()
+        main_domain: str | None = None
+        domains_known = False
+        if cp is not None:
+            try:
+                data = cp.list_domains()
+                main_domain = (data.get("main_domain") or "").lower() or None
+                existing = cp.all_domains()
+                domains_known = True
+                print(f"  cPanel serves {len(existing)} domains; main = {main_domain}")
+            except CpanelError as exc:
+                if not dry:
+                    die(f"could not read the domain list from cPanel.\n       {exc}")
+                print(f"  [.] cPanel not reachable yet -- {exc}")
+                print("      Continuing: a dry run is meant to be readable before")
+                print("      credentials exist.")
+
+        try:
+            with runner:
+                for site in group:
+                    try:
+                        report = provision_site(
+                            site, cp, runner, home, existing, main_domain,
+                            domains_known=domains_known,
+                            do_listings=not args.no_listings,
+                            sideload_images=args.sideload_images,
+                        )
+                    except (CpanelError, SshError) as exc:
+                        report = SiteReport(domain=site.domain)
+                        report.add("aborted", "failed", str(exc))
+                    reports.append(report)
+                    print_report(report)
+
+                    made_domain = any(
+                        s.name == "domain" and s.status in ("done", "planned")
+                        for s in report.steps
                     )
-                except (CpanelError, SshError) as exc:
-                    report = SiteReport(domain=site.domain)
-                    report.add("aborted", "failed", str(exc))
-                reports.append(report)
-                print_report(report)
-    finally:
-        runner.close()
+                    if made_domain and cp is not None:
+                        ssl_wanted.append((cp, host_name))
+        finally:
+            runner.close()
 
     # -- credentials --------------------------------------------------------
     secret_lines: list[str] = []
@@ -144,17 +161,13 @@ def main() -> int:
         print("  This file is gitignored. Move them into your password manager, then delete it.")
 
     # -- SSL ----------------------------------------------------------------
-    created_domains = [
-        r for r in reports
-        if any(s.name == "domain" and s.status in ("done", "planned") for s in r.steps)
-    ]
-    if created_domains:
+    for cp, host_name in {id(c): (c, n) for c, n in ssl_wanted}.values():
         try:
             cp.request_autossl()
-            print(f"\n  AutoSSL requested for the account "
+            print(f"\n  AutoSSL requested on {host_name} "
                   f"({'would be' if dry else 'certificates usually land within ~15 minutes'}).")
         except CpanelError as exc:
-            print(f"\n  [!] AutoSSL request failed: {exc}")
+            print(f"\n  [!] AutoSSL request failed on {host_name}: {exc}")
             print("      Not fatal -- issue certificates from cPanel -> SSL/TLS Status.")
 
     banner("Result")

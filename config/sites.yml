@@ -1,4 +1,35 @@
 # ---------------------------------------------------------------------------
+# Hosts. Which server each site lives on.
+#
+#   kind: cpanel  -- full control. Can create domains, databases and request
+#                    AutoSSL, as well as everything WP-CLI does.
+#   kind: ssh     -- SSH and WP-CLI only. Enough to configure, brand and
+#                    populate a WordPress site that ALREADY exists. Cannot
+#                    create a domain or a database. Use this for Hostinger,
+#                    Plesk, a plain VPS -- anything without a cPanel API.
+#
+# Secrets never live here. They come from config/.env, suffixed with the host
+# name, e.g. SSH_KEY_PATH_HOSTINGER. Anything unsuffixed (SSH_KEY_PATH) is used
+# as the fallback for every host, so a single-server setup needs no suffixes.
+#
+# The survey on 2026-08-29 found the `hostinger-reach` plugin on
+# secondpassportpro.com and mysecondhomepro.com, which Hostinger installs on
+# its own hosting. If those really are on Hostinger, set `host: hostinger` on
+# them below -- everything except domain and database creation still works.
+# ---------------------------------------------------------------------------
+
+hosts:
+  default:
+    kind: cpanel
+    # ssh_host / cpanel_host / home are read from config/.env when blank.
+
+  hostinger:
+    kind: ssh
+    # ssh_host: 123.45.67.89
+    # ssh_user: u123456789
+    # home: /home/u123456789
+
+# ---------------------------------------------------------------------------
 # Site inventory. This is the ONE file you edit to change what gets built.
 # Everything in bin/ reads from here. No credentials live in this file --
 # those go in config/.env (see config/.env.example).

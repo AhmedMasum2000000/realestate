@@ -30,6 +30,84 @@ class ConfigError(Exception):
     """Raised when sites.yml or .env is wrong in a way we can explain."""
 
 
+VALID_HOST_KINDS = {"cpanel", "ssh"}
+
+
+@dataclass
+class Host:
+    """A server one or more sites live on.
+
+    `kind` decides what we can do there:
+      cpanel -- full control: create domains, databases, request AutoSSL
+      ssh    -- SSH and WP-CLI only. Enough to configure, brand and populate a
+                WordPress site that already exists; not enough to create one.
+
+    Non-secret fields live in sites.yml. Secrets come from the environment,
+    suffixed with the host name (SSH_KEY_PATH_HOSTINGER), falling back to the
+    bare name (SSH_KEY_PATH) so a single-host setup needs no suffixes.
+    """
+
+    name: str = "default"
+    kind: str = "cpanel"
+    ssh_host: str = ""
+    ssh_user: str = ""
+    ssh_port: int = 22
+    home: str = ""
+    cpanel_host: str = ""
+    cpanel_user: str = ""
+    cpanel_port: int = 2083
+    db_prefix: str = ""
+
+    @property
+    def can_create_sites(self) -> bool:
+        """Whether this host can make a domain and database from nothing."""
+        return self.kind == "cpanel"
+
+    def env_key(self, base: str, env: dict[str, str]) -> str:
+        """Look up `base` for this host, falling back to the unsuffixed name."""
+        suffixed = f"{base}_{self.name.upper().replace('-', '_')}"
+        return env.get(suffixed) or env.get(base, "")
+
+    def resolved_home(self, env: dict[str, str]) -> str:
+        home = self.home or self.env_key("SERVER_HOME", env)
+        if home:
+            return home
+        user = self.ssh_user or self.env_key("SSH_USER", env) or self.cpanel_user
+        return f"/home/{user}" if user else ""
+
+
+def _load_hosts(doc: dict[str, Any]) -> dict[str, Host]:
+    raw = doc.get("hosts") or {}
+    if not isinstance(raw, dict):
+        raise ConfigError("`hosts:` must be a mapping of name -> settings")
+
+    hosts: dict[str, Host] = {}
+    for name, body in raw.items():
+        body = dict(body or {})
+        kind = str(body.get("kind", "cpanel")).strip().lower()
+        if kind not in VALID_HOST_KINDS:
+            raise ConfigError(
+                f"host {name!r}: kind is {kind!r}, expected one of "
+                f"{sorted(VALID_HOST_KINDS)}"
+            )
+        hosts[str(name)] = Host(
+            name=str(name),
+            kind=kind,
+            ssh_host=str(body.get("ssh_host") or ""),
+            ssh_user=str(body.get("ssh_user") or ""),
+            ssh_port=int(body.get("ssh_port") or 22),
+            home=str(body.get("home") or ""),
+            cpanel_host=str(body.get("cpanel_host") or ""),
+            cpanel_user=str(body.get("cpanel_user") or ""),
+            cpanel_port=int(body.get("cpanel_port") or 2083),
+            db_prefix=str(body.get("db_prefix") or ""),
+        )
+
+    # A config with no `hosts:` block still works: one cPanel host from .env.
+    hosts.setdefault("default", Host(name="default", kind="cpanel"))
+    return hosts
+
+
 @dataclass
 class Brand:
     primary_color: str = "#1a3a5c"
@@ -69,6 +147,7 @@ class Site:
     wp: dict[str, Any] = field(default_factory=dict)
     theme: dict[str, Any] = field(default_factory=dict)
     plugins: list[str] = field(default_factory=list)
+    host: str = "default"
 
     @property
     def is_new(self) -> bool:
@@ -155,6 +234,7 @@ def _merge_defaults(defaults: dict[str, Any], raw: dict[str, Any]) -> Site:
     return Site(
         domain=domain,
         state=state,
+        host=str(raw.get("host") or "default"),
         title=title,
         tagline=str(raw.get("tagline") or ""),
         brand=brand,
@@ -165,16 +245,34 @@ def _merge_defaults(defaults: dict[str, Any], raw: dict[str, Any]) -> Site:
     )
 
 
+def load_all(path: Path | None = None) -> tuple[list[Site], dict[str, Host]]:
+    """Parse sites.yml into Sites plus the hosts they live on."""
+    sites = load_sites(path)
+    doc = _read_doc(path or SITES_FILE)
+    hosts = _load_hosts(doc)
+    for site in sites:
+        if site.host not in hosts:
+            known = ", ".join(sorted(hosts))
+            raise ConfigError(
+                f"{site.domain}: host {site.host!r} is not defined. "
+                f"Add it under `hosts:` in sites.yml. Known hosts: {known}"
+            )
+    return sites, hosts
+
+
+def _read_doc(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        raise ConfigError(f"missing {path}. Copy it from the repo or re-clone.")
+    try:
+        return yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except yaml.YAMLError as exc:
+        raise ConfigError(f"{path} is not valid YAML: {exc}") from exc
+
+
 def load_sites(path: Path | None = None) -> list[Site]:
     """Parse sites.yml into Site objects, or raise ConfigError with a fix."""
     path = path or SITES_FILE
-    if not path.exists():
-        raise ConfigError(f"missing {path}. Copy it from the repo or re-clone.")
-
-    try:
-        doc = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    except yaml.YAMLError as exc:
-        raise ConfigError(f"{path} is not valid YAML: {exc}") from exc
+    doc = _read_doc(path)
 
     defaults = dict(doc.get("defaults") or {})
     raw_sites = doc.get("sites") or []

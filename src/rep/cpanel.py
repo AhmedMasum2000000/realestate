@@ -157,12 +157,13 @@ class CpanelClient:
 _DB_SUFFIX_MAX = 16
 
 
-def db_names(cpanel_user: str, site_slug: str) -> tuple[str, str]:
+def db_names(prefix_user: str, site_slug: str) -> tuple[str, str]:
     """Return (database, db_user) as cPanel will actually store them.
 
     The TLD is dropped -- it carries no information here and only eats into the
     64-char budget, which cPanel enforces after prefixing "<cpuser>_".
     """
+    cpanel_user = prefix_user
     parts = [p for p in site_slug.split("_") if p]
     if len(parts) > 1:
         parts = parts[:-1]  # drop the TLD component
