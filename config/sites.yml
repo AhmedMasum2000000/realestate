@@ -58,6 +58,18 @@ defaults:
     - wp-super-cache
     - wordfence
 
+  # Starter pages for a NEW site. A fresh WordPress install otherwise shows a
+  # sample post and nothing else. `front: true` becomes the homepage,
+  # `posts: true` becomes the blog index, `menu: false` keeps a page out of the
+  # navigation. Live sites inherit none of this -- pages are never added to a
+  # site that already has content.
+  pages:
+    - {title: "Home", slug: home, front: true}
+    - {title: "Properties", slug: properties}
+    - {title: "About", slug: about}
+    - {title: "Contact", slug: contact}
+    - {title: "Blog", slug: blog, posts: true}
+
   # Applied to every site unless overridden below.
   brand:
     primary_color: "#1a3a5c"

@@ -99,14 +99,19 @@ Useful flags on `provision`:
    indexing is left **off** until you set `public: true` in `config/sites.yml`.
 5. **Theme and plugins** — installs the theme, builds a child theme so your
    edits survive updates, installs and activates the plugin list.
-6. **Branding** — uploads the logo and sets it as the site logo and favicon.
-7. **Listing content type** — installs `wp/mu-plugin/casa-listings.php` as a
+6. **Starter pages** — creates Home, Properties, About, Contact and Blog,
+   makes Home the homepage instead of the post feed, and builds a navigation
+   menu assigned to the theme's primary location. Without this a freshly
+   provisioned site shows a sample post and nothing else. Live sites get none
+   of it — pages are never added to a site that already has content.
+7. **Branding** — uploads the logo and sets it as the site logo and favicon.
+8. **Listing content type** — installs `wp/mu-plugin/casa-listings.php` as a
    must-use plugin, registering the `listing` post type with locations,
    property types and features.
-8. **Listings** — parses the CSV and imports it. Listings are matched on their
+9. **Listings** — parses the CSV and imports it. Listings are matched on their
    reference, so re-importing an updated export **updates** rows rather than
    duplicating them.
-9. **SSL** — asks AutoSSL to issue certificates for anything newly created.
+10. **SSL** — asks AutoSSL to issue certificates for anything newly created.
 
 ## Hosts
 

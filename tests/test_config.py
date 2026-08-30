@@ -296,3 +296,39 @@ sites:
   - {domain: live.com, state: live, title: Live}
 """))
         assert live.wp == {}
+
+
+class TestStarterPages:
+    def test_new_site_inherits_starter_pages(self, tmp_path):
+        _, new = load_sites(write_sites(tmp_path, """
+defaults:
+  pages:
+    - {title: Home, slug: home, front: true}
+    - {title: About, slug: about}
+sites:
+  - {domain: live.com, state: live, title: L}
+  - {domain: new.com, state: new, title: N}
+"""))
+        assert [p["slug"] for p in new.pages] == ["home", "about"]
+
+    def test_live_site_never_inherits_pages(self, tmp_path):
+        live, _ = load_sites(write_sites(tmp_path, """
+defaults:
+  pages:
+    - {title: Home, slug: home, front: true}
+sites:
+  - {domain: live.com, state: live, title: L}
+  - {domain: new.com, state: new, title: N}
+"""))
+        assert live.pages == [], "would have added pages to a site with content"
+
+    def test_shipped_config_adds_no_pages_to_live_sites(self):
+        for site in load_sites():
+            if site.state == "live":
+                assert site.pages == [], f"{site.domain}: would gain pages"
+
+    def test_shipped_config_gives_new_sites_a_homepage(self):
+        for site in load_sites():
+            if site.state == "new":
+                assert any(p.get("front") for p in site.pages), \
+                    f"{site.domain}: no page marked as the homepage"

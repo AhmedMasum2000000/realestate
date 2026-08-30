@@ -147,6 +147,7 @@ class Site:
     wp: dict[str, Any] = field(default_factory=dict)
     theme: dict[str, Any] = field(default_factory=dict)
     plugins: list[str] = field(default_factory=list)
+    pages: list[dict[str, Any]] = field(default_factory=list)
     host: str = "default"
 
     @property
@@ -220,6 +221,8 @@ def _merge_defaults(defaults: dict[str, Any], raw: dict[str, Any]) -> Site:
     theme = dict(defaults.get("theme") or {})
     theme.update(site_theme)
     plugins = list(site_plugins or defaults.get("plugins") or [])
+    site_pages = list(raw.get("pages") or [])
+    pages = list(site_pages or defaults.get("pages") or [])
 
     # The defaults block describes how to BUILD a new site. Inheriting it onto
     # a site that is already live would change things nobody asked to change:
@@ -230,6 +233,8 @@ def _merge_defaults(defaults: dict[str, Any], raw: dict[str, Any]) -> Site:
         wp = site_wp
         theme = site_theme
         plugins = site_plugins
+        # Never add pages to a site that already has content.
+        pages = site_pages
 
     return Site(
         domain=domain,
@@ -242,6 +247,7 @@ def _merge_defaults(defaults: dict[str, Any], raw: dict[str, Any]) -> Site:
         wp=wp,
         theme=theme,
         plugins=plugins,
+        pages=pages,
     )
 
 

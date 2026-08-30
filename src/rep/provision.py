@@ -274,7 +274,51 @@ def provision_site(
             + (f", {len(added)} newly installed" if added else ""),
         )
 
-    # -- 5. branding --------------------------------------------------------
+    # -- 5. starter pages and navigation ------------------------------------
+    # A fresh WordPress install shows a sample post and nothing else. Without
+    # this a "provisioned" site is not a site anyone would call live.
+    if not site.pages:
+        report.add("pages", "skipped", "none listed for this site")
+    else:
+        existing_slugs = wp.existing_page_slugs()
+        ids: dict[str, str] = {}
+        created = 0
+        for page in site.pages:
+            slug = str(page.get("slug") or "").strip()
+            title = str(page.get("title") or "").strip()
+            if not slug or not title:
+                continue
+            if slug in existing_slugs:
+                ids[slug] = wp.page_id(slug)
+                continue
+            ids[slug] = wp.create_page(title, slug, str(page.get("content") or ""))
+            created += 1
+
+        front = next((p for p in site.pages if p.get("front")), None)
+        posts = next((p for p in site.pages if p.get("posts")), None)
+        if front:
+            wp.set_front_page(
+                ids.get(str(front.get("slug")), ""),
+                ids.get(str(posts.get("slug")), "") if posts else "",
+            )
+
+        menu_pages = [
+            ids.get(str(p.get("slug")), "")
+            for p in site.pages
+            if p.get("menu", True)
+        ]
+        wp.build_menu(str(site.wp.get("menu_name") or "Primary"), menu_pages)
+
+        report.add(
+            "pages",
+            "planned" if dry else "done",
+            f"{len(site.pages)} pages"
+            + (f", {created} created" if created else ", all already present")
+            + (", homepage set" if front else "")
+            + ", menu assigned",
+        )
+
+    # -- 6. branding --------------------------------------------------------
     logo = site.brand.logo_path()
     if logo and logo.exists():
         wp.set_logo(logo)
@@ -284,7 +328,7 @@ def provision_site(
     else:
         report.add("logo", "skipped", "no logo set in sites.yml")
 
-    # -- 6. listing content type -------------------------------------------
+    # -- 7. listing content type -------------------------------------------
     # A live site may already run a listings plugin (wdk-listing, for one) that
     # registers the same post type. Two registrations of one slug is a
     # collision, and importing into a plugin's own schema is a different job
@@ -305,7 +349,7 @@ def provision_site(
         wp.install_mu_plugin(MU_PLUGIN)
         report.add("listing type", "planned" if dry else "done", "casa-listings.php")
 
-    # -- 7. listings --------------------------------------------------------
+    # -- 8. listings --------------------------------------------------------
     csv_path = site.listings.csv_path()
     if foreign_cpt:
         report.add("listings", "skipped", "blocked: the listing type above is not ours")

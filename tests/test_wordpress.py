@@ -133,3 +133,45 @@ class TestStateMismatchGuard:
         report = self._run("live", installed=True)
         assert not report.failed
         assert not any(s.name == "state" for s in report.steps)
+
+
+class TestScaffolding:
+    def test_create_page_publishes_with_a_slug(self):
+        site, runner = make_site()
+        site.create_page("Properties", "properties")
+        cmd = runner.commands[-1]
+        assert "--post_type=page" in cmd
+        assert "--post_name=properties" in cmd
+        assert "--post_status=publish" in cmd
+
+    def test_front_page_needs_an_id(self):
+        site, runner = make_site()
+        site.set_front_page("")           # dry run yields no ID
+        assert runner.commands == []      # must not half-configure the homepage
+
+    def test_front_page_switches_off_the_post_feed(self):
+        site, runner = make_site()
+        site.set_front_page("12", "13")
+        joined = " ".join(runner.commands)
+        assert "show_on_front page" in joined
+        assert "page_on_front 12" in joined
+        assert "page_for_posts 13" in joined
+
+    def test_menu_is_created_filled_and_assigned(self):
+        site, runner = make_site()
+        site.build_menu("Primary", ["12", "", "14"])
+        joined = " ".join(runner.commands)
+        assert "menu create Primary" in joined
+        assert "menu item add-post Primary 12" in joined
+        assert "menu item add-post Primary 14" in joined
+        assert "menu location assign" in joined
+
+    def test_menu_skips_empty_ids(self):
+        site, runner = make_site()
+        site.build_menu("Primary", ["", ""])
+        assert not any("add-post" in c for c in runner.commands)
+
+    def test_page_titles_with_spaces_are_quoted(self):
+        site, runner = make_site()
+        site.create_page("About Us & Our Team", "about")
+        assert "'--post_title=About Us & Our Team'" in runner.commands[-1]

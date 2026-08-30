@@ -212,6 +212,75 @@ class WpSite:
         res = self.wp("post-type", "list", "--field=name", allow_fail=True)
         return name in {line.strip() for line in res.stdout.splitlines()}
 
+    # -- content scaffolding -------------------------------------------------
+
+    def existing_page_slugs(self) -> set[str]:
+        if self.runner.dry_run:
+            return set()
+        res = self.wp(
+            "post", "list", "--post_type=page", "--post_status=any",
+            "--field=post_name", allow_fail=True,
+        )
+        return {line.strip() for line in res.stdout.splitlines() if line.strip()}
+
+    def create_page(self, title: str, slug: str, content: str = "") -> str:
+        """Create a published page and return its ID, or "" in a dry run."""
+        args = [
+            "post", "create",
+            "--post_type=page",
+            f"--post_title={title}",
+            f"--post_name={slug}",
+            "--post_status=publish",
+            "--porcelain",
+        ]
+        if content:
+            args.append(f"--post_content={content}")
+        res = self.wp(*args, allow_fail=True)
+        out = res.stdout.strip().splitlines()
+        return out[-1].strip() if out and out[-1].strip().isdigit() else ""
+
+    def page_id(self, slug: str) -> str:
+        if self.runner.dry_run:
+            return ""
+        res = self.wp(
+            "post", "list", "--post_type=page", "--post_status=any",
+            f"--name={slug}", "--field=ID", allow_fail=True,
+        )
+        out = res.stdout.strip().splitlines()
+        return out[-1].strip() if out and out[-1].strip().isdigit() else ""
+
+    def set_front_page(self, front_id: str, blog_id: str = "") -> None:
+        """Point the site at a real homepage instead of the post feed."""
+        if not front_id:
+            return
+        self.wp("option", "update", "show_on_front", "page")
+        self.wp("option", "update", "page_on_front", front_id)
+        if blog_id:
+            self.wp("option", "update", "page_for_posts", blog_id)
+
+    def menu_exists(self, name: str) -> bool:
+        if self.runner.dry_run:
+            return False
+        res = self.wp("menu", "list", "--field=name", allow_fail=True)
+        return name in {line.strip() for line in res.stdout.splitlines()}
+
+    def build_menu(self, name: str, page_ids: list[str]) -> None:
+        """Create a navigation menu, fill it, and assign it to the theme.
+
+        Themes name their locations differently (`primary`, `menu-1`, ...), so
+        the location is read from the theme rather than assumed.
+        """
+        if not self.menu_exists(name):
+            self.wp("menu", "create", name, allow_fail=True)
+        for pid in page_ids:
+            if pid:
+                self.wp("menu", "item", "add-post", name, pid, allow_fail=True)
+
+        res = self.wp("menu", "location", "list", "--field=location", allow_fail=True)
+        locations = [l.strip() for l in res.stdout.splitlines() if l.strip()]
+        for location in locations[:1] or (["primary"] if self.runner.dry_run else []):
+            self.wp("menu", "location", "assign", name, location, allow_fail=True)
+
     def set_logo(self, local_logo: Path) -> None:
         """Upload a logo to the media library and set it as the site logo."""
         remote = f"/tmp/{local_logo.name}"
