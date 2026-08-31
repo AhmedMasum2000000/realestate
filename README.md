@@ -62,7 +62,7 @@ mis-labelled `new`, so this guard is not hypothetical.
 ```bash
 pip install -r requirements.txt
 
-./bin/survey                           # what is actually on these domains?
+./bin/control --live                   # where does everything stand?
 cp config/.env.example config/.env     # then fill it in -- see SETUP.md
 ./bin/check                            # prove the credentials work
 ./bin/provision thaihomespro.com       # dry run: prints the plan, changes nothing
@@ -76,7 +76,8 @@ add `--apply`. Read the plan first; it is short.
 
 | Command | What it does |
 | --- | --- |
-| `bin/survey` | Checks what is actually served at each domain, from its public homepage. No credentials. Run this first. |
+| `bin/control` | **Start here.** Every site's status, links, blockers and next command in one view. `--live` re-checks each domain, `--json` for tooling, `--next` for one line per site. |
+| `bin/survey` | Checks what is actually served at each domain, from its public homepage. No credentials. |
 | `bin/check` | Preflight. Validates config, tests cPanel + SSH, reports per-site readiness. Read-only. |
 | `bin/inspect-csv <file>` | Shows how a listings CSV will be read: which columns were understood, which were not, and a preview of the first rows. Touches no server. |
 | `bin/provision <domain>` | Provisions one site. Add `--apply` to make it real. |
@@ -184,6 +185,8 @@ src/rep/       the implementation
   survey.py      fingerprints a public site (theme, plugins, installers)
   provision.py   orchestrates the steps above
 wp/            code that runs inside WordPress
+  mu-plugin/     listing post type, taxonomies, display helpers, styles
+  templates/     archive, single and card templates for listings
 data/          your CSV exports (gitignored)
 assets/logos/  your logo files (gitignored)
 tests/         run with: python3 -m pytest tests/
