@@ -300,5 +300,17 @@ class WpSite:
         self.runner.run(f"mkdir -p {shlex.quote(mu_dir)}").check()
         self.runner.upload(local_php, f"{mu_dir}/{local_php.name}")
 
+    def install_templates(self, local_dir: Path, subdir: str = "casa-templates") -> int:
+        """Upload the listing templates beside the mu-plugin that loads them."""
+        if not local_dir.is_dir():
+            return 0
+        remote_dir = f"{self.docroot}/wp-content/mu-plugins/{subdir}"
+        self.runner.run(f"mkdir -p {shlex.quote(remote_dir)}").check()
+        count = 0
+        for path in sorted(local_dir.glob("*.php")):
+            self.runner.upload(path, f"{remote_dir}/{path.name}")
+            count += 1
+        return count
+
     def admin_url(self, domain: str) -> str:
         return f"https://{domain}/wp-admin/"

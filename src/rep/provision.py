@@ -25,6 +25,8 @@ from .ssh import SshRunner
 from .wordpress import WpSite
 
 MU_PLUGIN = ROOT / "wp" / "mu-plugin" / "casa-listings.php"
+MU_PLUGIN_DISPLAY = ROOT / "wp" / "mu-plugin" / "casa-listings-display.php"
+TEMPLATE_DIR = ROOT / "wp" / "templates"
 IMPORT_SCRIPT = ROOT / "wp" / "import-listings.php"
 SECRETS_DIR = ROOT / "secrets"
 
@@ -347,7 +349,14 @@ def provision_site(
         )
     else:
         wp.install_mu_plugin(MU_PLUGIN)
-        report.add("listing type", "planned" if dry else "done", "casa-listings.php")
+        wp.install_mu_plugin(MU_PLUGIN_DISPLAY)
+        templates = wp.install_templates(TEMPLATE_DIR)
+        report.add(
+            "listing type",
+            "planned" if dry else "done",
+            f"post type, taxonomies and {templates} templates "
+            "(archive, single, card)",
+        )
 
     # -- 8. listings --------------------------------------------------------
     csv_path = site.listings.csv_path()
