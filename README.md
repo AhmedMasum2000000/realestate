@@ -77,6 +77,7 @@ add `--apply`. Read the plan first; it is short.
 | Command | What it does |
 | --- | --- |
 | `bin/control` | **Start here.** Every site's status, links, blockers and next command in one view. `--live` re-checks each domain, `--json` for tooling, `--next` for one line per site. |
+| `bin/build-previews` | Renders a homepage design for every site from `previews/spec.yml` into `previews/out/`. |
 | `bin/survey` | Checks what is actually served at each domain, from its public homepage. No credentials. |
 | `bin/check` | Preflight. Validates config, tests cPanel + SSH, reports per-site readiness. Read-only. |
 | `bin/inspect-csv <file>` | Shows how a listings CSV will be read: which columns were understood, which were not, and a preview of the first rows. Touches no server. |
@@ -184,6 +185,9 @@ src/rep/       the implementation
   listings.py    CSV parsing and column matching
   survey.py      fingerprints a public site (theme, plugins, installers)
   provision.py   orchestrates the steps above
+previews/      the front-end designs
+  spec.yml       palette, type, copy and layout archetype per site (edit this)
+  out/           generated standalone pages
 wp/            code that runs inside WordPress
   mu-plugin/     listing post type, taxonomies, display helpers, styles
   templates/     archive, single and card templates for listings
