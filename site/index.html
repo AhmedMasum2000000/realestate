@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pattaya Home Pro — Property, Rentals & Businesses in Pattaya</title>
+<meta name="description" content="A working Pattaya brokerage. Condos and houses to buy or rent, plus bars, restaurants and shops changing hands. Straight answers on price, fees and what a place is really worth.">
+<link rel="canonical" href="https://pattayahomepro.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Pattaya Home Pro — Property, Rentals & Businesses in Pattaya">
+<meta property="og:description" content="Condos and houses to buy or rent, plus businesses changing hands. Priced against real sales, not asking prices.">
+<meta property="og:url" content="https://pattayahomepro.com/">
+<meta name="robots" content="index,follow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+/* ==========================================================================
+   Pattaya Home Pro — art direction
+   Not the cool coastal luxury look. This is a working brokerage: warm sand,
+   charcoal, terracotta. Editorial rather than aspirational — big type, hard
+   rules, asymmetric grid. Serif body copy so it reads like someone wrote it.
+   ========================================================================= */
+:root{
+  --sand:#F6F1EA; --sand-2:#EDE5DA; --paper:#FFFDFA; --paper-2:#F9F5EF;
+  --ink:#191412; --ink-2:#453A34; --muted:#7A6A61;
+  --rule:#DED3C6; --rule-2:#C6B7A6;
+  --terra:#B4472C; --terra-2:#D4694C; --teal:#2F6E7E; --teal-2:#4B93A4;
+  --char:#221B18; --char-2:#2E2521;
+  --sh-s:0 1px 2px rgba(25,20,18,.06);
+  --sh-m:0 14px 34px -20px rgba(25,20,18,.34);
+  --sh-l:0 34px 70px -28px rgba(25,20,18,.44);
+  --r:4px; --ease:cubic-bezier(.22,1,.36,1);
+  /* Illustration tokens. On :root so the shared gradient in <defs> can see
+     them; they indirect through the theme tokens above, so both themes work. */
+  --k1:var(--char-2); --k2:var(--char); --m1:var(--teal); --m2:var(--char-2);
+  --gl:var(--terra-2); --wt:var(--teal); --sn:var(--terra); --rf:var(--terra);
+  --pl:var(--teal-2);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --sand:#14100E; --sand-2:#1B1613; --paper:#1E1815; --paper-2:#251E1A;
+  --ink:#F2EBE4; --ink-2:#C9BCB2; --muted:#94847A;
+  --rule:#332A25; --rule-2:#463A32;
+  --terra:#E07C60; --terra-2:#EC9B82; --teal:#63AEBF; --teal-2:#87C6D4;
+  --char:#0F0C0A; --char-2:#181310;
+  --sh-s:0 1px 2px rgba(0,0,0,.5);
+  --sh-m:0 14px 34px -20px rgba(0,0,0,.8);
+  --sh-l:0 34px 70px -28px rgba(0,0,0,.9);
+}}
+:root[data-theme="dark"]{
+  --sand:#14100E; --sand-2:#1B1613; --paper:#1E1815; --paper-2:#251E1A;
+  --ink:#F2EBE4; --ink-2:#C9BCB2; --muted:#94847A;
+  --rule:#332A25; --rule-2:#463A32;
+  --terra:#E07C60; --terra-2:#EC9B82; --teal:#63AEBF; --teal-2:#87C6D4;
+  --char:#0F0C0A; --char-2:#181310;
+  --sh-s:0 1px 2px rgba(0,0,0,.5);
+  --sh-m:0 14px 34px -20px rgba(0,0,0,.8);
+  --sh-l:0 34px 70px -28px rgba(0,0,0,.9);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--sand);color:var(--ink);
+  font-family:Lora,Georgia,serif;font-size:16.5px;line-height:1.68;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4,.sans{font-family:Outfit,system-ui,sans-serif;font-weight:600;
+  line-height:1.06;letter-spacing:-.025em;margin:0}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--terra);outline-offset:3px}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.wrap{max-width:80rem;margin:0 auto;padding:0 clamp(1.1rem,4vw,3rem)}
+.narrow{max-width:46rem}
+.tnum{font-variant-numeric:tabular-nums}
+img,svg{max-width:100%}
+
+/* ---- draft ribbon ---- */
+.ribbon{background:var(--char);color:var(--terra-2);text-align:center;padding:.42rem 1rem;
+  font-family:Outfit,sans-serif;font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;
+  font-weight:600;position:relative;z-index:60}
+.bar-progress{position:fixed;top:0;left:0;height:2px;background:var(--terra);z-index:100;
+  transition:width .1s linear}
+
+/* ---- nav ---- */
+.nav{position:sticky;top:0;z-index:50;border-bottom:1px solid transparent;transition:all .45s var(--ease)}
+.nav.solid{background:color-mix(in srgb,var(--sand) 90%,transparent);backdrop-filter:blur(14px);
+  border-bottom-color:var(--rule)}
+.nav__in{display:flex;align-items:center;gap:2rem;padding:1.15rem 0;transition:padding .45s var(--ease)}
+.nav.solid .nav__in{padding:.7rem 0}
+.logo{display:flex;align-items:baseline;gap:.55rem;font-family:Outfit,sans-serif;font-weight:700;
+  font-size:1.18rem;letter-spacing:-.03em}
+.logo b{color:var(--terra);font-weight:700}
+.nav__l{margin-left:auto;display:flex;gap:1.7rem;font-family:Outfit,sans-serif;font-size:.93rem;font-weight:500}
+.nav__l a{color:var(--ink-2);position:relative;transition:color .3s}
+.nav__l a::after{content:"";position:absolute;left:0;bottom:-5px;width:0;height:2px;background:var(--terra);
+  transition:width .35s var(--ease)}
+.nav__l a:hover{color:var(--ink)}.nav__l a:hover::after{width:100%}
+@media(max-width:60rem){.nav__l{display:none}}
+
+/* ---- buttons ---- */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.82rem 1.55rem;border-radius:var(--r);
+  font-family:Outfit,sans-serif;font-weight:600;font-size:.94rem;letter-spacing:-.01em;
+  transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .3s,color .3s,border-color .3s;
+  position:relative;overflow:hidden}
+.btn--p{background:var(--terra);color:#FFF9F5;box-shadow:var(--sh-m)}
+.btn--p:hover{transform:translateY(-2px);box-shadow:var(--sh-l);background:var(--terra-2)}
+.btn--o{border:1.5px solid var(--rule-2);color:var(--ink)}
+.btn--o:hover{border-color:var(--terra);color:var(--terra);transform:translateY(-2px)}
+.btn__sh{position:absolute;inset:0;background:linear-gradient(105deg,transparent 32%,rgba(255,255,255,.4) 50%,transparent 68%);
+  transform:translateX(-130%)}
+.btn--p:hover .btn__sh{transform:translateX(130%);transition:transform .8s var(--ease)}
+
+/* ---- reveal ---- */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+.d4{transition-delay:.32s}.d5{transition-delay:.4s}.d6{transition-delay:.48s}
+
+/* ---- hero: editorial split ---- */
+.hero{padding:clamp(2.5rem,6vw,4.5rem) 0 clamp(3rem,7vw,5.5rem);position:relative;overflow:hidden}
+.hero__g{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(1.5rem,5vw,4rem);align-items:center}
+@media(max-width:64rem){.hero__g{grid-template-columns:1fr;gap:2.5rem}}
+.hero__kick{display:inline-flex;align-items:center;gap:.7rem;font-family:Outfit,sans-serif;font-size:.72rem;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--terra);font-weight:600;margin-bottom:1.4rem}
+.hero__kick::before{content:"";width:2.2rem;height:2px;background:var(--terra)}
+.hero h1{font-size:clamp(2.5rem,6.6vw,4.6rem);font-weight:600;line-height:1.02;letter-spacing:-.04em}
+.hero h1 span{display:block}
+.hero h1 .accent{color:var(--terra);font-style:normal}
+.hero__p{font-size:clamp(1.02rem,1.5vw,1.16rem);color:var(--ink-2);max-width:33rem;margin:1.5rem 0 0}
+.hero__cta{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:2.1rem}
+.hero__meta{display:flex;flex-wrap:wrap;gap:1.6rem;margin-top:2.4rem;padding-top:1.6rem;
+  border-top:1px solid var(--rule)}
+.hero__mi{display:flex;flex-direction:column}
+.hero__mn{font-family:Outfit,sans-serif;font-size:1.6rem;font-weight:600;color:var(--ink);line-height:1}
+.hero__ml{font-family:Outfit,sans-serif;font-size:.78rem;color:var(--muted);margin-top:.2rem}
+
+/* stacked collage */
+.collage{position:relative;width:100%;aspect-ratio:1/1.02;max-width:34rem;
+  margin-left:auto;justify-self:end}
+.cl{position:absolute;border-radius:var(--r);overflow:hidden;box-shadow:var(--sh-l);
+  background:var(--char-2);will-change:transform}
+.cl svg{width:100%;height:100%;display:block}
+/* Overlap enough to read as a stack, not so much that a caption is hidden. */
+.cl--a{width:52%;left:0;top:9%;aspect-ratio:4/5;z-index:2}
+.cl--b{width:47%;right:0;top:0;aspect-ratio:4/3;z-index:3}
+.cl--c{width:50%;right:3%;bottom:0;aspect-ratio:4/3;z-index:4}
+/* Captions sit at the top: the tiles overlap at their lower edges, so a label
+   at the bottom of one disappears under the next. */
+.cl__cap{position:absolute;left:0;right:0;top:0;padding:.6rem .8rem .9rem;
+  background:linear-gradient(rgba(15,12,10,.9),transparent);color:#F6F1EA;
+  font-family:Outfit,sans-serif;font-size:.74rem;font-weight:600;
+  letter-spacing:.06em;text-transform:uppercase}
+
+/* ---- section furniture ---- */
+section{padding:clamp(3.5rem,8vw,6.5rem) 0}
+.eyebrow{display:inline-flex;align-items:center;gap:.65rem;font-family:Outfit,sans-serif;font-size:.71rem;
+  letter-spacing:.2em;text-transform:uppercase;color:var(--terra);font-weight:600}
+.eyebrow::before{content:"";width:1.8rem;height:2px;background:var(--terra)}
+.h2{font-size:clamp(1.85rem,4.2vw,2.9rem);margin:.85rem 0 0;font-weight:600;letter-spacing:-.03em}
+.h2 .accent{color:var(--terra)}
+.lead{color:var(--ink-2);max-width:40rem;margin:1rem 0 0}
+.rule{height:1px;background:var(--rule);margin:0}
+
+/* ---- segments ---- */
+.segs{display:grid;grid-template-columns:repeat(auto-fit,minmax(15rem,1fr));gap:0;margin-top:2.5rem;
+  border-top:1px solid var(--rule)}
+.seg{padding:1.7rem 1.5rem 1.7rem 0;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule)}
+.seg:last-child{border-right:0}
+@media(max-width:52rem){.seg{border-right:0;padding-right:0}}
+.seg__n{font-family:Outfit,sans-serif;font-size:.72rem;letter-spacing:.14em;color:var(--terra);font-weight:600}
+.seg h3{font-size:1.28rem;margin:.6rem 0 .5rem;font-weight:600}
+.seg p{margin:0;color:var(--ink-2);font-size:.97rem}
+
+/* ---- filters ---- */
+.fbar{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:1.5rem}
+.chip{padding:.48rem 1rem;border-radius:var(--r);border:1px solid var(--rule-2);
+  font-family:Outfit,sans-serif;font-size:.88rem;font-weight:500;color:var(--ink-2);
+  background:var(--paper);transition:all .28s var(--ease)}
+.chip:hover{border-color:var(--terra);color:var(--terra)}
+.chip[aria-pressed="true"]{background:var(--terra);border-color:var(--terra);color:#FFF9F5}
+.rline{margin:1.3rem 0 0;font-family:Outfit,sans-serif;font-size:.88rem;color:var(--muted)}
+
+/* ---- property cards ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(19.5rem,1fr));gap:1.5rem;margin-top:1.2rem}
+.pc{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);overflow:hidden;
+  display:flex;flex-direction:column;text-align:left;box-shadow:var(--sh-s);cursor:pointer;
+  transition:transform .48s var(--ease),box-shadow .48s var(--ease),border-color .35s}
+.pc:hover{transform:translateY(-5px);box-shadow:var(--sh-l);border-color:var(--rule-2)}
+.pc__art{aspect-ratio:4/3;position:relative;overflow:hidden;background:var(--char-2)}
+.pc__art svg{width:100%;height:100%;display:block;transition:transform .9s var(--ease)}
+.pc:hover .pc__art svg{transform:scale(1.06)}
+.pc__tag{position:absolute;top:.75rem;left:.75rem;font-family:Outfit,sans-serif;font-size:.65rem;
+  font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:.25rem .6rem;border-radius:2px;
+  background:var(--terra);color:#FFF9F5}
+.pc__tag--r{background:var(--teal)}
+.pc__tag--b{background:var(--char);color:var(--terra-2)}
+.pc__note{position:absolute;top:.75rem;right:.75rem;font-family:Outfit,sans-serif;font-size:.65rem;
+  font-weight:600;padding:.25rem .6rem;border-radius:2px;background:rgba(20,16,14,.8);color:#F6F1EA;
+  backdrop-filter:blur(5px)}
+.pc__b{padding:1.05rem 1.15rem 1.25rem;display:flex;flex-direction:column;gap:.3rem;flex:1}
+.pc__pl{font-family:Outfit,sans-serif;font-size:.7rem;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.pc__t{font-family:Outfit,sans-serif;font-size:1.08rem;font-weight:600;letter-spacing:-.02em;line-height:1.25}
+.pc__pr{font-family:Outfit,sans-serif;font-size:1.24rem;font-weight:600;color:var(--terra)}
+.pc__an{font-size:.83rem;color:var(--muted);margin-top:-.18rem}
+.pc__f{list-style:none;display:flex;gap:1.05rem;padding:.65rem 0 0;margin:.45rem 0 0;
+  font-family:Outfit,sans-serif;font-size:.85rem;color:var(--ink-2);border-top:1px solid var(--rule)}
+
+/* ---- detail ---- */
+.detail{animation:fu .55s var(--ease)}
+@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.crumbs{font-family:Outfit,sans-serif;font-size:.83rem;color:var(--muted);margin-bottom:1rem}
+.crumbs a{color:var(--muted);transition:color .3s}
+.crumbs a:hover{color:var(--terra)}
+.crumbs span{margin:0 .45rem}
+.back{display:inline-flex;align-items:center;gap:.45rem;font-family:Outfit,sans-serif;font-size:.9rem;
+  color:var(--muted);margin-bottom:1.2rem;transition:gap .3s,color .3s}
+.back:hover{color:var(--terra);gap:.7rem}
+.dhero{border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;background:var(--char-2);box-shadow:var(--sh-l)}
+.dhero svg{width:100%;height:100%;display:block}
+.dth{display:grid;grid-template-columns:repeat(4,1fr);gap:.55rem;margin-top:.55rem}
+.dth button{aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;background:var(--char-2);
+  border:2px solid transparent;transition:border-color .3s,transform .3s}
+.dth button:hover{transform:translateY(-2px)}
+.dth button[aria-current="true"]{border-color:var(--terra)}
+.dth svg{width:100%;height:100%;display:block}
+.dg{display:grid;grid-template-columns:minmax(0,1.75fr) minmax(17rem,1fr);gap:2.5rem;margin-top:2.2rem}
+@media(max-width:60rem){.dg{grid-template-columns:1fr}}
+.specs{width:100%;border-collapse:collapse;font-family:Outfit,sans-serif;font-size:.93rem}
+.specs th,.specs td{text-align:left;padding:.62rem .2rem;border-bottom:1px solid var(--rule)}
+.specs th{color:var(--muted);font-weight:500}
+.specs td{font-weight:600}
+.aside{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);padding:1.35rem;
+  position:sticky;top:5.5rem;box-shadow:var(--sh-m)}
+
+/* ---- ladder ---- */
+.ladder{background:var(--paper);border:1px solid var(--rule);border-radius:var(--r);padding:1.4rem;
+  box-shadow:var(--sh-m)}
+.pips{display:flex;gap:.35rem;margin-bottom:1rem}
+.pip{height:3px;flex:1;background:var(--rule);border-radius:2px;transition:background .45s var(--ease)}
+.pip.on{background:var(--terra)}
+.opts{display:flex;flex-direction:column;gap:.5rem;margin-top:.85rem}
+.opt{text-align:left;padding:.8rem 1.05rem;border:1px solid var(--rule-2);border-radius:var(--r);
+  background:var(--paper-2);font-family:Outfit,sans-serif;font-weight:500;font-size:.94rem;
+  transition:all .28s var(--ease)}
+.opt:hover{border-color:var(--terra);background:color-mix(in srgb,var(--terra) 8%,var(--paper));
+  transform:translateX(4px)}
+.done{text-align:center;padding:.8rem 0}
+.done__c{width:2.8rem;height:2.8rem;border-radius:50%;background:var(--teal);margin:0 auto .8rem;
+  display:grid;place-items:center;color:#fff;font-size:1.3rem;animation:pop .45s var(--ease)}
+@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+.inp{flex:1 1 12rem;padding:.76rem 1rem;border-radius:var(--r);border:1px solid var(--rule-2);
+  background:var(--paper-2);color:var(--ink);font:inherit;font-size:.95rem}
+
+/* ---- link zone ---- */
+.lz{background:var(--char);color:#C6B7A6}
+.lz .h2{color:#F6F1EA}
+.lz .eyebrow{color:var(--terra-2)}.lz .eyebrow::before{background:var(--terra-2)}
+.lz .lead{color:#B0A196}
+.lg{display:grid;grid-template-columns:repeat(auto-fit,minmax(13rem,1fr));gap:1.6rem;margin-top:2.2rem}
+.lc h4{font-family:Outfit,sans-serif;font-size:.72rem;letter-spacing:.15em;text-transform:uppercase;
+  color:var(--terra-2);font-weight:600;margin-bottom:.7rem}
+.lc ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.4rem;
+  font-family:Outfit,sans-serif;font-size:.92rem}
+.lc a{color:#B0A196;transition:color .3s,padding-left .3s}
+.lc a:hover{color:var(--terra-2);padding-left:.3rem}
+
+footer{background:var(--char-2);color:#8E7F75;padding:2rem 0;font-family:Outfit,sans-serif;font-size:.85rem}
+.foot{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+  .rv{opacity:1;transform:none}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+</body>
+</html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/htm/3.1.1/htm.js"></script>
+<script>
+const {useState,useEffect,useRef,useMemo,useCallback} = React;
+const html = htm.bind(React.createElement);
+
+const AREAS = ["Jomtien","Pratumnak","Central Pattaya","North Pattaya","Naklua","Bang Saray"];
+
+/* Sample inventory. Every reference is prefixed SAMPLE and is replaced
+   wholesale by the real CSV import — none of this is a genuine listing. */
+const P = [
+ {id:"jomtien-seaview-2bed", ref:"SAMPLE-101", t:"Sea-view two-bed, high floor",
+  area:"Jomtien", type:"Condo", deal:"sale", price:4200000, med:4900000,
+  beds:2, baths:2, sqm:74, floor:21, project:"Sample Beach Residence", art:"tower",
+  d:"South-facing on the twenty-first floor, so the sea is in front of you rather than off to one side. Foreign freehold quota is available on this unit, which is not true of most in the building.",
+  feat:["Sea view","Foreign freehold","Pool","Gym","Covered parking"],
+  why:["Quota available — most units here are leasehold only","Below the building's own average per sqm","Rental history on file"]},
+
+ {id:"pratumnak-pool-villa", ref:"SAMPLE-102", t:"Three-bed pool villa, walled plot",
+  area:"Pratumnak", type:"Villa", deal:"rent", rent:52000, med:60000,
+  beds:3, baths:3, sqm:215, land:420, project:"Sample Hillside", art:"villa",
+  d:"Single storey on a walled plot with a private pool and established garden. Long lease preferred; the owner will furnish by arrangement.",
+  feat:["Private pool","Walled garden","Pet friendly","Two parking bays","Maid's room"],
+  why:["Under the area's asking average","Owner will unfurnish or furnish","Available immediately"]},
+
+ {id:"central-bar-restaurant", ref:"SAMPLE-103", t:"Bar and restaurant, corner site",
+  area:"Central Pattaya", type:"Business", deal:"business", price:2800000, med:3400000,
+  beds:0, baths:2, sqm:180, project:"Sample Soi", art:"shop",
+  d:"A going concern on a corner plot with frontage on two sides. Lease has four years to run with an option. Books available to serious enquiries under NDA.",
+  feat:["Corner frontage","Four-year lease","Fully fitted kitchen","Licence in place","Staff transferable"],
+  why:["Trading, not a shell — books available","Corner site with two frontages","Lease renewable"]},
+
+ {id:"naklua-family-house", ref:"SAMPLE-104", t:"Four-bed family house, mature garden",
+  area:"Naklua", type:"House", deal:"sale", price:7800000, med:7400000,
+  beds:4, baths:3, sqm:280, land:560, project:"Sample Gardens", art:"villa",
+  d:"Twelve years old and properly maintained, on a plot with room to extend at the rear. Western kitchen, separate utility, and a storage building at the back.",
+  feat:["Large plot","Mature garden","Western kitchen","Storage building","Room to extend"],
+  why:["Structural survey already done","Owner relocating — motivated","Plot allows extension"]},
+
+ {id:"north-studio-rental", ref:"SAMPLE-105", t:"Studio, ten minutes to Beach Road",
+  area:"North Pattaya", type:"Condo", deal:"rent", rent:13500, med:16000,
+  beds:0, baths:1, sqm:31, floor:9, project:"Sample Central", art:"tower",
+  d:"Compact and furnished, in a building with a rooftop pool and a gym that is actually maintained. Suits one occupant or a base you use a few months a year.",
+  feat:["Rooftop pool","Furnished","Gym","City view","Six-month leases accepted"],
+  why:["Notably below area rents","Six-month lease accepted","Bills included in service charge"]},
+
+ {id:"bangsaray-beach-land", ref:"SAMPLE-106", t:"Building plot, four hundred metres to sand",
+  area:"Bang Saray", type:"Land", deal:"sale", price:5600000, med:6200000,
+  beds:0, baths:0, sqm:0, land:800, project:"", art:"land",
+  d:"Eight hundred square metres with a clean chanote title and road access on two sides. Services are at the boundary. Suitable for a single house or a pair.",
+  feat:["Chanote title","Road access two sides","Services at boundary","No flood history"],
+  why:["Chanote, not a lesser title","Services already at the boundary","Priced under nearby plots"]},
+
+ {id:"jomtien-duplex-rent", ref:"SAMPLE-107", t:"Duplex with roof terrace",
+  area:"Jomtien", type:"Condo", deal:"rent", rent:62000, med:58000,
+  beds:3, baths:3, sqm:186, floor:26, project:"Sample Beach Residence", art:"tower",
+  d:"Two floors joined by an internal stair, with a private roof terrace above. Rare layout — four in the building.",
+  feat:["Roof terrace","Sea view","Two levels","Concierge","Two parking bays"],
+  why:["Only four of this layout exist","Private roof terrace","Concierge building"]},
+
+ {id:"pratumnak-shophouse", ref:"SAMPLE-108", t:"Shophouse, ground floor retail",
+  area:"Pratumnak", type:"Business", deal:"business", price:4100000, med:4400000,
+  beds:2, baths:2, sqm:210, project:"Sample Row", art:"shop",
+  d:"Three storeys: retail at ground level, two floors of living above. Currently let to a tenant on a rolling agreement, so it can be bought with income in place or vacant.",
+  feat:["Retail frontage","Living above","Tenant in place","Rear access","Parking bay"],
+  why:["Buy tenanted or vacant","Income in place from day one","Rear service access"]},
+];
+
+const fmt = n => "฿" + n.toLocaleString("en-US");
+const priceOf = p => p.deal === "rent" ? fmt(p.rent) + " / month" : fmt(p.price);
+const valOf   = p => p.deal === "rent" ? p.rent : p.price;
+const DEAL_LABEL = {sale:"For sale", rent:"For rent", business:"Business"};
+</script>
+<script>
+/* ---- illustrations ------------------------------------------------------ */
+const ART = {
+ tower: html`<g>
+   <rect width="400" height="300" fill="url(#gs)"/>
+   <rect x="232" y="80" width="76" height="220" fill="var(--m2)"/>
+   <rect x="114" y="30" width="118" height="270" fill="var(--m1)"/>
+   ${[54,88,122,156,190,224].map(y=>html`<g key=${y} fill="var(--gl)" opacity=".6">
+     <rect x="128" y=${y} width="28" height="17"/><rect x="166" y=${y} width="28" height="17"/></g>`)}
+   ${[100,132,164,196].map(y=>html`<g key=${y} fill="var(--gl)" opacity=".45">
+     <rect x="244" y=${y} width="22" height="15"/><rect x="274" y=${y} width="22" height="15"/></g>`)}
+   <rect x="0" y="266" width="400" height="34" fill="var(--wt)"/>
+   <circle cx="340" cy="50" r="18" fill="var(--sn)" opacity=".9"/></g>`,
+ villa: html`<g>
+   <rect width="400" height="300" fill="url(#gs)"/>
+   <rect x="0" y="208" width="400" height="92" fill="var(--pl)" opacity=".26"/>
+   <rect x="80" y="128" width="188" height="96" fill="var(--m1)"/>
+   <path d="M62 130 L174 66 L286 130 Z" fill="var(--rf)"/>
+   <rect x="106" y="160" width="36" height="36" fill="var(--gl)" opacity=".55"/>
+   <rect x="162" y="160" width="36" height="36" fill="var(--gl)" opacity=".55"/>
+   <rect x="216" y="156" width="32" height="68" fill="var(--rf)" opacity=".5"/>
+   <rect x="52" y="236" width="296" height="48" rx="9" fill="var(--wt)"/>
+   <ellipse cx="350" cy="142" rx="13" ry="36" fill="var(--pl)"/>
+   <rect x="346" y="142" width="6" height="90" fill="var(--rf)" opacity=".5"/></g>`,
+ shop: html`<g>
+   <rect width="400" height="300" fill="url(#gs)"/>
+   <rect x="0" y="244" width="400" height="56" fill="var(--m2)" opacity=".5"/>
+   <rect x="58" y="96" width="284" height="148" fill="var(--m1)"/>
+   <rect x="58" y="96" width="284" height="26" fill="var(--rf)"/>
+   ${[0,1,2,3,4,5,6].map(i=>html`<rect key=${i} x=${58+i*40.6} y="122" width="20.3" height="16"
+     fill=${i%2?"var(--rf)":"var(--gl)"} opacity=".85"/>`)}
+   <rect x="92" y="158" width="76" height="86" fill="var(--gl)" opacity=".5"/>
+   <rect x="188" y="158" width="76" height="86" fill="var(--gl)" opacity=".5"/>
+   <rect x="284" y="176" width="42" height="68" fill="var(--rf)" opacity=".6"/>
+   <circle cx="352" cy="60" r="16" fill="var(--sn)" opacity=".85"/></g>`,
+ land: html`<g>
+   <rect width="400" height="300" fill="url(#gs)"/>
+   <circle cx="322" cy="58" r="20" fill="var(--sn)" opacity=".85"/>
+   <path d="M0 188 L96 150 L188 178 L272 146 L400 184 L400 300 L0 300 Z" fill="var(--pl)" opacity=".32"/>
+   <rect x="0" y="252" width="400" height="48" fill="var(--wt)" opacity=".55"/>
+   <g stroke="var(--rf)" stroke-width="3" fill="none" stroke-dasharray="11 8">
+     <path d="M84 236 L160 196 L308 214 L232 258 Z"/></g>
+   ${[[84,236],[160,196],[308,214],[232,258]].map(([x,y],i)=>html`
+     <circle key=${i} cx=${x} cy=${y} r="6" fill="var(--rf)"/>`)}
+   <ellipse cx="52" cy="164" rx="13" ry="32" fill="var(--pl)"/>
+   <rect x="48" y="164" width="6" height="76" fill="var(--rf)" opacity=".5"/></g>`,
+};
+const Defs = () => html`<svg width="0" height="0" style=${{position:"absolute"}} aria-hidden="true"><defs>
+  <linearGradient id="gs" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stop-color="var(--k1)"/><stop offset="100%" stop-color="var(--k2)"/>
+  </linearGradient></defs></svg>`;
+const Art = ({kind}) => html`<svg viewBox="0 0 400 300" role="img"
+  preserveAspectRatio="xMidYMid slice"
+  aria-label="Illustration of the property">${ART[kind]||ART.tower}</svg>`;
+
+/* ---- hooks -------------------------------------------------------------- */
+function useReveal(){
+  useEffect(()=>{
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if(reduced || typeof IntersectionObserver==="undefined"){
+      document.querySelectorAll(".rv").forEach(n=>n.classList.add("in")); return;
+    }
+    const io=new IntersectionObserver(es=>es.forEach(e=>{
+      if(e.isIntersecting){e.target.classList.add("in");io.unobserve(e.target);}
+    }),{threshold:.1,rootMargin:"0px 0px -6% 0px"});
+    const scan=()=>document.querySelectorAll(".rv:not(.in)").forEach(n=>io.observe(n));
+    scan();
+    const mo=new MutationObserver(scan); mo.observe(document.body,{childList:true,subtree:true});
+    // Never leave content stranded at opacity 0.
+    const net=setTimeout(()=>document.querySelectorAll(".rv:not(.in)").forEach(n=>{
+      if(n.getBoundingClientRect().top < innerHeight) n.classList.add("in");
+    }),2400);
+    return ()=>{io.disconnect();mo.disconnect();clearTimeout(net);};
+  },[]);
+}
+function useChrome(){
+  const [s,setS]=useState({p:0,solid:false});
+  useEffect(()=>{
+    let raf=0;
+    const on=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
+      const h=document.documentElement.scrollHeight-innerHeight;
+      setS({p:h>0?(scrollY/h)*100:0, solid:scrollY>40});
+    });};
+    addEventListener("scroll",on,{passive:true}); on();
+    return ()=>{removeEventListener("scroll",on);cancelAnimationFrame(raf);};
+  },[]);
+  return s;
+}
+function useCount(target,ms=1300){
+  const [v,setV]=useState(0); const ref=useRef(null);
+  useEffect(()=>{
+    const n=ref.current; if(!n) return;
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches){setV(target);return;}
+    const io=new IntersectionObserver(es=>{
+      if(!es[0].isIntersecting) return; io.disconnect();
+      const t0=performance.now();
+      const tick=now=>{const k=Math.min(1,(now-t0)/ms);
+        setV(Math.round(target*(1-Math.pow(1-k,3)))); if(k<1) requestAnimationFrame(tick);};
+      requestAnimationFrame(tick);
+    },{threshold:.5});
+    io.observe(n); return ()=>io.disconnect();
+  },[target,ms]);
+  return [v,ref];
+}
+// Each collage tile drifts at its own rate, which is what reads as depth.
+function useDrift(rate){
+  const ref=useRef(null);
+  useEffect(()=>{
+    const n=ref.current; if(!n) return;
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf=0;
+    const on=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(()=>{
+      n.style.transform=`translate3d(0,${scrollY*rate}px,0)`;});};
+    addEventListener("scroll",on,{passive:true});
+    return ()=>{removeEventListener("scroll",on);cancelAnimationFrame(raf);};
+  },[rate]);
+  return ref;
+}
+</script>
+<script>
+/* ---- chrome ------------------------------------------------------------- */
+const Nav = ({solid,onHome}) => html`
+  <nav class=${"nav"+(solid?" solid":"")}>
+    <div class="wrap nav__in">
+      <a class="logo" href="#" onClick=${e=>{e.preventDefault();onHome();}}>Pattaya <b>Home Pro</b></a>
+      <div class="nav__l">
+        <a href="#listings">Listings</a><a href="#segments">What we handle</a>
+        <a href="#areas">Areas</a><a href="#enquire">Talk to us</a>
+      </div>
+      <a class="btn btn--p" href="#enquire" style=${{padding:".58rem 1.2rem",fontSize:".88rem"}}>
+        <span class="btn__sh"></span>Get a shortlist</a>
+    </div>
+  </nav>`;
+
+const Tile = ({kind,cap,cls,rate}) => {
+  const ref = useDrift(rate);
+  return html`<figure class=${"cl "+cls} ref=${ref} style=${{margin:0}}>
+    <${Art} kind=${kind} /><figcaption class="cl__cap">${cap}</figcaption></figure>`;
+};
+
+const Hero = ({go}) => html`
+  <header class="hero"><div class="wrap hero__g">
+    <div>
+      <span class="hero__kick">Pattaya · Jomtien · Bang Saray</span>
+      <h1><span>Property in Pattaya,</span><span class="accent">without the runaround</span></h1>
+      <p class="hero__p">
+        A working brokerage covering sales, rentals and business transfers. We will tell you
+        what a place is actually worth, what the fees really come to, and when to walk away.
+      </p>
+      <div class="hero__cta">
+        <button class="btn btn--p" onClick=${go}><span class="btn__sh"></span>See what's available</button>
+        <a class="btn btn--o" href="#enquire">Book a viewing</a>
+      </div>
+      <div class="hero__meta">
+        <div class="hero__mi"><span class="hero__mn tnum">${P.length}</span>
+          <span class="hero__ml">live listings (sample)</span></div>
+        <div class="hero__mi"><span class="hero__mn tnum">${AREAS.length}</span>
+          <span class="hero__ml">areas covered</span></div>
+        <div class="hero__mi"><span class="hero__mn">48h</span>
+          <span class="hero__ml">typical reply</span></div>
+      </div>
+    </div>
+    <div class="collage">
+      <${Tile} kind="tower" cap="Jomtien · sea view" cls="cl--a" rate=${-0.03} />
+      <${Tile} kind="shop"  cap="Central · business" cls="cl--b" rate=${0.045} />
+      <${Tile} kind="villa" cap="Pratumnak · villa"  cls="cl--c" rate=${-0.055} />
+    </div>
+  </div></header>`;
+
+const SEGMENTS = [
+  {n:"01",h:"Buying",p:"Condos, houses and land. We check the title, the ownership quota and what is owed on the building before you see a price we recommend."},
+  {n:"02",h:"Renting",p:"Long lets with the deposit terms in writing. We hold keys and handle the handover if you are not in the country."},
+  {n:"03",h:"Businesses",p:"Bars, restaurants and shops changing hands. Lease term, licences and books — checked before you meet the seller."},
+  {n:"04",h:"Managing",p:"Tenant finding, rent collection, maintenance and renewals for owners who live somewhere else."},
+];
+
+const Segments = () => html`
+  <section id="segments"><div class="wrap">
+    <div class="rv"><span class="eyebrow">What we handle</span>
+      <h2 class="h2">Four things, <span class="accent">properly</span></h2>
+      <p class="lead">Most Pattaya agencies list everything and specialise in nothing.
+        These are the four we actually do, and the fourth is why owners stay.</p></div>
+    <div class="segs">
+      ${SEGMENTS.map((s,i)=>html`<div class=${"seg rv d"+(i+1)} key=${s.n}>
+        <span class="seg__n">${s.n}</span><h3>${s.h}</h3><p>${s.p}</p></div>`)}
+    </div>
+  </div></section>`;
+
+const Card = ({p,open,i}) => {
+  // Anchoring against the area median, shown only when the property really is
+  // below it. A badge that always fires stops being information.
+  const v = valOf(p), below = v && p.med && v < p.med;
+  const pc = below ? Math.round(100 - (v/p.med)*100) : 0;
+  return html`
+    <button class=${"pc rv d"+((i%4)+1)} onClick=${()=>open(p)} aria-label=${"View "+p.t}>
+      <div class="pc__art"><${Art} kind=${p.art} />
+        <span class=${"pc__tag"+(p.deal==="rent"?" pc__tag--r":p.deal==="business"?" pc__tag--b":"")}>
+          ${DEAL_LABEL[p.deal]}</span>
+        ${below ? html`<span class="pc__note">${pc}% under area median</span>` : null}
+      </div>
+      <div class="pc__b">
+        <span class="pc__pl">${p.area} · ${p.type}</span>
+        <span class="pc__t">${p.t}</span>
+        <span class="pc__pr tnum">${priceOf(p)}</span>
+        ${p.med ? html`<span class="pc__an tnum">Area median ${p.deal==="rent"?fmt(p.med)+" / month":fmt(p.med)}</span>` : null}
+        <ul class="pc__f">
+          ${p.beds>0 ? html`<li class="tnum"><b>${p.beds}</b> bed</li>` : null}
+          ${p.baths>0 ? html`<li class="tnum"><b>${p.baths}</b> bath</li>` : null}
+          ${p.sqm>0 ? html`<li class="tnum"><b>${p.sqm}</b> sqm</li>` : null}
+          ${p.land ? html`<li class="tnum"><b>${p.land}</b> sqm plot</li>` : null}
+        </ul>
+      </div>
+    </button>`;
+};
+
+const Listings = ({open}) => {
+  const [deal,setDeal]=useState("all"), [area,setArea]=useState("all");
+  const shown = useMemo(()=>P.filter(p=>
+    (deal==="all"||p.deal===deal)&&(area==="all"||p.area===area)),[deal,area]);
+  return html`
+    <section id="listings" style=${{background:"var(--sand-2)"}}><div class="wrap">
+      <div class="rv"><span class="eyebrow">Available now</span>
+        <h2 class="h2">The <span class="accent">current list</span></h2>
+        <p class="lead">Sample properties so the layout can be judged. Your inventory replaces
+          these when the spreadsheet is imported.</p></div>
+      <div class="fbar rv d1" role="group" aria-label="Filter by type">
+        ${[["all","Everything"],["sale","For sale"],["rent","For rent"],["business","Businesses"]]
+          .map(([k,l])=>html`<button key=${k} class="chip" aria-pressed=${deal===k}
+            onClick=${()=>setDeal(k)}>${l}</button>`)}
+      </div>
+      <div class="fbar rv d2" role="group" aria-label="Filter by area">
+        <button class="chip" aria-pressed=${area==="all"} onClick=${()=>setArea("all")}>All areas</button>
+        ${AREAS.map(a=>html`<button key=${a} class="chip" aria-pressed=${area===a}
+          onClick=${()=>setArea(a)}>${a}</button>`)}
+      </div>
+      <p class="rline tnum" role="status">${shown.length} ${shown.length===1?"property":"properties"}
+        ${area!=="all"?" in "+area:""}</p>
+      ${shown.length ? html`<div class="grid">
+          ${shown.map((p,i)=>html`<${Card} key=${p.id} p=${p} i=${i} open=${open} />`)}
+        </div>`
+      : html`<p class="lead">Nothing matches that yet.
+          <button class="chip" onClick=${()=>{setDeal("all");setArea("all");}}>Clear filters</button></p>`}
+    </div></section>`;
+};
+</script>
+<script>
+/* ---- enquiry ladder ------------------------------------------------------
+   Three cheap questions before the email field. Each answer is a small
+   commitment, and the answers genuinely shape the reply — which is what
+   separates this from a form that just feels longer.
+-------------------------------------------------------------------------- */
+const STEPS = [
+ {q:"What are you looking to do?", a:["Buy a place","Rent long term","Buy a business","Let out a property I own"]},
+ {q:"Roughly what budget?",        a:["Under ฿3M","฿3M – ฿8M","Over ฿8M","Renting, not buying"]},
+ {q:"When would you move?",        a:["Within 3 months","3 – 12 months","Just looking for now"]},
+];
+const Ladder = ({ref_}) => {
+  const [i,setI]=useState(0), [a,setA]=useState([]);
+  const done = i>=STEPS.length;
+  return html`<div class="ladder">
+    <div class="pips" aria-hidden="true">
+      ${STEPS.map((_,k)=>html`<span key=${k} class=${"pip"+(k<i?" on":"")}></span>`)}</div>
+    ${!done ? html`<div key=${i}>
+        <span class="eyebrow">Step ${i+1} of ${STEPS.length}</span>
+        <h3 style=${{fontSize:"1.2rem",margin:".65rem 0 0",fontWeight:600}}>${STEPS[i].q}</h3>
+        <div class="opts">${STEPS[i].a.map(x=>html`<button class="opt" key=${x}
+          onClick=${()=>{setA(v=>[...v,x]);setI(s=>s+1);}}>${x}</button>`)}</div>
+        ${i>0 ? html`<button class="back" style=${{marginTop:".9rem",marginBottom:0}}
+          onClick=${()=>{setI(s=>s-1);setA(v=>v.slice(0,-1));}}>← Back</button>` : null}
+      </div>`
+    : html`<div class="done">
+        <div class="done__c" aria-hidden="true">✓</div>
+        <h3 style=${{fontSize:"1.15rem",fontWeight:600}}>That is enough to be useful</h3>
+        <p style=${{color:"var(--ink-2)",margin:".55rem 0 1rem",fontSize:".94rem"}}>
+          ${a[0]}, ${a[1]?a[1].toLowerCase():""}, ${a[2]?a[2].toLowerCase():""}.
+          Leave an email and you get a shortlist that fits${ref_?" — starting with "+ref_:""}.</p>
+        <form onSubmit=${e=>e.preventDefault()} style=${{display:"flex",gap:".5rem",flexWrap:"wrap"}}>
+          <input class="inp" type="email" required placeholder="you@example.com" aria-label="Your email" />
+          <button class="btn btn--p" type="submit"><span class="btn__sh"></span>Send it</button>
+        </form>
+        <p style=${{fontSize:".76rem",color:"var(--muted)",margin:".75rem 0 0"}}>
+          Preview only — this form is not connected.</p>
+      </div>`}
+  </div>`;
+};
+
+/* ---- dedicated property page -------------------------------------------- */
+const Detail = ({p,back,open}) => {
+  const [shot,setShot]=useState(0);
+  const kinds=[p.art,"tower","villa","shop"];
+  // Same area first, then same type, then anything else — always three, so a
+  // property page is never a dead end. Dead ends are where sessions stop.
+  const pool = [
+    ...P.filter(x=>x.id!==p.id && x.area===p.area),
+    ...P.filter(x=>x.id!==p.id && x.area!==p.area && x.type===p.type),
+    ...P.filter(x=>x.id!==p.id && x.area!==p.area && x.type!==p.type),
+  ];
+  const related = pool.filter((x,i)=>pool.indexOf(x)===i).slice(0,3);
+  const relHeading = related.length && related[0].area===p.area ? p.area : "Pattaya";
+  useEffect(()=>{scrollTo({top:0,behavior:"instant"});},[p.id]);
+  const specs=[["Type",p.type],["Bedrooms",p.beds||""],["Bathrooms",p.baths||""],
+    ["Interior",p.sqm?p.sqm+" sqm":""],["Plot",p.land?p.land+" sqm":""],
+    ["Floor",p.floor||""],["Project",p.project||""],["Reference",p.ref]]
+    .filter(([,v])=>v!==""&&v!==0&&v!=null);
+
+  return html`<section class="detail"><div class="wrap">
+    <button class="back" onClick=${back}>← All listings</button>
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="#" onClick=${e=>{e.preventDefault();back();}}>Listings</a><span>/</span>
+      <a href="#listings">${p.area}</a><span>/</span>
+      <a href="#listings">${p.type}</a></nav>
+
+    <h1 style=${{fontSize:"clamp(1.75rem,4vw,2.7rem)",fontWeight:600,letterSpacing:"-.035em"}}>${p.t}</h1>
+    <p class="tnum" style=${{fontFamily:"Outfit,sans-serif",fontSize:"1.6rem",color:"var(--terra)",
+      margin:".45rem 0 1.4rem",fontWeight:600}}>${priceOf(p)}</p>
+
+    <div class="dhero"><${Art} kind=${kinds[shot]} /></div>
+    <div class="dth">${kinds.map((k,i)=>html`<button key=${i} aria-current=${shot===i}
+      onClick=${()=>setShot(i)} aria-label=${"View image "+(i+1)}><${Art} kind=${k} /></button>`)}</div>
+
+    <div class="dg">
+      <div>
+        <p style=${{fontSize:"1.06rem",color:"var(--ink-2)",lineHeight:1.78}}>${p.d}</p>
+
+        <h2 style=${{fontSize:"1.25rem",margin:"2rem 0 .7rem",fontWeight:600}}>Why this one</h2>
+        <ul style=${{margin:0,paddingLeft:"1.1rem",color:"var(--ink-2)",display:"flex",
+          flexDirection:"column",gap:".4rem"}}>
+          ${p.why.map(w=>html`<li key=${w}>${w}</li>`)}</ul>
+
+        <h2 style=${{fontSize:"1.25rem",margin:"2rem 0 .7rem",fontWeight:600}}>Features</h2>
+        <div class="fbar" style=${{marginTop:0}}>
+          ${p.feat.map(f=>html`<span class="chip" key=${f} style=${{cursor:"default"}}>${f}</span>`)}</div>
+
+        <h2 style=${{fontSize:"1.25rem",margin:"2.1rem 0 .7rem",fontWeight:600}}>Details</h2>
+        <table class="specs"><tbody>${specs.map(([k,v])=>html`
+          <tr key=${k}><th scope="row">${k}</th><td>${v}</td></tr>`)}</tbody></table>
+      </div>
+      <aside><div class="aside">
+        <h2 style=${{fontSize:"1.08rem",fontWeight:600,marginBottom:".25rem"}}>Ask about ${p.ref}</h2>
+        <p style=${{fontSize:".87rem",color:"var(--muted)",margin:"0 0 .9rem"}}>
+          Three questions, then a reply within 48 hours.</p>
+        <${Ladder} ref_=${p.ref} />
+      </div></aside>
+    </div>
+
+    ${related.length ? html`<div style=${{marginTop:"3.2rem"}}>
+      <span class="eyebrow">Nearby</span>
+      <h2 class="h2" style=${{fontSize:"1.6rem"}}>More in <span class="accent">${relHeading}</span></h2>
+      <div class="grid">${related.map((r,i)=>html`
+        <${Card} key=${r.id} p=${r} i=${i} open=${open} />`)}</div></div>` : null}
+  </div></section>`;
+};
+
+/* ---- internal linking --------------------------------------------------- */
+const LinkZone = ({open}) => html`
+  <section class="lz" id="areas"><div class="wrap">
+    <div class="rv"><span class="eyebrow">Browse</span>
+      <h2 class="h2">Every area, <span class="accent">its own page</span></h2>
+      <p class="lead">Real routes into the site — each one crawlable, each one linked from
+        every listing page.</p></div>
+    <div class="lg rv d1">
+      <div class="lc"><h4>By area</h4><ul>${AREAS.map(a=>html`
+        <li key=${a}><a href="#listings">${a} property</a></li>`)}</ul></div>
+      <div class="lc"><h4>By type</h4><ul>${["Condo","Villa","House","Land","Business"].map(t=>html`
+        <li key=${t}><a href="#listings">${t}s in Pattaya</a></li>`)}</ul></div>
+      <div class="lc"><h4>Listings</h4><ul>${P.slice(0,6).map(p=>html`
+        <li key=${p.id}><a href=${"#"+p.id} onClick=${e=>{e.preventDefault();open(p);}}>${p.t}</a></li>`)}</ul></div>
+      <div class="lc"><h4>Guides</h4><ul>${["Buying as a foreigner","Freehold vs leasehold",
+        "Transfer fees explained","Buying a Pattaya bar","Choosing an area"].map(g=>html`
+        <li key=${g}><a href="#segments">${g}</a></li>`)}</ul></div>
+    </div>
+  </div></section>`;
+
+const Enquire = () => html`
+  <section id="enquire"><div class="wrap narrow">
+    <div class="rv" style=${{textAlign:"center",marginBottom:"1.8rem"}}>
+      <span class="eyebrow" style=${{justifyContent:"center"}}>Talk to us</span>
+      <h2 class="h2">Three questions, <span class="accent">then a shortlist</span></h2>
+      <p class="lead" style=${{margin:"1rem auto 0"}}>Not a database dump. Answer these and
+        the reply is a handful that actually fit, with the reasons attached.</p></div>
+    <div class="rv d1"><${Ladder} /></div>
+  </div></section>`;
+
+function App(){
+  const [view,setView]=useState({n:"home"});
+  const {p,solid}=useChrome();
+  useReveal();
+  const open=useCallback(x=>{setView({n:"d",p:x});history.pushState({id:x.id},"","#"+x.id);},[]);
+  const home=useCallback(()=>{setView({n:"home"});history.pushState({},"","#");},[]);
+  useEffect(()=>{
+    const on=()=>{const id=location.hash.slice(1);const f=P.find(x=>x.id===id);
+      setView(f?{n:"d",p:f}:{n:"home"});};
+    addEventListener("popstate",on);
+    if(location.hash.length>1) on();
+    return ()=>removeEventListener("popstate",on);
+  },[]);
+  const go=()=>document.getElementById("listings")?.scrollIntoView({behavior:"smooth"});
+  return html`<${React.Fragment}>
+    <${Defs} />
+    <div class="bar-progress" style=${{width:p+"%"}} aria-hidden="true"></div>
+    <p class="ribbon">Design preview · pattayahomepro.com · not yet published</p>
+    <${Nav} solid=${solid} onHome=${home} />
+    ${view.n==="home" ? html`<${React.Fragment}>
+        <${Hero} go=${go} /><${Listings} open=${open} /><${Segments} />
+        <${LinkZone} open=${open} /><${Enquire} /></>`
+    : html`<${Detail} p=${view.p} back=${home} open=${open} />`}
+    <footer><div class="wrap foot">
+      <span>© 2026 Pattaya Home Pro · Chonburi, Thailand</span>
+      <span>Design preview — sample data, nothing connected</span>
+    </div></footer>
+  </>`;
+}
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App} />`);
+</script>
