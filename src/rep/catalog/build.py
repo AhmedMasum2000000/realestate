@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import shutil
+from html import escape
 from datetime import date
 from pathlib import Path
 
@@ -131,14 +132,23 @@ def build(root: Path, out: Path, base: str = "", preview: bool = False) -> dict:
     (out / "assets").mkdir(parents=True, exist_ok=True)
     css = env.get_template("site.css.j2").render(palette=ctx["palette"], fonts=ctx["fonts"])
     (out / "assets" / "site.css").write_text(css, encoding="utf-8")
+    js = env.get_template("site.js.j2").render()
+    (out / "assets" / "site.js").write_text(js, encoding="utf-8")
+
+    brand = root / "assets" / "brand"
+    if brand.is_dir():
+        shutil.copytree(brand, out / "assets" / "brand", dirs_exist_ok=True)
 
     photos = root / "assets" / "properties"
     hero_image = ""
+    band_image = ""
     if photos.is_dir():
         shutil.copytree(photos, out / "assets" / "properties", dirs_exist_ok=True)
         first = sorted(p for p in photos.iterdir() if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"})
         if first:
             hero_image = f"/assets/properties/{first[0].name}"
+        if len(first) > 2:
+            band_image = f"/assets/properties/{first[2].name}"
 
     (out / ".nojekyll").write_text("", encoding="utf-8")
     # A CNAME claims the custom domain. A preview build must not, or Pages
@@ -162,6 +172,7 @@ def build(root: Path, out: Path, base: str = "", preview: bool = False) -> dict:
         "jsonld": jsonld(organization_ld()),
         "hero": content.HERO,
         "hero_image": hero_image,
+        "band_image": band_image,
         "positioning": content.POSITIONING,
         "segments": content.SEGMENTS,
         "rules": content.RULES,
@@ -256,6 +267,7 @@ def build(root: Path, out: Path, base: str = "", preview: bool = False) -> dict:
         html = listing_tpl.render(**{
             **ctx,
             "nav_current": "properties",
+            "body_attrs": f'data-listing="{escape(l.title[:70])}"',
             "page_title": f"{l.title} — {l.price_display} | Ref {l.reference}",
             "page_description": l.meta_description,
             "page_path": l.url,

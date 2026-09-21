@@ -10,7 +10,9 @@ is actually about.
 
 HERO = {
     "kicker": "Condos · Houses · Pool Villas · Businesses",
-    "headline": "Pattaya Home Pro knows Pattaya",
+    # Two halves that diverge horizontally as the hero scrolls away.
+    "line_1": "Pattaya Home Pro",
+    "line_2": "knows Pattaya",
     "sub": (
         "We sell, rent and value property across Pattaya and the Eastern Seaboard — "
         "from a ฿1.5M studio in Jomtien to a beachfront villa in Na Jomtien. "
@@ -20,7 +22,11 @@ HERO = {
 
 POSITIONING = {
     "kicker": "Start here",
-    "headline": "You're probably here to find out whether we're worth a phone call",
+    "headline_lines": [
+        "You're probably here",
+        "to find out whether we're",
+        "worth a phone call",
+    ],
     "body": (
         "Fair. So here it is. We are a working Pattaya brokerage, not a listings portal. "
         "We hold stock across every area from Naklua down to Bang Saray, we know which "
@@ -69,7 +75,11 @@ SEGMENTS = [
 # content is Thai-market specific and written here.
 RULES_INTRO = {
     "kicker": "What the brochures leave out",
-    "headline": "Do enough deals in Pattaya and the same things keep going wrong",
+    "headline_lines": [
+        "Do enough deals in Pattaya",
+        "and the same things",
+        "keep going wrong",
+    ],
 }
 
 RULES = [
@@ -137,7 +147,10 @@ RULES = [
 
 OFF_MARKET = {
     "kicker": "One more thing",
-    "headline": "What you see here isn't everything",
+    "headline_lines": [
+        "What you see here",
+        "isn't everything",
+    ],
     "body": (
         "Everything in our public catalogue is real and current. But a good portion of "
         "Pattaya stock never reaches a website — owners who do not want their neighbours "
@@ -152,7 +165,10 @@ OFF_MARKET = {
 
 DEALS_INTRO = {
     "kicker": "Live inventory",
-    "headline": "Here's a sample of what's on our books right now",
+    "headline_lines": [
+        "Here's a sample of what's",
+        "on our books right now",
+    ],
 }
 
 CONTACT = {

@@ -24,11 +24,34 @@ SITE_URL = "https://pattayahomepro.com"
 # Areas shown in the footer: the ones with enough inventory to be worth a click.
 FOOTER_AREA_LIMIT = 6
 
+# (label, href, nav key) for the full-screen menu.
+MENU_ITEMS = [
+    ("Home", "/", "home"),
+    ("All properties", "/properties/", "properties"),
+    ("For sale", "/for-sale/", "for-sale"),
+    ("For rent", "/for-rent/", "for-rent"),
+    ("Businesses", "/businesses-for-sale/", "business"),
+    ("Services", "/services/", "services"),
+    ("Meet the team", "/meet-the-team/", "team"),
+    ("Done deals", "/done-deals/", "deals"),
+    ("Get in touch", "/get-in-touch/", "contact"),
+]
+
+
+def _autoescape(name: str | None) -> bool:
+    """HTML templates only.
+
+    Escaping CSS mangles anything with a quote in it — a font stack like
+    `'Archivo', sans-serif` becomes `&#39;Archivo&#39;` and the whole
+    declaration is discarded by the parser, silently falling back to a serif.
+    """
+    return bool(name) and name.endswith((".html.j2", ".xml.j2"))
+
 
 def make_env(templates: Path) -> Environment:
     env = Environment(
         loader=FileSystemLoader(str(templates)),
-        autoescape=True,
+        autoescape=_autoescape,
         undefined=StrictUndefined,
         trim_blocks=False,
         lstrip_blocks=False,
@@ -47,7 +70,9 @@ def base_context(areas: list[dict], build_year: int) -> dict:
         "year": build_year,
         "footer_areas": areas[:FOOTER_AREA_LIMIT],
         "nav_current": "",
-        "og_image": f"{SITE_URL}/assets/og-default.jpg",
+        "og_image": f"{SITE_URL}/assets/brand/og-default.jpg",
+        "menu_items": MENU_ITEMS,
+        "body_attrs": "",
         "jsonld": "",
         "page_indexable": True,
     }

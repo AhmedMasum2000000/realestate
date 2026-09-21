@@ -1,0 +1,158 @@
+/* Pattaya Home Pro — motion.
+   Everything here is enhancement: the page is complete and readable with this
+   file blocked, and every effect is skipped outright under reduced-motion. */
+(function () {
+  "use strict";
+
+  var reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var root = document.documentElement;
+
+  /* ---------- full-screen menu ---------- */
+  var menu = document.getElementById("menu");
+  var toggle = document.querySelector(".nav__toggle");
+
+  if (menu && toggle) {
+    var closer = menu.querySelector(".menu__close");
+    var lastFocus = null;
+
+    var setMenu = function (open) {
+      root.classList.toggle("menu-open", open);
+      menu.setAttribute("aria-hidden", String(!open));
+      toggle.setAttribute("aria-expanded", String(open));
+      if (open) {
+        lastFocus = document.activeElement;
+        // Wait for the panel to be painted before moving focus into it.
+        requestAnimationFrame(function () { closer && closer.focus(); });
+      } else if (lastFocus) {
+        lastFocus.focus();
+      }
+    };
+
+    toggle.addEventListener("click", function () {
+      setMenu(!root.classList.contains("menu-open"));
+    });
+    closer && closer.addEventListener("click", function () { setMenu(false); });
+
+    menu.addEventListener("click", function (e) {
+      if (e.target.closest("a")) setMenu(false);
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && root.classList.contains("menu-open")) setMenu(false);
+    });
+
+    // Keep tabbing inside the panel while it is open.
+    menu.addEventListener("keydown", function (e) {
+      if (e.key !== "Tab") return;
+      var items = menu.querySelectorAll("a[href], button");
+      if (!items.length) return;
+      var first = items[0], last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    });
+  }
+
+  /* ---------- reveals ---------- */
+  var reveal = function () {
+    var nodes = document.querySelectorAll(".rv");
+    if (reduced || !("IntersectionObserver" in window)) {
+      for (var i = 0; i < nodes.length; i++) nodes[i].classList.add("in");
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: "0px 0px -6% 0px" });
+
+    nodes.forEach(function (n) { io.observe(n); });
+
+    // Safety net: never leave anything stranded at opacity 0.
+    setTimeout(function () {
+      document.querySelectorAll(".rv:not(.in)").forEach(function (n) {
+        if (n.getBoundingClientRect().top < innerHeight * 1.2) n.classList.add("in");
+      });
+    }, 2400);
+  };
+  reveal();
+
+  if (reduced) return;
+
+  /* ---------- scroll-linked hero ----------
+     The headline is split in two and the halves diverge as the hero scrolls
+     away, which is the reference site's signature move. Driven off scroll
+     position rather than a timed animation so it tracks the wheel exactly. */
+  var hero = document.querySelector("[data-hero]");
+  if (hero) {
+    var halves = hero.querySelectorAll("[data-hero-l], [data-hero-r]");
+    var media = hero.querySelector("[data-hero-media]");
+    var inner = hero.querySelector("[data-hero-in]");
+    var ticking = false;
+
+    var frame = function () {
+      ticking = false;
+      var height = hero.offsetHeight || 1;
+      var p = Math.min(Math.max(window.scrollY / height, 0), 1);
+      var eased = p * p; // hold still early, accelerate as it leaves
+
+      halves.forEach(function (el) {
+        var dir = el.hasAttribute("data-hero-l") ? -1 : 1;
+        el.style.transform = "translate3d(" + (dir * eased * 42) + "vw,0,0)";
+      });
+      if (inner) inner.style.opacity = String(1 - p * 1.15);
+      if (media) media.style.transform = "translate3d(0," + (p * 14) + "%,0) scale(" + (1 + p * 0.12) + ")";
+    };
+
+    var onScroll = function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(frame); }
+    };
+    addEventListener("scroll", onScroll, { passive: true });
+    addEventListener("resize", onScroll);
+    frame();
+  }
+
+  /* ---------- sticky nav state ---------- */
+  var nav = document.querySelector(".nav");
+  if (nav) {
+    var lastY = 0, navTick = false;
+    var navFrame = function () {
+      navTick = false;
+      var y = window.scrollY;
+      nav.classList.toggle("nav--solid", y > 24);
+      // Give the page back when scrolling down, bring the nav back on the way up.
+      nav.classList.toggle("nav--hide", y > 420 && y > lastY && !root.classList.contains("menu-open"));
+      lastY = y;
+    };
+    addEventListener("scroll", function () {
+      if (!navTick) { navTick = true; requestAnimationFrame(navFrame); }
+    }, { passive: true });
+    navFrame();
+  }
+
+  /* ---------- recently viewed ----------
+     Progressive enhancement only: absent on first paint, and any storage
+     failure (private mode, blocked cookies) leaves the page exactly as it was. */
+  try {
+    var KEY = "phpro:seen";
+    var here = document.body.getAttribute("data-listing");
+    var seen = JSON.parse(localStorage.getItem(KEY) || "[]");
+
+    if (here) {
+      seen = seen.filter(function (x) { return x && x.u !== location.pathname; });
+      seen.unshift({ u: location.pathname, t: here });
+      localStorage.setItem(KEY, JSON.stringify(seen.slice(0, 8)));
+    }
+
+    var slot = document.querySelector("[data-recent]");
+    var others = seen.filter(function (x) { return x && x.u !== location.pathname; }).slice(0, 4);
+    if (slot && others.length) {
+      var html = others.map(function (x) {
+        var a = document.createElement("a");
+        a.href = x.u; a.className = "chip"; a.textContent = x.t;
+        return a.outerHTML;
+      }).join("");
+      slot.querySelector("[data-recent-list]").innerHTML = html;
+      slot.hidden = false;
+    }
+  } catch (e) { /* storage unavailable — nothing to do */ }
+})();
