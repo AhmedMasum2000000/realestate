@@ -9,10 +9,12 @@ listings to yield photos — the rest have been sold or withdrawn at the source
 and keep their placeholder art.
 
 Each round trip takes several seconds, most of it latency rather than work at
-the far end, so a handful of workers shortens a three-hour run to well under one
-while still leaving seconds between requests reaching the origin. Stops itself
-after 25 consecutive failures rather than hammering a site that has stopped
-answering.
+the far end, so a handful of workers shortens the run considerably. The origin
+does throttle sustained concurrency, which is a signal to be patient rather than
+to push harder — results are checkpointed every 50 listings and the cache makes
+a restart nearly free, so a slow run is an inconvenience, not lost work. Stops
+itself after 25 consecutive failures rather than hammering a site that has
+stopped answering.
 """
 
 import json
@@ -30,6 +32,15 @@ from rep.catalog.loader import read_catalog  # noqa: E402
 MAX_CONSECUTIVE_FAILURES = 25
 GALLERY_CAP = 12
 DEFAULT_WORKERS = 4
+CHECKPOINT_EVERY = 50
+
+
+def save(path: Path, results: dict) -> None:
+    path.write_text(
+        json.dumps({"count": len(results), "listings": results},
+                   ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
 
 
 def arg_value(args, flag, cast, default=None):
@@ -96,7 +107,10 @@ def main() -> int:
                     if consecutive["n"] >= MAX_CONSECUTIVE_FAILURES:
                         stop.set()
             counts["done"] += 1
-            if counts["done"] % 50 == 0:
+            if counts["done"] % CHECKPOINT_EVERY == 0:
+                # Checkpoint: a long run against a throttling origin should not
+                # lose its results if it is interrupted.
+                save(out_path, results)
                 print(f"  {counts['done']}/{len(targets)}  "
                       f"photos={counts['photos']} delisted={counts['delisted']} "
                       f"failed={counts['failed']}", flush=True)
@@ -125,11 +139,7 @@ def main() -> int:
               "source stopped answering. Re-run later; cached work is kept.",
               file=sys.stderr)
 
-    out_path.write_text(
-        json.dumps({"count": len(results), "listings": results},
-                   ensure_ascii=False, indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+    save(out_path, results)
 
     print(f"\n{len(results)} listings with photos -> data/enrichment.json")
     print(f"  photos found      : {counts['photos']}")
