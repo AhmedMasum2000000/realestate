@@ -164,9 +164,14 @@ class Listing:
 
     @property
     def indexable(self) -> bool:
-        """Data-driven, so a listing starts earning indexation the moment
-        enrichment gives it a photo or real copy — no manual flag flipping."""
-        return bool(self.hero_image) or self.copy_source == "scraped"
+        """Photographs are the threshold.
+
+        Data-driven, so a listing earns indexation the moment enrichment gives
+        it images — no manual flag flipping. Scraped marketing text does not
+        count: republishing another site's copy verbatim is duplicate content,
+        so every description here is generated from the listing's own facts.
+        """
+        return bool(self.hero_image)
 
     @property
     def url(self) -> str:

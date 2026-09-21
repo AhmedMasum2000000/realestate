@@ -55,9 +55,6 @@ def merge_enrichment(listings: list[Listing], path: Path) -> int:
             listing.images = images
             listing.hero_image = payload.get("hero") or images[0]
             applied += 1
-        if payload.get("description"):
-            listing.meta_description = payload["description"][:158]
-            listing.copy_source = "scraped"
     return applied
 
 

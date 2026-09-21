@@ -1,0 +1,142 @@
+#!/usr/bin/env python3
+"""Fetch listing photographs and write data/enrichment.json.
+
+    bin/enrich [--limit N] [--workers N] [--refresh] [--dry-run]
+
+Resumable: every response is cached under .cache/enrich, so re-running picks up
+where it stopped and costs nothing for URLs already seen. Expect roughly 40% of
+listings to yield photos — the rest have been sold or withdrawn at the source
+and keep their placeholder art.
+
+Each round trip takes several seconds, most of it latency rather than work at
+the far end, so a handful of workers shortens a three-hour run to well under one
+while still leaving seconds between requests reaching the origin. Stops itself
+after 25 consecutive failures rather than hammering a site that has stopped
+answering.
+"""
+
+import json
+import sys
+import threading
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.catalog.enrich import cache, casa  # noqa: E402
+from rep.catalog.loader import read_catalog  # noqa: E402
+
+MAX_CONSECUTIVE_FAILURES = 25
+GALLERY_CAP = 12
+DEFAULT_WORKERS = 4
+
+
+def arg_value(args, flag, cast, default=None):
+    if flag in args:
+        return cast(args[args.index(flag) + 1])
+    return default
+
+
+def main() -> int:
+    args = sys.argv[1:]
+    limit = arg_value(args, "--limit", int)
+    workers = arg_value(args, "--workers", int, DEFAULT_WORKERS)
+    refresh = "--refresh" in args
+    dry_run = "--dry-run" in args
+
+    catalog = ROOT / "data" / "catalog.json"
+    if not catalog.exists():
+        print("error: data/catalog.json missing — run bin/ingest first", file=sys.stderr)
+        return 1
+
+    listings = read_catalog(catalog)
+    targets = [l for l in listings if l.source_url.startswith("http")]
+    if limit:
+        targets = targets[:limit]
+
+    out_path = ROOT / "data" / "enrichment.json"
+    results = {}
+    if out_path.exists() and not refresh:
+        results = json.loads(out_path.read_text(encoding="utf-8")).get("listings", {})
+
+    cache_root = ROOT / cache.CACHE_ROOT
+    cached, pending = [], []
+    for listing in targets:
+        hit = None if refresh else cache.load(cache_root, casa.PROVIDER, listing.source_url)
+        (cached if hit is not None else pending).append((listing, hit))
+
+    print(f"{len(targets)} listings: {len(cached)} cached, {len(pending)} to fetch")
+    if dry_run:
+        return 0
+
+    lock = threading.Lock()
+    counts = {"photos": 0, "delisted": 0, "failed": 0, "done": 0}
+    consecutive = {"n": 0}
+    stop = threading.Event()
+
+    def record(listing, payload):
+        with lock:
+            if payload.get("ok") and payload.get("images"):
+                results[listing.reference] = {
+                    "hero": payload.get("hero", ""),
+                    "images": payload["images"][:GALLERY_CAP],
+                    "source": payload.get("final_url", listing.source_url),
+                }
+                counts["photos"] += 1
+                consecutive["n"] = 0
+            else:
+                results.pop(listing.reference, None)
+                if payload.get("delisted"):
+                    counts["delisted"] += 1
+                    consecutive["n"] = 0
+                else:
+                    counts["failed"] += 1
+                    consecutive["n"] += 1
+                    if consecutive["n"] >= MAX_CONSECUTIVE_FAILURES:
+                        stop.set()
+            counts["done"] += 1
+            if counts["done"] % 50 == 0:
+                print(f"  {counts['done']}/{len(targets)}  "
+                      f"photos={counts['photos']} delisted={counts['delisted']} "
+                      f"failed={counts['failed']}", flush=True)
+
+    for listing, payload in cached:
+        record(listing, payload)
+
+    def work(listing):
+        if stop.is_set():
+            return None
+        payload = casa.scrape(listing.source_url)
+        cache.store(cache_root, casa.PROVIDER, listing.source_url, payload)
+        casa.pause()
+        return listing, payload
+
+    if pending:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = [pool.submit(work, l) for l, _ in pending]
+            for future in as_completed(futures):
+                outcome = future.result()
+                if outcome:
+                    record(*outcome)
+
+    if stop.is_set():
+        print(f"\nstopped: {MAX_CONSECUTIVE_FAILURES} consecutive failures — the "
+              "source stopped answering. Re-run later; cached work is kept.",
+              file=sys.stderr)
+
+    out_path.write_text(
+        json.dumps({"count": len(results), "listings": results},
+                   ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    print(f"\n{len(results)} listings with photos -> data/enrichment.json")
+    print(f"  photos found      : {counts['photos']}")
+    print(f"  delisted at source: {counts['delisted']}")
+    print(f"  failed            : {counts['failed']}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
