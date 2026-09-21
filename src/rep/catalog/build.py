@@ -98,7 +98,7 @@ def comparison_note(listing: Listing, pool: list[Listing]) -> str:
     return head + tail
 
 
-def build(root: Path, out: Path) -> dict:
+def build(root: Path, out: Path, base: str = "", preview: bool = False) -> dict:
     templates = root / "templates" / "phpro"
     env = make_env(templates)
     today = date.today()
@@ -140,7 +140,10 @@ def build(root: Path, out: Path) -> dict:
             hero_image = f"/assets/properties/{first[0].name}"
 
     (out / ".nojekyll").write_text("", encoding="utf-8")
-    (out / "CNAME").write_text("pattayahomepro.com\n", encoding="utf-8")
+    # A CNAME claims the custom domain. A preview build must not, or Pages
+    # serves it at a domain whose DNS does not point here yet.
+    if not preview:
+        (out / "CNAME").write_text("pattayahomepro.com\n", encoding="utf-8")
 
     pages: list[tuple[str, bool]] = []
 
@@ -176,7 +179,7 @@ def build(root: Path, out: Path) -> dict:
         "sale_count": deals["sale"],
         "rent_count": deals["rent"],
     })
-    write(out, "/", home_html)
+    write(out, "/", home_html, base)
     pages.append(("/", True))
 
     # ---- hubs ----
@@ -240,7 +243,7 @@ def build(root: Path, out: Path) -> dict:
                 "adjacent": adjacent,
                 "related_hubs": related_hubs,
             })
-            write(out, path, html)
+            write(out, path, html, base)
             pages.append((path, indexable))
 
     # ---- listings ----
@@ -271,7 +274,7 @@ def build(root: Path, out: Path) -> dict:
             # showing it then adds a row that tells the reader nothing.
             "show_project": bool(l.project) and l.project.lower() not in l.title.lower(),
         })
-        write(out, l.url, html)
+        write(out, l.url, html, base)
         pages.append((l.url, l.indexable))
 
     # ---- core pages ----
@@ -367,7 +370,7 @@ def build(root: Path, out: Path) -> dict:
             "property_interests": content.PROPERTY_INTERESTS,
             "form_action": FORM_ACTION,
         })
-        write(out, page["path"], html)
+        write(out, page["path"], html, base)
         pages.append((page["path"], True))
 
     return {

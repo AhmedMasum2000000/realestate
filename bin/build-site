@@ -1,7 +1,12 @@
 #!/usr/bin/env python3
-"""Build the static site from data/catalog.json into site/.
+"""Build the static site from data/catalog.json.
 
-    bin/build-site [output-dir]
+    bin/build-site [output-dir] [--base /repo-name] [--preview]
+
+    --base     prefix every root-relative link, for hosts that serve the site
+               under a sub-path (GitHub project Pages serve at /<repo>/)
+    --preview  robots.txt disallows everything and no CNAME is written, so a
+               preview deployment cannot compete with production in search
 
 Needs no network and no CSV — everything comes from the committed JSON, so the
 build is reproducible in CI.
@@ -18,21 +23,41 @@ from rep.catalog.seo import write_robots, write_sitemaps  # noqa: E402
 
 
 def main() -> int:
-    out = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "site"
+    args = sys.argv[1:]
+    base = ""
+    preview = False
+    positional = []
 
-    catalog = ROOT / "data" / "catalog.json"
-    if not catalog.exists():
+    i = 0
+    while i < len(args):
+        if args[i] == "--base":
+            i += 1
+            base = "/" + args[i].strip("/") if i < len(args) and args[i].strip("/") else ""
+        elif args[i].startswith("--base="):
+            value = args[i].split("=", 1)[1].strip("/")
+            base = "/" + value if value else ""
+        elif args[i] == "--preview":
+            preview = True
+        else:
+            positional.append(args[i])
+        i += 1
+
+    out = Path(positional[0]).resolve() if positional else ROOT / "site"
+
+    if not (ROOT / "data" / "catalog.json").exists():
         print("error: data/catalog.json missing — run bin/ingest first", file=sys.stderr)
         return 1
 
-    result = build(ROOT, out)
+    result = build(ROOT, out, base=base, preview=preview)
     indexed = write_sitemaps(out, result["pages"])
-    write_robots(out)
+    write_robots(out, preview=preview)
 
     print(f"{len(result['pages'])} pages -> {out}")
     print(f"  listings : {result['listings']} ({result['enriched']} with photos)")
     print(f"  hubs     : {result['hubs']}")
-    print(f"  indexable: {indexed}")
+    print(f"  indexable: {indexed}{'  (preview: robots disallows all)' if preview else ''}")
+    if base:
+        print(f"  base path: {base}")
     return 0
 
 

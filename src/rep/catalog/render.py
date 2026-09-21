@@ -7,6 +7,7 @@ static hosts serve them without extensionless-URL rewriting.
 from __future__ import annotations
 
 import json
+import re
 from datetime import date
 from pathlib import Path
 
@@ -52,11 +53,27 @@ def base_context(areas: list[dict], build_year: int) -> dict:
     }
 
 
-def write(out: Path, path: str, html: str) -> None:
+_ROOT_REF = re.compile(r'(href|src)="/(?!/)')
+
+
+def rebase(html: str, base: str) -> str:
+    """Prefix root-relative links so the site works under a sub-path.
+
+    GitHub project Pages serve at `/<repo>/`, where every `href="/…"` would
+    otherwise resolve against the domain root. Canonical and og:url tags are
+    left alone: they are absolute with a scheme and still name the real
+    production URL, which is what keeps a preview from competing in search.
+    """
+    if not base:
+        return html
+    return _ROOT_REF.sub(rf'\1="{base}/', html)
+
+
+def write(out: Path, path: str, html: str, base: str = "") -> None:
     """`path` is a URL path; '/for-sale/' becomes 'for-sale/index.html'."""
     target = out / path.strip("/") / "index.html" if path != "/" else out / "index.html"
     target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(html, encoding="utf-8")
+    target.write_text(rebase(html, base), encoding="utf-8")
 
 
 def paginate(items: list, size: int = PAGE_SIZE) -> list[list]:

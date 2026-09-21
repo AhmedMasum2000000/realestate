@@ -56,7 +56,14 @@ def write_sitemaps(out: Path, pages: list[tuple[str, bool]], today: date | None 
     return len(indexable)
 
 
-def write_robots(out: Path) -> None:
+def write_robots(out: Path, preview: bool = False) -> None:
+    if preview:
+        # A preview deployment is a duplicate of the production site. Letting it
+        # be crawled would put the two in competition for the same queries.
+        (out / "robots.txt").write_text(
+            "User-agent: *\nDisallow: /\n", encoding="utf-8"
+        )
+        return
     (out / "robots.txt").write_text(
         "User-agent: *\n"
         "Allow: /\n"
