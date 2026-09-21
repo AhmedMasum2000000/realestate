@@ -73,6 +73,7 @@ def base_context(areas: list[dict], build_year: int) -> dict:
         "og_image": f"{SITE_URL}/assets/brand/og-default.jpg",
         "menu_items": MENU_ITEMS,
         "body_attrs": "",
+        "body_class": "",
         "jsonld": "",
         "page_indexable": True,
     }

@@ -169,6 +169,7 @@ def build(root: Path, out: Path, base: str = "", preview: bool = False) -> dict:
             "across Pattaya and the Eastern Seaboard. Straight answers on price, title and quota."
         ),
         "page_path": "/",
+        "body_class": "page--hero",
         "jsonld": jsonld(organization_ld()),
         "hero": content.HERO,
         "hero_image": hero_image,

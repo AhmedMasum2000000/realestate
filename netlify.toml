@@ -7,7 +7,7 @@
 
 [build]
   publish = "site"
-  command = "pip install -r requirements.txt && python3 bin/build-site site --preview"
+  command = "pip install -r requirements.txt && python3 bin/build-site site --preview && python3 bin/check-site site"
 
 [build.environment]
   PYTHON_VERSION = "3.11"

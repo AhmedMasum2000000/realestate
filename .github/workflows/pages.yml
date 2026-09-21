@@ -25,6 +25,7 @@ on:
       - 'templates/phpro/**'
       - 'assets/properties/**'
       - 'bin/build-site'
+      - 'bin/check-site'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -56,29 +57,8 @@ jobs:
       - name: Build site
         run: bin/build-site public --base "${{ github.event.repository.name }}" --preview
 
-      - name: Check every internal link resolves
-        run: |
-          python3 - <<'PY'
-          import re, sys
-          from pathlib import Path
-          out = Path("public")
-          base = "/${{ github.event.repository.name }}"
-          checked = broken = 0
-          for f in out.rglob("index.html"):
-              for href in re.findall(r'href="(/[^"]*)"', f.read_text(encoding="utf-8")):
-                  h = href.split("#")[0].split("?")[0]
-                  if not h or not h.startswith(base):
-                      continue
-                  rel = h[len(base):].strip("/")
-                  checked += 1
-                  p = out / "index.html" if not rel else (
-                      out / rel if (out / rel).is_file() else out / rel / "index.html")
-                  if not p.exists():
-                      broken += 1
-                      print(f"BROKEN {h} (from {f})")
-          print(f"checked={checked} broken={broken}")
-          sys.exit(1 if broken else 0)
-          PY
+      - name: Verify the built site
+        run: bin/check-site public --base "${{ github.event.repository.name }}"
 
       - uses: actions/upload-pages-artifact@v3
         with:

@@ -83,14 +83,21 @@ h1,h2,h3,h4,.disp{
 .nav__toggle:hover .nav__bars i+i{width:26px}
 @media(max-width:34rem){.nav__phone{display:none}}
 
-/* Over the hero the nav sits on the photograph, so it inverts. */
-.nav:not(.nav--solid) .nav__toggle{color:#fff}
-.nav:not(.nav--solid) .nav__phone{color:#fff;border-color:rgba(255,255,255,.75)}
-.nav:not(.nav--solid) .nav__phone:hover{background:#fff;color:var(--navy)}
-.nav:not(.nav--solid) .nav__brand img{filter:brightness(0) invert(1)}
-.page--light .nav:not(.nav--solid) .nav__toggle,
-.page--light .nav:not(.nav--solid) .nav__phone{color:var(--navy);border-color:var(--navy)}
-.page--light .nav:not(.nav--solid) .nav__brand img{filter:none}
+/* The nav is fixed, so anything without a hero behind it must be pushed clear
+   of it — otherwise the first section renders underneath the bar. */
+main{padding-top:var(--nav-h)}
+.page--hero main{padding-top:0}
+
+/* The bar carries its own background by default. Only a hero earns the
+   transparent, inverted treatment, and only until the page starts scrolling. */
+.nav::after{opacity:1}
+.page--hero .nav::after{opacity:0}
+.page--hero .nav--solid::after{opacity:1}
+
+.page--hero .nav:not(.nav--solid) .nav__toggle{color:#fff}
+.page--hero .nav:not(.nav--solid) .nav__phone{color:#fff;border-color:rgba(255,255,255,.75)}
+.page--hero .nav:not(.nav--solid) .nav__phone:hover{background:#fff;color:var(--navy)}
+.page--hero .nav:not(.nav--solid) .nav__brand img{filter:brightness(0) invert(1)}
 
 /* ---------- full-screen menu ---------- */
 .menu{
