@@ -29,3 +29,6 @@ out/
 # + assets/properties, so committing it would duplicate ~50MB of images and
 # churn 1,248 files on every build.
 site/
+
+# Netlify CLI link state — machine-local, recreated by `netlify link`.
+.netlify/
