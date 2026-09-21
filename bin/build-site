@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""Build the static site from data/catalog.json into site/.
+
+    bin/build-site [output-dir]
+
+Needs no network and no CSV — everything comes from the committed JSON, so the
+build is reproducible in CI.
+"""
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.catalog.build import build  # noqa: E402
+from rep.catalog.seo import write_robots, write_sitemaps  # noqa: E402
+
+
+def main() -> int:
+    out = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else ROOT / "site"
+
+    catalog = ROOT / "data" / "catalog.json"
+    if not catalog.exists():
+        print("error: data/catalog.json missing — run bin/ingest first", file=sys.stderr)
+        return 1
+
+    result = build(ROOT, out)
+    indexed = write_sitemaps(out, result["pages"])
+    write_robots(out)
+
+    print(f"{len(result['pages'])} pages -> {out}")
+    print(f"  listings : {result['listings']} ({result['enriched']} with photos)")
+    print(f"  hubs     : {result['hubs']}")
+    print(f"  indexable: {indexed}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -1,0 +1,172 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+
+{% block content %}
+
+<section class="hero">
+  <div class="hero__media">
+    {%- if hero_image %}
+    <img src="{{ hero_image }}" alt="Pattaya coastline and condominium towers" width="1600" height="900" fetchpriority="high">
+    {%- endif %}
+  </div>
+  <div class="wrap hero__in">
+    <span class="kick" style="color:var(--gold)">{{ hero.kicker }}</span>
+    <h1 class="d1">{{ hero.headline }}</h1>
+    <p class="hero__sub">{{ hero.sub }}</p>
+    <div class="hero__cta">
+      <a class="btn btn--gold" href="tel:{{ brand.phone_href }}">Call {{ brand.phone_display }}</a>
+      <a class="btn btn--ghost" href="/properties/" style="color:#fff">See all {{ total }} properties</a>
+    </div>
+    <div class="hero__facts">
+      <div class="hero__fact"><b class="tnum">{{ total }}</b><span>Properties on our books</span></div>
+      <div class="hero__fact"><b class="tnum">{{ area_count }}</b><span>Areas covered</span></div>
+      <div class="hero__fact"><b class="tnum">{{ sale_count }}</b><span>For sale</span></div>
+      <div class="hero__fact"><b class="tnum">{{ rent_count }}</b><span>For rent</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="strip">
+  <div class="wrap">
+    <p class="strip__t">{{ trust.title }}</p>
+    <div class="strip__row">
+      {%- for area in areas %}
+      <a href="/areas/{{ area.slug }}/"><span>{{ area.name }}</span></a>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap split">
+    <div class="rv">
+      <span class="kick">{{ positioning.kicker }}</span>
+      <h2 class="d2" style="color:var(--navy)">{{ positioning.headline }}</h2>
+    </div>
+    <div class="rv rv-1">
+      <p class="lead">{{ positioning.body }}</p>
+      <p class="lead" style="margin-top:1.2rem">{{ positioning.body_2 }}</p>
+      <a class="btn btn--navy" href="/properties/" style="margin-top:1.8rem">Browse the catalogue</a>
+    </div>
+  </div>
+</section>
+
+<hr class="bar">
+
+<section class="sec">
+  <div class="wrap">
+    <div class="rv" style="max-width:46rem">
+      <span class="kick">Who you are changes what matters</span>
+      <h2 class="d2" style="color:var(--navy)">What you need from us depends on which side of the deal you're on</h2>
+    </div>
+    <div class="seg">
+      {%- for s in segments %}
+      <div class="seg__c rv rv-{{ loop.index }}">
+        <h3>{{ s.title }}</h3>
+        <p>{{ s.text }}</p>
+        <a href="{{ s.href }}">{{ s.cta }} &rarr;</a>
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="rv" style="max-width:44rem">
+      <span class="kick">{{ deals_intro.kicker }}</span>
+      <h2 class="d2" style="color:var(--navy)">{{ deals_intro.headline }}</h2>
+    </div>
+    {{ m.card_grid(featured) }}
+    <div style="margin-top:2.6rem">
+      <a class="btn btn--navy" href="/properties/">See all {{ total }} properties</a>
+    </div>
+  </div>
+</section>
+
+<section class="rules sec">
+  <div class="rules__media"></div>
+  <div class="wrap rules__in">
+    <div class="rv" style="max-width:46rem">
+      <span class="kick" style="color:var(--gold)">{{ rules_intro.kicker }}</span>
+      <h2 class="d2">{{ rules_intro.headline }}</h2>
+    </div>
+    <div class="rules__list">
+      {%- for r in rules %}
+      <div class="rules__i">
+        <span class="rules__n">{{ "%02d"|format(loop.index) }}</span>
+        <b>{{ r.law }}</b>
+        <p>{{ r.note }}</p>
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap split">
+    <div class="rv">
+      <span class="kick">{{ off_market.kicker }}</span>
+      <h2 class="d2" style="color:var(--navy)">{{ off_market.headline }}</h2>
+    </div>
+    <div class="rv rv-1">
+      <p class="lead">{{ off_market.body }}</p>
+      <p class="lead" style="margin-top:1.2rem">{{ off_market.body_2 }}</p>
+      <a class="btn btn--gold" href="tel:{{ brand.phone_href }}" style="margin-top:1.8rem">Call {{ brand.phone_display }}</a>
+    </div>
+  </div>
+</section>
+
+<section class="block sec" id="contact">
+  <div class="wrap split">
+    <div>
+      <span class="kick">{{ contact.kicker }}</span>
+      <h2 class="d2">{{ contact.headline }}</h2>
+      <p class="lead" style="margin-top:1.4rem">{{ contact.sub }}</p>
+      <a class="foot__cta" href="tel:{{ brand.phone_href }}" style="font-size:clamp(1.4rem,4.4vw,2.6rem);margin-top:1.6rem">{{ brand.phone_display }}</a>
+      <p class="lead" style="margin-top:2rem;font-size:.92rem">
+        {{ brand.address_street }}<br>
+        {{ brand.address_locality }}, {{ brand.address_region }} {{ brand.address_postal }}<br>
+        Thailand
+      </p>
+    </div>
+    <form class="form" method="post" action="{{ form_action }}">
+      <div class="form__row">
+        <div>
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" required placeholder="Your name">
+        </div>
+        <div>
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" required placeholder="you@example.com">
+        </div>
+      </div>
+      <div>
+        <label for="f-interest">I'm looking</label>
+        <select id="f-interest" name="interest">
+          {%- for option in interests %}
+          <option>{{ option }}</option>
+          {%- endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Across</label>
+        <div class="form__checks">
+          {%- for p in property_interests %}
+          <label><input type="checkbox" name="types" value="{{ p }}"> {{ p }}</label>
+          {%- endfor %}
+        </div>
+      </div>
+      <div>
+        <label for="f-message">Message</label>
+        <textarea id="f-message" name="message" placeholder="Area, budget, timing — whatever's useful."></textarea>
+      </div>
+      <button class="btn btn--gold" type="submit">Send</button>
+      <p style="font-size:.78rem;color:#9FAAC2;margin:0">
+        Prefer to talk? Call <a href="tel:{{ brand.phone_href }}" style="color:var(--gold)">{{ brand.phone_display }}</a>.
+      </p>
+    </form>
+  </div>
+</section>
+
+{% endblock %}

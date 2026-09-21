@@ -1,0 +1,105 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+
+{% block content %}
+<div class="wrap">{{ m.crumbs(crumbs, l.reference) }}</div>
+
+<section class="sec" style="padding-top:.5rem">
+  <div class="wrap">
+    <div style="max-width:52rem">
+      <span class="kick">{{ l.deal_label }} &middot; {{ l.location or 'Pattaya' }} &middot; {{ l.type }}</span>
+      <h1 class="d2" style="color:var(--navy);text-transform:none;letter-spacing:-.02em">{{ l.title }}</h1>
+    </div>
+
+    <div class="dgrid">
+      <div>
+        <div class="dhero">
+          {%- if l.hero_image %}
+          <img id="dhero-img" src="{{ l.hero_image }}" alt="{{ l.title }}" width="960" height="600" fetchpriority="high">
+          {%- else %}
+          {{ art(l.type_slug, l.reference)|safe }}
+          {%- endif %}
+        </div>
+        {%- if gallery %}
+        <div class="dthumbs">
+          {%- for src in gallery %}
+          <img src="{{ src }}" alt="{{ l.title }} — photo {{ loop.index }}" loading="lazy" width="200" height="150"
+               onclick="document.getElementById('dhero-img').src=this.src">
+          {%- endfor %}
+        </div>
+        {%- endif %}
+
+        <h2 class="d3" style="color:var(--navy);margin-top:2.6rem">The detail</h2>
+        <table class="stats">
+          <tbody>
+            <tr><th>Reference</th><td><b>{{ l.reference }}</b></td></tr>
+            <tr><th>Type</th><td><b>{{ l.type }}</b></td></tr>
+            <tr><th>Status</th><td><b>{{ l.deal_label }}</b></td></tr>
+            {%- if l.location %}<tr><th>Area</th><td><b><a href="/areas/{{ l.location_slug }}/">{{ l.location }}</a></b></td></tr>{% endif %}
+            {%- if show_project %}<tr><th>Project</th><td><b>{% if project_url %}<a href="{{ project_url }}">{{ l.project }}</a>{% else %}{{ l.project }}{% endif %}</b></td></tr>{% endif %}
+            {%- if l.bedrooms_label %}<tr><th>Bedrooms</th><td><b>{{ l.bedrooms_label }}</b></td></tr>{% endif %}
+            {%- if l.bathrooms %}<tr><th>Bathrooms</th><td><b>{{ l.bathrooms }}</b></td></tr>{% endif %}
+            <tr><th>Price</th><td><b class="tnum">{{ l.price_display }}</b></td></tr>
+            {%- if l.last_update %}<tr><th>Last updated</th><td><b>{{ l.last_update }}</b></td></tr>{% endif %}
+          </tbody>
+        </table>
+
+        {%- if context_note %}
+        <h2 class="d3" style="color:var(--navy);margin-top:2.6rem">How this compares</h2>
+        <p class="lead" style="margin-top:.9rem">{{ context_note }}</p>
+        {%- endif %}
+
+        {%- if area_note %}
+        <h2 class="d3" style="color:var(--navy);margin-top:2.4rem">About {{ l.location }}</h2>
+        <p class="lead" style="margin-top:.9rem">{{ area_note }}</p>
+        <a class="btn btn--ghost" href="/areas/{{ l.location_slug }}/" style="margin-top:1.3rem">
+          See all property in {{ l.location }}
+        </a>
+        {%- endif %}
+      </div>
+
+      <aside class="aside">
+        <span class="pc__where">{{ l.deal_label }}</span>
+        <div class="aside__price tnum">{{ l.price_display }}</div>
+        <div class="aside__ref">Ref {{ l.reference }}</div>
+        <a class="btn btn--gold" href="tel:{{ brand.phone_href }}">Call {{ brand.phone_display }}</a>
+        <a class="btn btn--ghost" href="/get-in-touch/">Send an enquiry</a>
+        <p class="note">
+          Quote reference <b>{{ l.reference }}</b> when you call and we'll pull the file
+          before you finish the sentence.
+        </p>
+        <p class="note">
+          Prices and availability change. Confirm current terms by phone before you travel.
+        </p>
+      </aside>
+    </div>
+  </div>
+</section>
+
+{%- if related %}
+<section class="sec" style="background:var(--paper-2)">
+  <div class="wrap">
+    <span class="kick">Based on what you're looking at</span>
+    <h2 class="d2" style="color:var(--navy)">Similar {{ l.deal_label|lower }}{% if l.location %} near {{ l.location }}{% endif %}</h2>
+    {{ m.card_grid(related) }}
+  </div>
+</section>
+{%- endif %}
+
+<section class="block sec" style="padding-block:clamp(3rem,6vw,4.5rem)">
+  <div class="wrap split">
+    <div>
+      <span class="kick">Next step</span>
+      <h2 class="d2">Ask the awkward questions before you view</h2>
+    </div>
+    <div>
+      <p class="lead">
+        Title class, foreign quota, who pays the transfer fee, what the juristic person
+        has in reserve. We would rather answer those on the phone than have you find out
+        at the land office.
+      </p>
+      <a class="btn btn--gold" href="tel:{{ brand.phone_href }}" style="margin-top:1.6rem">Call {{ brand.phone_display }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

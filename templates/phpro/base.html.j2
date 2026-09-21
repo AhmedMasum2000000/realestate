@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>document.documentElement.className+=' js';</script>
+<title>{{ page_title }}</title>
+<meta name="description" content="{{ page_description }}">
+<link rel="canonical" href="{{ site_url }}{{ page_path }}">
+{%- if not page_indexable %}
+<meta name="robots" content="noindex,follow">
+{%- else %}
+<meta name="robots" content="index,follow,max-image-preview:large">
+{%- endif %}
+<meta property="og:type" content="{{ og_type|default('website') }}">
+<meta property="og:site_name" content="{{ brand.name }}">
+<meta property="og:title" content="{{ page_title }}">
+<meta property="og:description" content="{{ page_description }}">
+<meta property="og:url" content="{{ site_url }}{{ page_path }}">
+{%- if og_image %}
+<meta property="og:image" content="{{ og_image }}">
+{%- endif %}
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="{{ fonts.google_href }}">
+<link rel="stylesheet" href="/assets/site.css">
+{%- block head_extra %}{% endblock %}
+{%- if jsonld %}
+<script type="application/ld+json">{{ jsonld }}</script>
+{%- endif %}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav__in">
+    <a class="nav__brand" href="/">
+      <b>{{ brand.name }}</b>
+      <span>{{ brand.tagline }}</span>
+    </a>
+    <nav class="nav__links" aria-label="Main">
+      <a href="/properties/"{% if nav_current == 'properties' %} aria-current="page"{% endif %}>Properties</a>
+      <a href="/for-sale/"{% if nav_current == 'for-sale' %} aria-current="page"{% endif %}>For Sale</a>
+      <a href="/for-rent/"{% if nav_current == 'for-rent' %} aria-current="page"{% endif %}>For Rent</a>
+      <a href="/businesses-for-sale/"{% if nav_current == 'business' %} aria-current="page"{% endif %}>Businesses</a>
+      <a href="/services/"{% if nav_current == 'services' %} aria-current="page"{% endif %}>Services</a>
+      <a href="/get-in-touch/"{% if nav_current == 'contact' %} aria-current="page"{% endif %}>Get in Touch</a>
+    </nav>
+    <a class="btn btn--navy nav__call" href="tel:{{ brand.phone_href }}">{{ brand.phone_display }}</a>
+  </div>
+</header>
+
+<main id="main">
+{%- block content %}{% endblock %}
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <span class="kick" style="color:var(--gold)">Talk to someone who picks up</span>
+    <a class="foot__cta" href="tel:{{ brand.phone_href }}">{{ brand.phone_display }}</a>
+
+    <div class="foot__grid">
+      <div>
+        <h4>Office</h4>
+        <ul>
+          <li>{{ brand.address_street }}</li>
+          <li>{{ brand.address_locality }}, {{ brand.address_region }} {{ brand.address_postal }}</li>
+          <li>Thailand</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Browse</h4>
+        <ul>
+          <li><a href="/properties/">All properties</a></li>
+          <li><a href="/for-sale/">For sale</a></li>
+          <li><a href="/for-rent/">For rent</a></li>
+          <li><a href="/businesses-for-sale/">Businesses for sale</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Areas</h4>
+        <ul>
+          {%- for area in footer_areas %}
+          <li><a href="/areas/{{ area.slug }}/">{{ area.name }}</a></li>
+          {%- endfor %}
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/meet-the-team/">Meet the team</a></li>
+          <li><a href="/done-deals/">Done deals</a></li>
+          <li><a href="/get-in-touch/">Get in touch</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot__legal">
+      <span>&copy; {{ year }} {{ brand.name }}. {{ brand.tagline }}.</span>
+      <span>Prices and availability change. Confirm current terms by phone before you travel.</span>
+    </div>
+  </div>
+</footer>
+
+<a class="callbar" href="tel:{{ brand.phone_href }}">Call {{ brand.phone_display }}</a>
+
+<script>
+(function(){
+  var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var nodes = document.querySelectorAll('.rv');
+  if (reduced || !('IntersectionObserver' in window)) {
+    for (var i=0;i<nodes.length;i++) nodes[i].classList.add('in');
+    return;
+  }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, {threshold:.08, rootMargin:'0px 0px -5% 0px'});
+  nodes.forEach(function(n){ io.observe(n); });
+  // Never strand content at opacity 0 if the observer misses something.
+  setTimeout(function(){
+    document.querySelectorAll('.rv:not(.in)').forEach(function(n){
+      if (n.getBoundingClientRect().top < innerHeight) n.classList.add('in');
+    });
+  }, 2200);
+})();
+</script>
+{%- block body_extra %}{% endblock %}
+</body>
+</html>

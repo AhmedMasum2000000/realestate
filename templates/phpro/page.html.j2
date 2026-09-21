@@ -1,0 +1,101 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+
+{% block content %}
+<div class="wrap">{{ m.crumbs([('Home', '/')], page_h1) }}</div>
+
+<section class="sec" style="padding-top:.5rem">
+  <div class="wrap split">
+    <div>
+      <span class="kick">{{ kicker }}</span>
+      <h1 class="d2" style="color:var(--navy)">{{ page_h1 }}</h1>
+    </div>
+    <div>
+      {%- for para in intro %}
+      <p class="lead"{% if not loop.first %} style="margin-top:1.2rem"{% endif %}>{{ para }}</p>
+      {%- endfor %}
+      <a class="btn btn--navy" href="tel:{{ brand.phone_href }}" style="margin-top:1.8rem">Call {{ brand.phone_display }}</a>
+    </div>
+  </div>
+</section>
+
+{%- if blocks %}
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="seg" style="grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))">
+      {%- for b in blocks %}
+      <div class="seg__c">
+        <h3>{{ b.title }}</h3>
+        <p>{{ b.text }}</p>
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+{%- endif %}
+
+{%- if cards %}
+<section class="sec" style="background:var(--paper-2);padding-top:clamp(2.6rem,5vw,4rem)">
+  <div class="wrap">
+    <span class="kick">{{ cards_kicker }}</span>
+    <h2 class="d2" style="color:var(--navy)">{{ cards_heading }}</h2>
+    {{ m.card_grid(cards) }}
+    <a class="btn btn--navy" href="/properties/" style="margin-top:2.4rem">See all properties</a>
+  </div>
+</section>
+{%- endif %}
+
+{%- if show_form %}
+<section class="block sec" id="contact">
+  <div class="wrap split">
+    <div>
+      <span class="kick">{{ contact.kicker }}</span>
+      <h2 class="d2">{{ contact.headline }}</h2>
+      <p class="lead" style="margin-top:1.4rem">{{ contact.sub }}</p>
+      <a class="foot__cta" href="tel:{{ brand.phone_href }}" style="font-size:clamp(1.4rem,4.4vw,2.6rem);margin-top:1.6rem">{{ brand.phone_display }}</a>
+      <p class="lead" style="margin-top:2rem;font-size:.92rem">
+        {{ brand.address_street }}<br>
+        {{ brand.address_locality }}, {{ brand.address_region }} {{ brand.address_postal }}<br>
+        Thailand
+      </p>
+    </div>
+    <form class="form" method="post" action="{{ form_action }}">
+      <div class="form__row">
+        <div>
+          <label for="f-name">Name</label>
+          <input id="f-name" name="name" type="text" required placeholder="Your name">
+        </div>
+        <div>
+          <label for="f-email">Email</label>
+          <input id="f-email" name="email" type="email" required placeholder="you@example.com">
+        </div>
+      </div>
+      <div>
+        <label for="f-interest">I'm looking</label>
+        <select id="f-interest" name="interest">
+          {%- for option in interests %}
+          <option>{{ option }}</option>
+          {%- endfor %}
+        </select>
+      </div>
+      <div>
+        <label>Across</label>
+        <div class="form__checks">
+          {%- for p in property_interests %}
+          <label><input type="checkbox" name="types" value="{{ p }}"> {{ p }}</label>
+          {%- endfor %}
+        </div>
+      </div>
+      <div>
+        <label for="f-message">Message</label>
+        <textarea id="f-message" name="message" placeholder="Area, budget, timing — whatever's useful."></textarea>
+      </div>
+      <button class="btn btn--gold" type="submit">Send</button>
+      <p style="font-size:.78rem;color:#9FAAC2;margin:0">
+        Prefer to talk? Call <a href="tel:{{ brand.phone_href }}" style="color:var(--gold)">{{ brand.phone_display }}</a>.
+      </p>
+    </form>
+  </div>
+</section>
+{%- endif %}
+{% endblock %}

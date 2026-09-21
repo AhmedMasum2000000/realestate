@@ -1,0 +1,111 @@
+{% macro card(l) -%}
+<a class="pc" href="{{ l.url }}">
+  <div class="pc__art">
+    {%- if l.hero_image %}
+    <img src="{{ l.hero_image }}" alt="{{ l.title }}" loading="lazy" width="400" height="300">
+    {%- else %}
+    {{ art(l.type_slug, l.reference)|safe }}
+    {%- endif %}
+    <span class="pc__tag{% if l.deal == 'rent' %} pc__tag--rent{% elif l.deal == 'business' %} pc__tag--business{% endif %}">{{ l.deal_label }}</span>
+  </div>
+  <div class="pc__b">
+    <span class="pc__where">{{ l.location or 'Pattaya' }} &middot; {{ l.type }}</span>
+    <span class="pc__t">{{ l.title }}</span>
+    <span class="pc__price tnum">{{ l.price_display }}</span>
+    <ul class="pc__meta" style="list-style:none;padding:0">
+      {%- if l.bedrooms_label %}<li><b>{{ l.bedrooms_label }}</b>{% if l.bedrooms_label != 'Studio' %} bed{% endif %}</li>{% endif %}
+      {%- if l.bathrooms %}<li><b>{{ l.bathrooms }}</b> bath</li>{% endif %}
+      <li>Ref <b>{{ l.reference }}</b></li>
+    </ul>
+    {%- if l.last_update %}<span class="pc__stamp">Updated {{ l.last_update }}</span>{% endif %}
+  </div>
+</a>
+{%- endmacro %}
+
+{% macro card_grid(listings) -%}
+<div class="grid">
+  {%- for l in listings %}
+  {{ card(l) }}
+  {%- endfor %}
+</div>
+{%- endmacro %}
+
+{% macro crumbs(trail, current) -%}
+<nav class="crumbs" aria-label="Breadcrumb">
+  {%- for label, href in trail %}
+  <a href="{{ href }}">{{ label }}</a><span>/</span>
+  {%- endfor %}
+  {{ current }}
+</nav>
+{%- endmacro %}
+
+{% macro pager(base, page, pages) -%}
+{%- if pages > 1 %}
+<nav class="pager" aria-label="Pagination">
+  {%- if page > 1 %}
+  <a href="{{ base if page == 2 else base ~ 'page/' ~ (page - 1) ~ '/' }}" rel="prev">Prev</a>
+  {%- endif %}
+  {%- for n in range(1, pages + 1) %}
+    {%- if n == 1 or n == pages or (n >= page - 1 and n <= page + 1) %}
+      {%- if n == page %}
+  <strong aria-current="page">{{ n }}</strong>
+      {%- else %}
+  <a href="{{ base if n == 1 else base ~ 'page/' ~ n ~ '/' }}">{{ n }}</a>
+      {%- endif %}
+    {%- elif n == 2 or n == pages - 1 %}
+  <span class="pager__gap">&hellip;</span>
+    {%- endif %}
+  {%- endfor %}
+  {%- if page < pages %}
+  <a href="{{ base ~ 'page/' ~ (page + 1) ~ '/' }}" rel="next">Next</a>
+  {%- endif %}
+</nav>
+{%- endif %}
+{%- endmacro %}
+
+{% macro stats_block(summary) -%}
+{%- set deal = summary.dominant_deal %}
+{%- if summary.prices.get(deal) %}
+{%- set p = summary.prices[deal] %}
+<div class="facts">
+  <div class="facts__i"><b class="tnum">{{ summary.count }}</b><span>Listings</span></div>
+  <div class="facts__i"><b class="tnum">{{ p.median_display }}</b><span>Median {{ 'rent' if deal == 'rent' else 'price' }}</span></div>
+  <div class="facts__i"><b class="tnum">{{ p.low_display }}</b><span>Lower quartile</span></div>
+  <div class="facts__i"><b class="tnum">{{ p.high_display }}</b><span>Upper quartile</span></div>
+</div>
+{%- endif %}
+{%- endmacro %}
+
+{% macro bedroom_table(rows, deal) -%}
+{%- if rows %}
+<table class="stats">
+  <caption class="sr">Median {{ 'rent' if deal == 'rent' else 'price' }} by bedroom count</caption>
+  <thead>
+    <tr><th>Layout</th><th>Listings</th><th>Typical range</th><th>Median</th></tr>
+  </thead>
+  <tbody>
+    {%- for r in rows %}
+    <tr>
+      <td>{{ r.label }}</td>
+      <td class="tnum">{{ r.count }}</td>
+      <td class="tnum">{{ r.low_display }} &ndash; {{ r.high_display }}</td>
+      <td class="tnum"><b>{{ r.median_display }}</b></td>
+    </tr>
+    {%- endfor %}
+  </tbody>
+</table>
+{%- endif %}
+{%- endmacro %}
+
+{% macro sibling_links(title, items) -%}
+{%- if items %}
+<div style="margin-top:2.6rem">
+  <h3 class="d4" style="color:var(--navy);margin-bottom:1rem">{{ title }}</h3>
+  <div class="chips">
+    {%- for label, href, n in items %}
+    <a class="chip" href="{{ href }}">{{ label }} <span style="color:var(--muted);margin-left:.4rem">{{ n }}</span></a>
+    {%- endfor %}
+  </div>
+</div>
+{%- endif %}
+{%- endmacro %}
