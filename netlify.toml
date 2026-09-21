@@ -1,0 +1,24 @@
+# Preview hosting for pattayahomepro.com.
+#
+# The site is regenerated here from the committed data/catalog.json,
+# data/enrichment.json and assets/properties — the source CSV is gitignored and
+# is not needed. --preview makes robots.txt disallow everything and skips the
+# CNAME, so this deployment cannot compete with the production domain in search.
+
+[build]
+  publish = "site"
+  command = "pip install -r requirements.txt && python3 bin/build-site site --preview"
+
+[build.environment]
+  PYTHON_VERSION = "3.11"
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
