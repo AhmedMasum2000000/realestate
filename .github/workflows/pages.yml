@@ -26,6 +26,7 @@ on:
       - 'assets/properties/**'
       - 'bin/build-site'
       - 'bin/check-site'
+      - 'bin/check-layout'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -59,6 +60,14 @@ jobs:
 
       - name: Verify the built site
         run: bin/check-site public --base "${{ github.event.repository.name }}"
+
+      - name: Install a browser for the layout check
+        run: pip install playwright && python -m playwright install --with-deps chromium
+
+      - name: Verify the rendered layout
+        env:
+          CHROMIUM_PATH: ""
+        run: bin/check-layout public
 
       - uses: actions/upload-pages-artifact@v3
         with:

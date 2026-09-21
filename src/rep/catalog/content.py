@@ -8,6 +8,12 @@ reader deciding whom to trust and for a search engine deciding what the page
 is actually about.
 """
 
+# Hero and mid-page imagery, named explicitly rather than taken from whatever
+# sorts first: these are real listings, chosen for being wide, unwatermarked
+# and recognisably Pattaya.
+HERO_IMAGE_REF = "CP3253"
+BAND_IMAGE_REF = "HZ1407"
+
 HERO = {
     "kicker": "Condos · Houses · Pool Villas · Businesses",
     # Two halves that diverge horizontally as the hero scrolls away.
@@ -24,7 +30,7 @@ POSITIONING = {
     "kicker": "Start here",
     "headline_lines": [
         "You're probably here",
-        "to find out whether we're",
+        "to find out if we're",
         "worth a phone call",
     ],
     "body": (
@@ -76,7 +82,7 @@ SEGMENTS = [
 RULES_INTRO = {
     "kicker": "What the brochures leave out",
     "headline_lines": [
-        "Do enough deals in Pattaya",
+        "Do enough deals here",
         "and the same things",
         "keep going wrong",
     ],
@@ -166,8 +172,8 @@ OFF_MARKET = {
 DEALS_INTRO = {
     "kicker": "Live inventory",
     "headline_lines": [
-        "Here's a sample of what's",
-        "on our books right now",
+        "A sample of what's",
+        "on our books now",
     ],
 }
 

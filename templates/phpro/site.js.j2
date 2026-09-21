@@ -91,13 +91,18 @@
 
     var frame = function () {
       ticking = false;
+      // The headline wraps on narrow screens, so sliding the halves apart
+      // would just drag wrapped text off-screen. Fade only.
+      var wide = innerWidth > 736;
       var height = hero.offsetHeight || 1;
       var p = Math.min(Math.max(window.scrollY / height, 0), 1);
       var eased = p * p; // hold still early, accelerate as it leaves
 
       halves.forEach(function (el) {
         var dir = el.hasAttribute("data-hero-l") ? -1 : 1;
-        el.style.transform = "translate3d(" + (dir * eased * 42) + "vw,0,0)";
+        el.style.transform = wide
+          ? "translate3d(" + (dir * eased * 42) + "vw,0,0)"
+          : "none";
       });
       if (inner) inner.style.opacity = String(1 - p * 1.15);
       if (media) media.style.transform = "translate3d(0," + (p * 14) + "%,0) scale(" + (1 + p * 0.12) + ")";

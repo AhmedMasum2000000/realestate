@@ -144,11 +144,22 @@ def build(root: Path, out: Path, base: str = "", preview: bool = False) -> dict:
     band_image = ""
     if photos.is_dir():
         shutil.copytree(photos, out / "assets" / "properties", dirs_exist_ok=True)
-        first = sorted(p for p in photos.iterdir() if p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"})
-        if first:
-            hero_image = f"/assets/properties/{first[0].name}"
-        if len(first) > 2:
-            band_image = f"/assets/properties/{first[2].name}"
+
+        def feature(reference: str) -> str:
+            for candidate in sorted((photos / reference).glob("hero.*")):
+                return f"/assets/properties/{reference}/{candidate.name}"
+            return ""
+
+        hero_image = feature(content.HERO_IMAGE_REF)
+        band_image = feature(content.BAND_IMAGE_REF)
+
+        # Fall back to the loose stock images if a chosen listing lost its photo.
+        loose = sorted(p for p in photos.iterdir()
+                       if p.is_file() and p.suffix.lower() in {".jpg", ".jpeg", ".png", ".webp"})
+        if not hero_image and loose:
+            hero_image = f"/assets/properties/{loose[0].name}"
+        if not band_image and len(loose) > 1:
+            band_image = f"/assets/properties/{loose[1].name}"
 
     (out / ".nojekyll").write_text("", encoding="utf-8")
     # A CNAME claims the custom domain. A preview build must not, or Pages

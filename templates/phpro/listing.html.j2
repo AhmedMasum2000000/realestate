@@ -24,6 +24,7 @@
         <div class="dthumbs">
           {%- for src in gallery %}
           <img src="{{ src }}" alt="{{ l.title }} — photo {{ loop.index }}" loading="lazy" width="200" height="150"
+               onerror="this.remove()"
                onclick="document.getElementById('dhero-img').src=this.src">
           {%- endfor %}
         </div>
