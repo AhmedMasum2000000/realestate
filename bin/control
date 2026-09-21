@@ -1,0 +1,188 @@
+#!/usr/bin/env python3
+"""Master control: the state of every site, and what to do about it.
+
+    bin/control                # status of all eight sites
+    bin/control --live         # re-check each domain over the network (slower)
+    bin/control --json         # machine-readable, for the dashboard
+    bin/control --next         # just the next action for each site
+
+One place to see what is configured, what is actually out there, what is
+blocking each site, and the exact command to run next. Reads only -- it never
+changes anything.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from dataclasses import asdict, dataclass, field
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from rep.cli import load_all_or_die  # noqa: E402
+from rep.config import Host, Site  # noqa: E402
+from rep.listings import load_csv  # noqa: E402
+from rep.survey import survey  # noqa: E402
+
+READY = "ready"
+BLOCKED = "blocked"
+NOTHING = "nothing to do"
+
+
+@dataclass
+class SiteStatus:
+    domain: str
+    state: str
+    host: str
+    verdict: str = "not checked"
+    title: str = ""
+    theme: str = ""
+    plugins: list[str] = field(default_factory=list)
+    live_url: str = ""
+    admin_url: str = ""
+    will_change: list[str] = field(default_factory=list)
+    blockers: list[str] = field(default_factory=list)
+    next_action: str = ""
+    status: str = NOTHING
+
+
+def assess(site: Site, host: Host, env: dict[str, str], live: bool) -> SiteStatus:
+    st = SiteStatus(
+        domain=site.domain,
+        state=site.state,
+        host=site.host,
+        live_url=f"https://{site.domain}/",
+        admin_url=f"https://{site.domain}/wp-admin/",
+    )
+
+    if live:
+        facts = survey(site.domain)
+        st.verdict = facts.verdict
+        st.title = facts.title
+        st.theme = facts.theme
+        st.plugins = facts.plugins
+        if facts.installer_exposed:
+            st.blockers.append(
+                "a public installer page is exposed -- delete those files, "
+                "finish the install, or password-protect the directory"
+            )
+        if not facts.reachable:
+            st.blockers.append(
+                "the domain does not resolve -- point its nameservers at the host"
+            )
+        if facts.is_wordpress and site.is_new:
+            st.blockers.append(
+                "sites.yml says `new` but WordPress is live here; set `state: live`"
+            )
+
+    # What a run would actually change.
+    if site.is_new:
+        st.will_change.append("install WordPress")
+    if site.theme.get("slug"):
+        st.will_change.append(f"theme -> {site.theme['slug']}")
+    if site.plugins:
+        st.will_change.append(f"{len(site.plugins)} plugins")
+    if site.pages:
+        st.will_change.append(f"{len(site.pages)} starter pages + menu")
+    if site.title:
+        st.will_change.append("site title")
+    if site.wp.get("public") is not None:
+        st.will_change.append("indexing " + ("on" if site.wp["public"] else "off"))
+
+    logo = site.brand.logo_path()
+    if logo and logo.exists():
+        st.will_change.append(f"logo ({logo.name})")
+    elif logo:
+        st.blockers.append(f"logo file missing: {logo}")
+
+    csv_path = site.listings.csv_path()
+    if csv_path and csv_path.exists():
+        try:
+            rows, mapping = load_csv(csv_path, overrides=site.listings.columns)
+            st.will_change.append(f"{len(rows)} listings from {csv_path.name}")
+            if not mapping.looks_like_listings:
+                st.blockers.append(f"{csv_path.name} does not look like a listings export")
+        except (ValueError, OSError) as exc:
+            st.blockers.append(f"cannot read {csv_path.name}: {exc}")
+    elif csv_path:
+        st.blockers.append(f"listings CSV missing: {csv_path}")
+
+    st.will_change.append("listing templates")
+
+    # Credentials, per host.
+    ssh_host = host.ssh_host or host.env_key("SSH_HOST", env)
+    has_auth = bool(host.env_key("SSH_KEY_PATH", env) or host.env_key("SSH_PASSWORD", env))
+    if not ssh_host or not has_auth:
+        st.blockers.append(f"no SSH credentials for host `{site.host}`")
+    if site.is_new and host.can_create_sites and not host.env_key("CPANEL_API_TOKEN", env):
+        st.blockers.append(f"no cPanel API token for host `{site.host}` (needed to create it)")
+
+    if st.blockers:
+        st.status = BLOCKED
+        st.next_action = st.blockers[0]
+    elif len(st.will_change) <= 1:
+        st.status = NOTHING
+        st.next_action = (
+            "already live and configured; add a logo or listings CSV to give it work"
+        )
+    else:
+        st.status = READY
+        st.next_action = f"./bin/provision {site.domain} --apply"
+
+    return st
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(prog="bin/control", description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("--live", action="store_true",
+                        help="also check each domain over the network")
+    parser.add_argument("--json", action="store_true", help="machine-readable output")
+    parser.add_argument("--next", action="store_true", dest="next_only",
+                        help="print only the next action for each site")
+    args = parser.parse_args()
+
+    sites, hosts, env = load_all_or_die()
+    statuses = [assess(s, hosts[s.host], env, args.live) for s in sites]
+
+    if args.json:
+        print(json.dumps([asdict(s) for s in statuses], indent=2))
+        return 0
+
+    if args.next_only:
+        width = max(len(s.domain) for s in statuses)
+        for st in statuses:
+            print(f"  {st.domain:<{width}}  {st.next_action}")
+        return 0
+
+    counts = {READY: 0, BLOCKED: 0, NOTHING: 0}
+    for st in statuses:
+        counts[st.status] += 1
+
+    print(f"\n  MASTER CONTROL -- {len(statuses)} sites across {len(hosts)} host(s)")
+    print(f"  {counts[READY]} ready to run   {counts[BLOCKED]} blocked   "
+          f"{counts[NOTHING]} nothing to do")
+    if not args.live:
+        print("  (add --live to re-check what each domain is actually serving)")
+
+    for st in statuses:
+        mark = {READY: "+", BLOCKED: "!", NOTHING: "."}[st.status]
+        print(f"\n  [{mark}] {st.domain}   state={st.state}  host={st.host}")
+        if st.verdict != "not checked":
+            print(f"      serving:  {st.verdict}" + (f" -- {st.theme}" if st.theme else ""))
+        print(f"      site:     {st.live_url}")
+        print(f"      admin:    {st.admin_url}")
+        if st.will_change:
+            print(f"      would do: {', '.join(st.will_change)}")
+        for blocker in st.blockers:
+            print(f"      BLOCKED:  {blocker}")
+        print(f"      next:     {st.next_action}")
+
+    print()
+    return 1 if counts[BLOCKED] else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

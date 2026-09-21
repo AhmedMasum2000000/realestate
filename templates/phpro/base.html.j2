@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script>document.documentElement.className+=' js';</script>
+<title>{{ page_title }}</title>
+<meta name="description" content="{{ page_description }}">
+<link rel="canonical" href="{{ site_url }}{{ page_path }}">
+{%- if not page_indexable %}
+<meta name="robots" content="noindex,follow">
+{%- else %}
+<meta name="robots" content="index,follow,max-image-preview:large">
+{%- endif %}
+<meta property="og:type" content="{{ og_type|default('website') }}">
+<meta property="og:site_name" content="{{ brand.name }}">
+<meta property="og:title" content="{{ page_title }}">
+<meta property="og:description" content="{{ page_description }}">
+<meta property="og:url" content="{{ site_url }}{{ page_path }}">
+{%- if og_image %}
+<meta property="og:image" content="{{ og_image }}">
+{%- endif %}
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="{{ palette.navy }}">
+<link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32">
+<link rel="apple-touch-icon" href="/assets/brand/icon-180.png">
+<link rel="preload" href="/assets/brand/fonts/archivo-700.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/assets/brand/fonts.css">
+<link rel="stylesheet" href="/assets/site.css">
+{%- block head_extra %}{% endblock %}
+{%- if jsonld %}
+<script type="application/ld+json">{{ jsonld }}</script>
+{%- endif %}
+</head>
+<body class="{{ body_class }}"{% if body_attrs %} {{ body_attrs }}{% endif %}>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap nav__in">
+    <a class="nav__brand" href="/" aria-label="{{ brand.name }} — home">
+      <img src="/assets/brand/logo.webp" alt="{{ brand.name }}" width="720" height="143">
+    </a>
+    <a class="nav__phone" href="tel:{{ brand.phone_href }}">{{ brand.phone_display }}</a>
+    <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="menu">
+      <span class="nav__toggle-l">Menu</span>
+      <span class="nav__bars" aria-hidden="true"><i></i><i></i></span>
+    </button>
+  </div>
+</header>
+
+<div class="menu" id="menu" aria-hidden="true">
+  <div class="wrap menu__top">
+    <img class="menu__logo" src="/assets/brand/logo-light.webp" alt="" width="720" height="143">
+    <button class="menu__close" type="button" aria-label="Close menu">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <nav class="wrap menu__nav" aria-label="Main">
+    {%- for label, href, key in menu_items %}
+    <a href="{{ href }}"{% if nav_current == key %} aria-current="page"{% endif %} style="--i:{{ loop.index0 }}">
+      <span class="menu__line"><span>{{ label }}</span></span>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+    </a>
+    {%- endfor %}
+  </nav>
+  <div class="wrap menu__foot">
+    <a class="menu__phone" href="tel:{{ brand.phone_href }}">{{ brand.phone_display }}</a>
+    <p>{{ brand.address_street }}, {{ brand.address_locality }}<br>{{ brand.address_region }} {{ brand.address_postal }}, Thailand</p>
+  </div>
+</div>
+
+<main id="main">
+{%- block content %}{% endblock %}
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <img class="foot__logo" src="/assets/brand/logo-stacked-light.webp" alt="{{ brand.name }}" width="720" height="243" loading="lazy">
+    <span class="kick" style="color:var(--gold)">Talk to someone who picks up</span>
+    <a class="foot__cta" href="tel:{{ brand.phone_href }}">{{ brand.phone_display }}</a>
+
+    <div class="foot__grid">
+      <div>
+        <h4>Office</h4>
+        <ul>
+          <li>{{ brand.address_street }}</li>
+          <li>{{ brand.address_locality }}, {{ brand.address_region }} {{ brand.address_postal }}</li>
+          <li>Thailand</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Browse</h4>
+        <ul>
+          <li><a href="/properties/">All properties</a></li>
+          <li><a href="/for-sale/">For sale</a></li>
+          <li><a href="/for-rent/">For rent</a></li>
+          <li><a href="/businesses-for-sale/">Businesses for sale</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Areas</h4>
+        <ul>
+          {%- for area in footer_areas %}
+          <li><a href="/areas/{{ area.slug }}/">{{ area.name }}</a></li>
+          {%- endfor %}
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/services/">Services</a></li>
+          <li><a href="/meet-the-team/">Meet the team</a></li>
+          <li><a href="/done-deals/">Done deals</a></li>
+          <li><a href="/get-in-touch/">Get in touch</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="foot__legal">
+      <span>&copy; {{ year }} {{ brand.name }}. {{ brand.tagline }}.</span>
+      <span>Prices and availability change. Confirm current terms by phone before you travel.</span>
+    </div>
+  </div>
+</footer>
+
+<a class="callbar" href="tel:{{ brand.phone_href }}">Call {{ brand.phone_display }}</a>
+
+<script src="/assets/site.js" defer></script>
+{%- block body_extra %}{% endblock %}
+</body>
+</html>

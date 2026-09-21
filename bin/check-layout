@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Render a sample of pages and assert the layout holds.
+
+    bin/check-layout [site-dir]
+
+bin/check-site reads the built files as text, which cannot see a grid track
+blowing past the viewport or an element rendering invisibly. Both have shipped
+here. This serves the site locally, drives a real browser over one page of each
+type at phone and desktop widths, and fails on:
+
+  - horizontal overflow, naming the widest offending element
+  - uncaught JavaScript errors
+  - a nav that is invisible against the page behind it
+  - images that resolved to nothing
+
+Needs playwright and the bundled Chromium; skips with a clear message if either
+is missing, so it never blocks a build that cannot run a browser.
+"""
+
+import http.server
+import socketserver
+import sys
+import threading
+from functools import partial
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+# This image ships one at a fixed path; elsewhere let playwright resolve it.
+CHROMIUM = "/opt/pw-browsers/chromium"
+
+# One representative page per template, plus both viewports.
+PATHS = [
+    ("/", "home"),
+    ("/properties/", "catalogue"),
+    ("/for-sale/condos/jomtien/", "hub"),
+    ("/areas/jomtien/", "area"),
+    ("/services/", "page"),
+    ("/get-in-touch/", "contact"),
+    (None, "listing"),  # resolved from the catalogue at run time
+]
+VIEWPORTS = [(1440, 900, "desktop"), (390, 844, "phone")]
+
+PROBE = """() => {
+  const vw = innerWidth;
+  let worst = 0, who = '';
+  document.querySelectorAll('body *').forEach(el => {
+    const b = el.getBoundingClientRect();
+    if (!b.width || getComputedStyle(el).position === 'fixed') return;
+    const over = Math.round(b.right - vw);
+    if (over > worst) { worst = over; who = (el.className || el.tagName).toString().slice(0, 40); }
+  });
+  // Same-origin only. Gallery thumbnails are hotlinked from the source CDN and
+  // cannot be loaded from a sandbox without that CA, which is not a site fault.
+  const broken = [...document.images]
+    .filter(i => i.complete && i.naturalWidth === 0)
+    .filter(i => new URL(i.src, location.href).origin === location.origin)
+    .map(i => i.getAttribute('src')).slice(0, 3);
+  // Over a hero the nav sits on a photograph, so matching the body colour is
+  // correct there. Everywhere else it means the chrome is invisible.
+  const nav = document.querySelector('.nav');
+  const overHero = document.body.classList.contains('page--hero');
+  let navHidden = false;
+  if (nav && !overHero) {
+    const label = nav.querySelector('.nav__toggle-l');
+    if (label) {
+      navHidden = getComputedStyle(label).color
+                === getComputedStyle(document.body).backgroundColor;
+    }
+  }
+  return { scrollWidth: document.documentElement.scrollWidth, vw, worst, who, broken, navHidden };
+}"""
+
+
+class Quiet(http.server.SimpleHTTPRequestHandler):
+    def log_message(self, *args):  # noqa: D102 - the request log is noise here
+        pass
+
+
+class Server(socketserver.TCPServer):
+    # Must be set before bind, or a re-run within TIME_WAIT fails to start.
+    allow_reuse_address = True
+
+
+def serve(directory: Path) -> socketserver.TCPServer:
+    handler = partial(Quiet, directory=str(directory))
+    # Port 0 lets the OS pick a free one, so a re-run never collides with a
+    # socket the previous run has not finished releasing.
+    httpd = Server(("127.0.0.1", 0), handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    return httpd
+
+
+def main() -> int:
+    out = Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "site"
+    if not out.is_dir():
+        print(f"error: {out} not found — run bin/build-site first", file=sys.stderr)
+        return 1
+
+    try:
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        print("skipping layout check: playwright not installed")
+        return 0
+    executable = CHROMIUM if Path(CHROMIUM).exists() else None
+
+    httpd = serve(out)
+    port = httpd.server_address[1]
+    problems: list[str] = []
+    try:
+        with sync_playwright() as p:
+            browser = (p.chromium.launch(executable_path=executable) if executable
+                       else p.chromium.launch())
+            for width, height, label in VIEWPORTS:
+                page = browser.new_page(viewport={"width": width, "height": height})
+                errors: list[str] = []
+                page.on("pageerror", lambda e: errors.append(str(e)))
+                for path, name in PATHS:
+                    if path is None:
+                        page.goto(f"http://127.0.0.1:{port}/properties/", wait_until="load")
+                        path = page.eval_on_selector(".pc", "a => a.getAttribute('href')")
+                        if not path:
+                            continue
+                    page.goto(f"http://127.0.0.1:{port}{path}", wait_until="load")
+                    page.wait_for_timeout(700)
+                    r = page.evaluate(PROBE)
+
+                    if r["scrollWidth"] > r["vw"] or r["worst"] > 2:
+                        problems.append(
+                            f"{label}/{name}: overflows by {r['worst']}px — <{r['who']}>")
+                    if r["broken"]:
+                        problems.append(f"{label}/{name}: images failed: {r['broken']}")
+                    if r["navHidden"]:
+                        problems.append(f"{label}/{name}: nav has no contrast against the page")
+                    print(f"  {label:7s} {name:10s} scrollWidth={r['scrollWidth']}")
+                if errors:
+                    problems.append(f"{label}: javascript errors: {errors[:3]}")
+                page.close()
+            browser.close()
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+
+    if problems:
+        print(f"\n{len(problems)} problem(s):", file=sys.stderr)
+        for line in problems:
+            print(f"  {line}", file=sys.stderr)
+        return 1
+
+    print("layout OK at every viewport")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

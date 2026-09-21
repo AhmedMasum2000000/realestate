@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+"""Show how a listings CSV will be interpreted, without touching any server.
+
+    bin/inspect-csv data/listings-all.csv
+    bin/inspect-csv data/listings-all.csv --rows 5
+
+Run this first on any new export. It tells you which columns were understood,
+which were not, and what the first few rows will look like once imported.
+"""
+
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from rep.listings import ALIASES, load_csv  # noqa: E402
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(prog="bin/inspect-csv", description=__doc__,
+                                     formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("csv", type=Path, help="path to the CSV export")
+    parser.add_argument("--rows", type=int, default=3, help="preview this many rows (default 3)")
+    args = parser.parse_args()
+
+    if not args.csv.exists():
+        print(f"ERROR: {args.csv} not found", file=sys.stderr)
+        return 1
+
+    try:
+        listings, report = load_csv(args.csv)
+    except (ValueError, OSError) as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+
+    print(f"\nFile:      {report.path}")
+    print(f"Encoding:  {report.encoding}")
+    print(f"Delimiter: {report.delimiter!r}")
+    print(f"Listings:  {report.row_count}")
+    print(f"Verdict:   {'looks like a property export' if report.looks_like_listings else 'DOES NOT look like a property export'}")
+
+    print(f"\nColumns understood ({len(report.mapped)}):")
+    for field_ in ALIASES:
+        if field_ in report.mapped:
+            print(f"  {field_:15} <- {report.mapped[field_]!r}")
+
+    if report.missing_signals:
+        print(f"\nNot found (fine if the export genuinely lacks them):")
+        for field_ in report.missing_signals:
+            print(f"  {field_}")
+
+    if report.unmapped:
+        print(f"\nColumns not recognised ({len(report.unmapped)}) -- kept as extra metadata:")
+        for header in report.unmapped:
+            print(f"  {header!r}")
+        print("\n  If one of these is really one of the fields above, say so in")
+        print("  sites.yml under that site (canonical_field: exact CSV header):")
+        print("    listings:")
+        print("      columns:")
+        example = report.missing_signals[0] if report.missing_signals else "price"
+        print(f"        {example}: {report.unmapped[0]!r}")
+
+    print(f"\nFirst {min(args.rows, len(listings))} row(s) as they will import:")
+    for listing in listings[: args.rows]:
+        print(f"\n  title:    {listing.title}")
+        print(f"  ref:      {listing.reference or '(none)'}")
+        print(f"  deal:     {listing.deal_type or '(unknown)'}   type: {listing.property_type or '(none)'}")
+        print(f"  price:    sale={listing.price}  rent={listing.rent_price} {listing.currency}")
+        print(f"  size:     {listing.bedrooms} bed / {listing.bathrooms} bath / {listing.size_sqm} sqm")
+        print(f"  location: {listing.location or '(none)'}")
+        print(f"  images:   {len(listing.images)}")
+        if listing.extra:
+            print(f"  extra:    {listing.extra}")
+    print()
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

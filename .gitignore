@@ -1,0 +1,34 @@
+# Credentials -- never commit
+config/.env
+secrets/
+*.pem
+*.key
+id_rsa*
+id_ed25519*
+
+# Client data -- listings exports and logos are yours, not the repo's
+data/*.csv
+data/*.CSV
+data/*.xlsx
+data/*.7z
+data/*.zip
+assets/logos/*
+!assets/logos/.gitkeep
+!data/.gitkeep
+
+# Generated
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.log
+out/
+.cache/
+
+# Generated site. CI rebuilds it from data/catalog.json + data/enrichment.json
+# + assets/properties, so committing it would duplicate ~50MB of images and
+# churn 1,248 files on every build.
+site/
+
+# Netlify CLI link state — machine-local, recreated by `netlify link`.
+.netlify/

@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""Verify a built site before it is published.
+
+    bin/check-site [site-dir] [--base /repo-name]
+
+Exists because a rendering regression shipped that no unit test could have
+caught: the nav was restyled for the home page's hero and every other page was
+left with white-on-white chrome and its first section hidden under the fixed
+bar. These are whole-output invariants, so they are checked against the built
+files rather than in isolation.
+"""
+
+import re
+import sys
+from collections import Counter
+from pathlib import Path
+
+RE_REF = re.compile(r'(?:href|src)="(/[^"]*)"')
+RE_TITLE = re.compile(r"<title>(.*?)</title>", re.S)
+RE_H1 = re.compile(r"<h1\b", re.I)
+RE_BODY = re.compile(r"<body[^>]*class=\"([^\"]*)\"")
+RE_DESC = re.compile(r'<meta name="description" content="([^"]*)"')
+
+
+def fail(problems: list[str], message: str) -> None:
+    problems.append(message)
+
+
+def main() -> int:
+    args = sys.argv[1:]
+    base = ""
+    if "--base" in args:
+        base = "/" + args[args.index("--base") + 1].strip("/")
+        args = [a for a in args if a != base.lstrip("/")]
+    out = Path(args[0]) if args and not args[0].startswith("--") else Path("site")
+
+    if not out.is_dir():
+        print(f"error: {out} not found — run bin/build-site first", file=sys.stderr)
+        return 1
+
+    pages = sorted(out.rglob("index.html"))
+    problems: list[str] = []
+    titles = Counter()
+    checked_refs = 0
+
+    for page in pages:
+        html = page.read_text(encoding="utf-8")
+        rel = "/" + str(page.relative_to(out).parent).replace("\\", "/").strip(".") + "/"
+        rel = "/" if rel == "//" else rel
+
+        # --- links resolve ---
+        for ref in RE_REF.findall(html):
+            target = ref.split("#")[0].split("?")[0]
+            if not target:
+                continue
+            if base:
+                if not target.startswith(base):
+                    fail(problems, f"{rel}: link not rebased: {ref}")
+                    continue
+                target = target[len(base):]
+            checked_refs += 1
+            stripped = target.strip("/")
+            candidate = out / "index.html" if not stripped else (
+                out / stripped if (out / stripped).is_file() else out / stripped / "index.html")
+            if not candidate.exists():
+                fail(problems, f"{rel}: broken link {ref}")
+
+        # --- head contract ---
+        title = RE_TITLE.search(html)
+        if not title or not title.group(1).strip():
+            fail(problems, f"{rel}: missing <title>")
+        else:
+            titles[title.group(1).strip()] += 1
+        desc = RE_DESC.search(html)
+        if not desc or len(desc.group(1).strip()) < 40:
+            fail(problems, f"{rel}: missing or thin meta description")
+
+        # --- exactly one h1 ---
+        h1s = len(RE_H1.findall(html))
+        if h1s != 1:
+            fail(problems, f"{rel}: expected 1 <h1>, found {h1s}")
+
+        # --- the regression that shipped ---
+        body = RE_BODY.search(html)
+        classes = body.group(1).split() if body else []
+        if rel == "/":
+            if "page--hero" not in classes:
+                fail(problems, "/: home page must carry page--hero or its nav loses contrast")
+        elif "page--hero" in classes:
+            fail(problems, f"{rel}: page--hero on a page with no hero hides content under the fixed nav")
+
+    # --- duplicate titles ---
+    for title, n in titles.items():
+        if n > 1:
+            fail(problems, f"duplicate <title> on {n} pages: {title[:60]}")
+
+    # --- stylesheet contract ---
+    css = (out / "assets" / "site.css")
+    if not css.exists():
+        fail(problems, "assets/site.css missing")
+    else:
+        text = css.read_text(encoding="utf-8")
+        if "&#39;" in text or "&amp;" in text:
+            fail(problems, "site.css contains HTML entities — autoescape is leaking into CSS")
+        if "main{padding-top:var(--nav-h)}" not in text.replace(" ", "").replace("\n", ""):
+            fail(problems, "site.css lost the rule clearing content from the fixed nav")
+
+    print(f"{len(pages)} pages, {checked_refs} internal references")
+    if problems:
+        print(f"\n{len(problems)} problem(s):", file=sys.stderr)
+        for line in problems[:40]:
+            print(f"  {line}", file=sys.stderr)
+        if len(problems) > 40:
+            print(f"  … and {len(problems) - 40} more", file=sys.stderr)
+        return 1
+
+    print("all checks passed")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

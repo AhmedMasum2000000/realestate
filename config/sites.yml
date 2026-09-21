@@ -1,0 +1,194 @@
+# ---------------------------------------------------------------------------
+# Hosts. Which server each site lives on.
+#
+#   kind: cpanel  -- full control. Can create domains, databases and request
+#                    AutoSSL, as well as everything WP-CLI does.
+#   kind: ssh     -- SSH and WP-CLI only. Enough to configure, brand and
+#                    populate a WordPress site that ALREADY exists. Cannot
+#                    create a domain or a database. Use this for Hostinger,
+#                    Plesk, a plain VPS -- anything without a cPanel API.
+#
+# Secrets never live here. They come from config/.env, suffixed with the host
+# name, e.g. SSH_KEY_PATH_HOSTINGER. Anything unsuffixed (SSH_KEY_PATH) is used
+# as the fallback for every host, so a single-server setup needs no suffixes.
+#
+# The survey on 2026-08-29 found the `hostinger-reach` plugin on
+# secondpassportpro.com and mysecondhomepro.com, which Hostinger installs on
+# its own hosting. If those really are on Hostinger, set `host: hostinger` on
+# them below -- everything except domain and database creation still works.
+# ---------------------------------------------------------------------------
+
+hosts:
+  default:
+    kind: cpanel
+    # ssh_host / cpanel_host / home are read from config/.env when blank.
+
+  hostinger:
+    kind: ssh
+    # ssh_host: 123.45.67.89
+    # ssh_user: u123456789
+    # home: /home/u123456789
+
+# ---------------------------------------------------------------------------
+# Site inventory. This is the ONE file you edit to change what gets built.
+# Everything in bin/ reads from here. No credentials live in this file --
+# those go in config/.env (see config/.env.example).
+# ---------------------------------------------------------------------------
+
+defaults:
+  wp:
+    locale: en_US
+    timezone: Asia/Bangkok
+    # Admin user is created only when a site has no WordPress yet.
+    # The password is generated per-site and written to secrets/wp-admins.txt.
+    admin_user: casaadmin
+    admin_email: almasum5495@gmail.com
+    # Search-engine indexing. Applies to `state: new` sites only, so a first
+    # run can never de-index a site that is already live and ranking.
+    # To change indexing on a live site, set `public:` on that site directly.
+    public: false
+
+  theme:
+    slug: astra
+    child: true          # build a child theme so updates never eat your edits
+
+  plugins:
+    - classic-editor
+    - wordpress-seo
+    - wp-super-cache
+    - wordfence
+
+  # Starter pages for a NEW site. A fresh WordPress install otherwise shows a
+  # sample post and nothing else. `front: true` becomes the homepage,
+  # `posts: true` becomes the blog index, `menu: false` keeps a page out of the
+  # navigation. Live sites inherit none of this -- pages are never added to a
+  # site that already has content.
+  pages:
+    - {title: "Home", slug: home, front: true}
+    - {title: "Properties", slug: properties}
+    - {title: "About", slug: about}
+    - {title: "Contact", slug: contact}
+    - {title: "Blog", slug: blog, posts: true}
+
+  # Applied to every site unless overridden below.
+  brand:
+    primary_color: "#1a3a5c"
+    accent_color: "#c9a227"
+
+# ---------------------------------------------------------------------------
+# The eight domains.
+#
+#   state: live     -> WordPress already installed; we configure, never reinstall
+#   state: new      -> needs domain creation + WordPress install
+#
+# Set `logo:` to a file you drop in assets/logos/. Leave blank to skip.
+# Set `listings.csv` to a file you drop in data/. Leave blank to skip import.
+# ---------------------------------------------------------------------------
+
+sites:
+  # Surveyed 2026-08-29 (bin/survey -- public assets, not cPanel):
+  #   WordPress 7.1, theme `nexproperty`
+  #   listings run on essential-real-estate + wpdirectorykit
+  #   also: elementor, elementinvader, classified-ads, bikit-business-directory
+  #   real property listings already published
+  # Because this site is `live`, it inherits NOTHING from `defaults` above:
+  # no theme change, no plugin installs, no indexing change. Anything you want
+  # applied here has to be written on this entry explicitly.
+  - domain: pattayahomespro.com
+    state: live
+    # Blank = keep whatever name and tagline the site already has. Fill these
+    # in only if you actually want them changed.
+    title: ""
+    tagline: ""
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: secondpassportpro.com
+    state: live
+    # Blank = keep whatever name and tagline the site already has. Fill these
+    # in only if you actually want them changed.
+    title: ""
+    tagline: ""
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  - domain: moveinthailand.com
+    state: live
+    # Blank = keep whatever name and tagline the site already has. Fill these
+    # in only if you actually want them changed.
+    title: ""
+    tagline: ""
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  # Surveyed 2026-08-29: WordPress IS installed -- theme `blocksy`, All in One
+  # SEO. The homepage was serving an unrelated cleaning-service template, so
+  # the install exists but was never finished. NOT an empty domain.
+  - domain: secondhomethailand.com
+    state: live
+    title: ""
+    tagline: ""
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  # Surveyed 2026-08-29: WordPress 6.9.7, theme `tourze-lite` (a travel
+  # theme) with placeholder content. Plugins gutenverse, ibtana-visual-editor
+  # and hostinger-reach. An unfinished install, not an empty domain.
+  - domain: mysecondhomepro.com
+    state: live
+    title: ""
+    tagline: ""
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  # Surveyed 2026-08-29: does not resolve. Either the domain is
+  # not registered, or its nameservers are not pointed at the host yet. This
+  # is the only genuinely empty one -- and DNS has to resolve before AutoSSL
+  # can issue a certificate for it.
+  - domain: propertiesshare.com
+    state: new
+    title: "Properties Share"
+    tagline: "Shared and fractional property ownership"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  # Surveyed 2026-08-29: NOT WordPress. It is serving the public installer of
+  # a CodeCanyon PHP CMS -- a "System configuration" page asking for admin
+  # credentials and MySQL details. See docs/SITE-SURVEY.md; this needs dealing
+  # with before anything else. Left as `new` because there is no WordPress to
+  # protect, but do not provision over it until the installer is removed.
+  - domain: thaihomespro.com
+    state: new
+    title: "Thai Homes Pro"
+    tagline: "Property across Thailand"
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
+
+  # Surveyed 2026-08-29: a FULLY LIVE real estate site -- "Pattaya Home Pro -
+  # Find the best homes in Pattaya, Best Deals in 2026" -- with real listings
+  # priced in baht, area guides and staff profiles. WordPress 7.1, theme
+  # `hello-elementor`, running elementor-pro + essential-real-estate +
+  # wpdirectorykit. This was wrongly marked `new`; provisioning it as such
+  # would have replaced its theme and rewritten every URL.
+  - domain: pattayahomepro.com
+    state: live
+    title: ""
+    tagline: ""
+    logo: ""
+    listings:
+      csv: ""
+      filter: {}
