@@ -26,7 +26,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from rep.catalog.enrich import cache, casa  # noqa: E402
+from rep.catalog.enrich import cache, casa, media  # noqa: E402
 from rep.catalog.loader import read_catalog  # noqa: E402
 
 MAX_CONSECUTIVE_FAILURES = 25
@@ -133,6 +133,24 @@ def main() -> int:
                 outcome = future.result()
                 if outcome:
                     record(*outcome)
+
+    # Heroes are pulled onto our own origin so a card never depends on a third
+    # party's URL staying put. Galleries stay hotlinked.
+    if results:
+        print(f"\ndownloading {len(results)} hero images")
+        got = 0
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            jobs = {
+                pool.submit(media.download, ROOT, ref, payload["hero"]): ref
+                for ref, payload in sorted(results.items()) if payload.get("hero")
+            }
+            for future in as_completed(jobs):
+                ref = jobs[future]
+                local = future.result()
+                if local:
+                    results[ref]["hero_local"] = local
+                    got += 1
+        print(f"  {got}/{len(jobs)} downloaded")
 
     if stop.is_set():
         print(f"\nstopped: {MAX_CONSECUTIVE_FAILURES} consecutive failures — the "

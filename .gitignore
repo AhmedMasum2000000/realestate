@@ -24,3 +24,8 @@ __pycache__/
 *.log
 out/
 .cache/
+
+# Generated site. CI rebuilds it from data/catalog.json + data/enrichment.json
+# + assets/properties, so committing it would duplicate ~50MB of images and
+# churn 1,248 files on every build.
+site/

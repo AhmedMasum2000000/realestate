@@ -53,7 +53,11 @@ def merge_enrichment(listings: list[Listing], path: Path) -> int:
         images = payload.get("images") or []
         if images:
             listing.images = images
-            listing.hero_image = payload.get("hero") or images[0]
+            # Prefer the copy on our own origin; fall back to the remote URL
+            # only if the download did not land.
+            listing.hero_image = (
+                payload.get("hero_local") or payload.get("hero") or images[0]
+            )
             applied += 1
     return applied
 
