@@ -158,7 +158,16 @@ def main() -> int:
         archive = bundle(site, work / f"phpro-{stamp}.zip")
         print(f"\npackaged {archive.stat().st_size / 1_048_576:.1f}MB")
 
-        if not args.skip_backup:
+        # cPanel names full backups backup-<M.D.YYYY>_<time>_<user>.tar.gz. One
+        # from today already covers the site being replaced; a second would
+        # only eat disk quota.
+        today = f"backup-{time.gmtime().tm_mon}.{time.gmtime().tm_mday}.{time.gmtime().tm_year}_"
+        existing = [] if cp.dry_run else [f for f in cp.list_dir(".") if f.startswith(today)]
+        if args.skip_backup:
+            print("skipping account backup (--skip-backup)")
+        elif existing:
+            print(f"today's account backup already exists: {existing[-1]}")
+        else:
             print("queueing full account backup (files + databases) …")
             cp.full_backup()
 

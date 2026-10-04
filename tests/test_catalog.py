@@ -240,3 +240,15 @@ def test_non_ascii_image_paths_are_percent_encoded():
 ])
 def test_redirect_to_index_reads_as_delisted(url, delisted):
     assert url.rstrip("/").endswith("/properties") is delisted
+
+
+def test_extract_destination_is_absolute(monkeypatch):
+    # Regression: a relative destination nested the site one folder too deep
+    # and the live domain served an empty directory listing.
+    from rep.cpanel import CpanelClient
+    cp = CpanelClient(host="h", user="u", token="t", dry_run=False)
+    cp._home = "/home/u"
+    seen = {}
+    monkeypatch.setattr(cp, "_api2", lambda m, f, params, mutating: seen.update(params) or {})
+    cp.extract("site.new/site.zip", "site.new")
+    assert seen["destfiles"] == "/home/u/site.new"

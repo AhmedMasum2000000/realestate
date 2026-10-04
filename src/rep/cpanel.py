@@ -164,9 +164,20 @@ class CpanelClient:
                                                 "destfiles": dest, "doubledecode": "0"},
                           mutating=True)
 
+    @property
+    def home(self) -> str:
+        if not getattr(self, "_home", ""):
+            body = self._call("Variables", "get_user_information", mutating=False)
+            self._home = str((body.get("data") or {}).get("home") or f"/home/{self.user}")
+        return self._home
+
     def extract(self, archive: str, dest_dir: str) -> dict[str, Any]:
+        # API 2 resolves a relative `destfiles` against the archive's own
+        # folder, not the home directory -- extracting `x/site.zip` into `x`
+        # lands in `x/x`. An absolute path removes the ambiguity.
+        dest = dest_dir if dest_dir.startswith("/") else f"{self.home.rstrip('/')}/{dest_dir}"
         return self._api2("Fileman", "fileop", {"op": "extract", "sourcefiles": archive,
-                                                "destfiles": dest_dir, "doubledecode": "0"},
+                                                "destfiles": dest, "doubledecode": "0"},
                           mutating=True)
 
     def exists(self, path: str) -> bool:
