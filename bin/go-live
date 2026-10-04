@@ -54,6 +54,30 @@ def bundle(src: Path, dest: Path) -> Path:
     return dest
 
 
+def connect(env: dict, *, dry_run: bool):
+    """Reach the cPanel API, preferring the configured host and port.
+
+    cPanel normally answers on :2083, which some networks (including sandboxed
+    agent environments) cannot reach. cPanel also serves the same API through
+    the cpanel.<domain> proxy subdomain on 443, so that is tried next.
+    """
+    port = int(env.get("CPANEL_PORT") or 2083)
+    candidates = [(env["CPANEL_HOST"], port), (f"cpanel.{DOMAIN}", 443)]
+    for host, p in candidates:
+        cp = CpanelClient(host=host, user=env["CPANEL_USER"], token=env["CPANEL_API_TOKEN"],
+                          port=p, dry_run=dry_run, timeout=25)
+        try:
+            cp._call("Variables", "get_user_information", mutating=False)
+        except CpanelError as exc:
+            print(f"  {host}:{p} — not reachable ({str(exc)[:90]})")
+            continue
+        print(f"  connected via {host}:{p}")
+        return cp
+    print("error: could not reach the cPanel API on any route.\n"
+          f"  Add cpanel.{DOMAIN} to Allowed domains under Network access.", file=sys.stderr)
+    return None
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true", help="make the change; otherwise a dry run")
@@ -69,8 +93,9 @@ def main() -> int:
               "  Never paste them into a chat.", file=sys.stderr)
         return 1
 
-    cp = CpanelClient(host=env["CPANEL_HOST"], user=env["CPANEL_USER"],
-                      token=env["CPANEL_API_TOKEN"], dry_run=not args.apply)
+    cp = connect(env, dry_run=not args.apply)
+    if cp is None:
+        return 1
     print(f"go-live {DOMAIN} [{'APPLY' if args.apply else 'DRY RUN — nothing will change'}]")
 
     try:
