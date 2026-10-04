@@ -15,7 +15,7 @@ on:
       mode:
         description: "dry-run shows every step and changes nothing; apply goes live; undo restores WordPress"
         type: choice
-        options: [dry-run, apply, undo]
+        options: [dry-run, probe, apply, undo]
         default: dry-run
 
 concurrency:
@@ -45,6 +45,7 @@ jobs:
           case "${{ inputs.mode }}" in
             apply) bin/go-live --apply ;;
             undo)  bin/go-live --apply --undo ;;
+            probe) bin/go-live --apply --probe ;;
             *)     bin/go-live ;;
           esac
 

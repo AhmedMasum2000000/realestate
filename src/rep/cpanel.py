@@ -141,7 +141,20 @@ class CpanelClient:
         body = resp.json()
         if not body.get("status"):
             raise CpanelError(f"{label}: {body.get('errors')}")
+        # A top-level success can still carry a per-file failure (quota, size
+        # limit, permissions), so each upload's own status is checked too.
+        uploads = (body.get("data") or {}).get("uploads") or []
+        failed = [u for u in uploads if not u.get("status")]
+        if failed or not uploads:
+            raise CpanelError(f"{label}: upload not accepted -- {failed or body}")
         return body
+
+    def list_dir(self, path: str) -> dict[str, int]:
+        """{name: size} for the entries of a directory relative to home."""
+        body = self._call("Fileman", "list_files",
+                          {"dir": path or ".", "include_mime": "0", "show_hidden": "1"},
+                          mutating=False)
+        return {str(f.get("file")): int(f.get("size") or 0) for f in body.get("data") or []}
 
     def mkdir(self, parent: str, name: str) -> dict[str, Any]:
         return self._api2("Fileman", "mkdir", {"path": parent, "name": name}, mutating=True)

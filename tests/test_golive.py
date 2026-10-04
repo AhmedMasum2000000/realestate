@@ -36,6 +36,7 @@ class FakeCpanel:
 
     def upload(self, local, remote):
         self.calls.append(("upload", remote))
+        self.uploaded = (local.name, local.stat().st_size)
 
     def extract(self, archive, dest):
         self.calls.append(("extract", dest))
@@ -45,6 +46,14 @@ class FakeCpanel:
 
     def _api2(self, module, fn, params, mutating):
         self.calls.append((fn, params.get("op")))
+
+    def list_dir(self, path):
+        if ".new-" in path:
+            listing = {"index.html": 10, "assets": 0}
+            if getattr(self, "uploaded", None):
+                listing[self.uploaded[0]] = self.uploaded[1]
+            return listing
+        return {f: 0 for f in self.files}
 
     def _call(self, module, fn, params=None, mutating=False):
         return {"data": [{"file": f} for f in self.files]}
@@ -117,3 +126,18 @@ def test_failed_second_rename_puts_the_old_site_back(golive, monkeypatch):
     assert run(mod, monkeypatch, "--apply") == 1
     renames = [c for c in fake["cp"].calls if c[0] == "rename"]
     assert renames[-1][2] == "public_html" and ".wp-" in renames[-1][1]
+
+
+def test_empty_extraction_aborts_before_the_swap(golive, monkeypatch):
+    mod, fake = golive
+    monkeypatch.setattr(FakeCpanel, "list_dir", lambda self, path: (
+        {self.uploaded[0]: self.uploaded[1]} if ".new-" in path else {}))
+    assert run(mod, monkeypatch, "--apply") == 1
+    assert not [c for c in fake["cp"].calls if c[0] == "rename"]
+
+
+def test_truncated_upload_aborts_before_the_swap(golive, monkeypatch):
+    mod, fake = golive
+    monkeypatch.setattr(FakeCpanel, "list_dir", lambda self, path: {"phpro.zip": 1})
+    assert run(mod, monkeypatch, "--apply") == 1
+    assert not [c for c in fake["cp"].calls if c[0] == "rename"]

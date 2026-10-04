@@ -78,11 +78,38 @@ def connect(env: dict, *, dry_run: bool):
     return None
 
 
+def probe(cp, live, parent, name) -> int:
+    import json
+    print("\n== current folders ==")
+    for entry, size in sorted(cp.list_dir(parent or ".").items()):
+        if entry.startswith(name):
+            print(f"  {entry}  ({len(cp.list_dir((parent + '/' if parent else '') + entry))} entries)")
+    if not cp.dry_run:
+        stamp = time.strftime("%H%M%S")
+        scratch = f".phpro-probe-{stamp}"
+        work = Path(tempfile.mkdtemp())
+        (work / "src" / "sub").mkdir(parents=True)
+        (work / "src" / "index.html").write_text("<h1>probe</h1>")
+        (work / "src" / "sub" / "a.txt").write_text("a")
+        archive = bundle(work / "src", work / "probe.zip")
+        print(f"\n== probe in ~/{scratch} ==")
+        print("mkdir  ->", json.dumps(cp.mkdir(".", scratch))[:300])
+        print("upload ->", json.dumps(cp.upload(archive, scratch))[:500])
+        print("list   ->", cp.list_dir(scratch))
+        print("extract->", json.dumps(cp.extract(f"{scratch}/probe.zip", scratch))[:500])
+        print("list   ->", cp.list_dir(scratch))
+        print("sub    ->", cp.list_dir(f"{scratch}/sub"))
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true", help="make the change; otherwise a dry run")
     ap.add_argument("--undo", action="store_true", help="restore the most recent WordPress backup")
     ap.add_argument("--skip-backup", action="store_true", help="do not queue a full account backup")
+    ap.add_argument("--probe", action="store_true",
+                    help="upload and extract a tiny test archive in a scratch folder, printing "
+                         "cPanel's raw answers; touches nothing else")
     args = ap.parse_args()
 
     env = load_env()
@@ -106,6 +133,9 @@ def main() -> int:
     print(f"  document root: ~/{live}")
     stamp = time.strftime("%Y%m%d-%H%M%S")
     parent, _, name = live.rpartition("/")
+
+    if args.probe:
+        return probe(cp, live, parent, name)
 
     if args.undo:
         listing = cp._call("Fileman", "list_files", {"dir": parent or "."}, mutating=False)
@@ -138,8 +168,18 @@ def main() -> int:
         cp.mkdir(staging_parent or ".", staging_name)
         print("uploading …")
         cp.upload(archive, incoming)
+        if args.apply:
+            landed = cp.list_dir(incoming).get(archive.name, 0)
+            print(f"  on server: {landed:,} bytes (local {archive.stat().st_size:,})")
+            if landed != archive.stat().st_size:
+                raise CpanelError("the archive did not arrive intact; live site untouched")
         print("extracting …")
         cp.extract(f"{incoming}/{archive.name}", incoming)
+        if args.apply:
+            entries = cp.list_dir(incoming)
+            print(f"  extracted: {len(entries)} top-level entries")
+            if "index.html" not in entries or "assets" not in entries:
+                raise CpanelError(f"extraction produced {sorted(entries)[:8]}; live site untouched")
         # The archive would otherwise sit in the public folder, downloadable.
         cp._api2("Fileman", "fileop", {"op": "unlink", "sourcefiles": f"{incoming}/{archive.name}",
                                        "doubledecode": "0"}, mutating=True)
