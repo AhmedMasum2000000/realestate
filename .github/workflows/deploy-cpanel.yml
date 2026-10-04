@@ -9,12 +9,17 @@ name: Deploy to cPanel
 #   SSH_PORT        optional, defaults to 22
 #   DEPLOY_DOCROOT  optional, defaults to public_html
 #
-# After that every push to main republishes the site. Nothing else to do.
+# After that every push to the default branch republishes the site.
 # Run it by hand any time from the Actions tab -> Deploy to cPanel -> Run workflow.
 
 on:
   push:
-    branches: [main]
+    # The repository's default branch is the working branch, not main, so both
+    # are listed: deploys fire where the work actually lands today, and keep
+    # firing if main later becomes the default.
+    branches:
+      - main
+      - claude/domain-setup-automation-9inamq
     paths:
       - 'data/catalog.json'
       - 'data/enrichment.json'
