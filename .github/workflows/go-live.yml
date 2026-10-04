@@ -1,0 +1,49 @@
+name: Go live on pattayahomepro.com
+
+# Runs bin/go-live from GitHub's servers, which can reach cPanel on its own port
+# (2083) with a certificate that matches. Manual only — this replaces a live
+# site, so it never runs on a push.
+#
+# Secrets (Settings -> Secrets and variables -> Actions):
+#   CPANEL_HOST       e.g. premium329.web-hosting.com
+#   CPANEL_USER       the cPanel username
+#   CPANEL_API_TOKEN  a cPanel API token (Security -> Manage API Tokens)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run shows every step and changes nothing; apply goes live; undo restores WordPress"
+        type: choice
+        options: [dry-run, apply, undo]
+        default: dry-run
+
+concurrency:
+  group: go-live
+  cancel-in-progress: false
+
+jobs:
+  go-live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Go live (${{ inputs.mode }})
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+        run: |
+          case "${{ inputs.mode }}" in
+            apply) bin/go-live --apply ;;
+            undo)  bin/go-live --apply --undo ;;
+            *)     bin/go-live ;;
+          esac
