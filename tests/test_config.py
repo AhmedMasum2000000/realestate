@@ -136,6 +136,16 @@ sites:
 
 
 class TestLoadEnv:
+    @pytest.fixture(autouse=True)
+    def _isolate(self, monkeypatch):
+        # load_env lets real environment variables win, so a machine that has
+        # deploy credentials set (as an agent session might) must not leak them
+        # into these assertions.
+        import os
+        for key in list(os.environ):
+            if key.startswith(("CPANEL_", "SSH_", "DEPLOY_", "FTP_")):
+                monkeypatch.delenv(key, raising=False)
+
     def test_parses_and_strips_quotes(self, tmp_path):
         path = tmp_path / ".env"
         path.write_text('# comment\n\nA=1\nB="two"\nC=\'three\'\n', encoding="utf-8")
