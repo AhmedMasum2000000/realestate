@@ -13,23 +13,8 @@ name: Deploy to cPanel
 # Run it by hand any time from the Actions tab -> Deploy to cPanel -> Run workflow.
 
 on:
-  push:
-    # The repository's default branch is the working branch, not main, so both
-    # are listed: deploys fire where the work actually lands today, and keep
-    # firing if main later becomes the default.
-    branches:
-      - main
-      - claude/domain-setup-automation-9inamq
-    paths:
-      - 'data/catalog.json'
-      - 'data/enrichment.json'
-      - 'src/rep/catalog/**'
-      - 'templates/phpro/**'
-      - 'assets/**'
-      - 'bin/build-site'
-      - 'bin/check-site'
-      - 'bin/deploy-cpanel'
-      - '.github/workflows/deploy-cpanel.yml'
+  # Manual only: the FTP workflow is the automatic path. This one needs SSH
+  # key secrets that may never be set, and would fail on every push.
   workflow_dispatch:
 
 # One deploy at a time. An in-flight publish is allowed to finish rather than

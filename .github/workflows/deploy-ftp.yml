@@ -1,0 +1,92 @@
+name: Deploy to cPanel (FTP)
+
+# Publishes the site to cPanel hosting over FTPS. No SSH keys needed.
+#
+# One-time setup — Settings -> Secrets and variables -> Actions -> New secret:
+#   FTP_SERVER    the FTP server shown in cPanel -> FTP Accounts -> Configure FTP Client
+#   FTP_USERNAME  the full FTP login, e.g. deploy@pattayahomepro.com
+#   FTP_PASSWORD  that FTP account's password
+#
+# Use a dedicated FTP account whose directory is the folder the site should be
+# served from. That scopes the credential to one folder rather than the whole
+# hosting account, and means no path setting is needed here.
+#
+# Builds in preview mode: robots.txt closes the site to crawlers and canonical
+# tags point at pattayahomepro.com. That is right for a test address such as
+# new.pattayahomepro.com, and must be changed before this serves the real domain.
+
+on:
+  push:
+    branches:
+      - main
+      - claude/domain-setup-automation-9inamq
+    paths:
+      - 'data/catalog.json'
+      - 'data/enrichment.json'
+      - 'src/rep/catalog/**'
+      - 'templates/phpro/**'
+      - 'assets/**'
+      - 'bin/build-site'
+      - 'bin/check-site'
+      - '.github/workflows/deploy-ftp.yml'
+  workflow_dispatch:
+
+# One deploy at a time; an in-flight upload finishes rather than being cut off.
+concurrency:
+  group: cpanel-ftp-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the FTP secrets are set
+        id: secrets
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          missing=
+          [ -n "$FTP_SERVER" ]   || missing="$missing FTP_SERVER"
+          [ -n "$FTP_USERNAME" ] || missing="$missing FTP_USERNAME"
+          [ -n "$FTP_PASSWORD" ] || missing="$missing FTP_PASSWORD"
+          if [ -z "$missing" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "ready=false" >> "$GITHUB_OUTPUT"
+          # A push before setup is finished should not paint every commit red.
+          # A deploy someone asked for by hand should say exactly what is missing.
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "::error::Missing repository secrets:$missing — add them under Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          echo "::notice::Deploy skipped — FTP secrets not set yet:$missing"
+
+      - uses: actions/checkout@v4
+        if: steps.secrets.outputs.ready == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.secrets.outputs.ready == 'true'
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Build and verify
+        if: steps.secrets.outputs.ready == 'true'
+        run: |
+          pip install -r requirements.txt
+          bin/build-site site --preview
+          bin/check-site site
+
+      - name: Upload over FTPS
+        if: steps.secrets.outputs.ready == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./site/
+          server-dir: ./
