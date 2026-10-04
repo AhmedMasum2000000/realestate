@@ -146,7 +146,13 @@ def main() -> int:
 
         print(f"swapping: ~/{live} -> ~/{live}.wp-{stamp}, new site into place")
         cp.rename(live, f"{live}.wp-{stamp}")
-        cp.rename(incoming, live)
+        try:
+            cp.rename(incoming, live)
+        except CpanelError:
+            # Never leave the domain pointing at a missing folder: put the old
+            # site straight back before reporting the failure.
+            cp.rename(f"{live}.wp-{stamp}", live)
+            raise
 
         if args.apply:
             print(f"\nLIVE. WordPress kept at ~/{live}.wp-{stamp} (database untouched).")

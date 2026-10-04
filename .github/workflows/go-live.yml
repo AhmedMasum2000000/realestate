@@ -47,3 +47,16 @@ jobs:
             undo)  bin/go-live --apply --undo ;;
             *)     bin/go-live ;;
           esac
+
+      - name: Confirm the live site
+        if: inputs.mode == 'apply'
+        run: |
+          sleep 5
+          code=$(curl -s -o page.html -w '%{http_code}' https://pattayahomepro.com/)
+          echo "HTTP $code"
+          grep -o '<title>[^<]*' page.html | head -1
+          for p in /for-sale/ /properties/ /property/chivani-pattaya/; do
+            printf '%-30s ' "$p"; curl -s -o /dev/null -w '%{http_code} -> %{redirect_url}\n' "https://pattayahomepro.com$p"
+          done
+          grep -q 'page--hero' page.html || { echo "::error::the new site is not being served"; exit 1; }
+

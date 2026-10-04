@@ -102,3 +102,18 @@ def test_missing_credentials_stop_before_any_call(golive, monkeypatch):
     monkeypatch.setattr(mod, "load_env", lambda: {})
     assert run(mod, monkeypatch, "--apply") == 1
     assert "cp" not in fake
+
+
+def test_failed_second_rename_puts_the_old_site_back(golive, monkeypatch):
+    mod, fake = golive
+    original = FakeCpanel.rename
+
+    def flaky(self, src, dst):
+        self.calls.append(("rename", src, dst))
+        if ".new-" in src:
+            raise mod.CpanelError("disk full")
+
+    monkeypatch.setattr(FakeCpanel, "rename", flaky)
+    assert run(mod, monkeypatch, "--apply") == 1
+    renames = [c for c in fake["cp"].calls if c[0] == "rename"]
+    assert renames[-1][2] == "public_html" and ".wp-" in renames[-1][1]
