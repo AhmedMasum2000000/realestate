@@ -1,0 +1,141 @@
+"""Redirects from the outgoing WordPress site.
+
+pattayahomepro.com currently serves a WordPress site whose ~100 URLs are in
+Google's index. Replacing it without redirects turns every one of them into a
+404, throwing away whatever ranking they had. Each old URL is mapped to the
+closest page on the new site, so that equity passes through a 301.
+
+Matching is by slug words, because the old and new sites name the same
+properties differently and share no identifiers. A weak match is worse than an
+honest one, so anything below the threshold goes to the most specific hub its
+words support rather than to a listing that merely shares a word or two.
+"""
+
+from __future__ import annotations
+
+import json
+import re
+from pathlib import Path
+from urllib.parse import urlsplit
+
+from .model import Listing
+
+# Words that appear in nearly every slug and so say nothing about which property.
+STOP = {
+    "for", "sale", "rent", "the", "a", "an", "in", "at", "with", "and", "of", "to",
+    "pattaya", "property", "new", "1", "2", "3", "4", "5", "bed", "bedroom",
+    "bedrooms", "bath", "bathroom", "bathrooms", "s", "sqm", "m", "on",
+}
+MATCH_THRESHOLD = 0.5
+
+TYPE_WORDS = {
+    "condo": "condos", "condominium": "condos", "apartment": "condos",
+    "villa": "pool-villas", "pool": "pool-villas",
+    "house": "houses", "home": "houses", "village": "houses",
+    "townhouse": "townhouses", "townhome": "townhouses",
+    "land": "land", "plot": "land",
+}
+
+PAGE_TARGETS = {
+    "contact": "/get-in-touch/",
+    "about": "/meet-the-team/",
+    "team": "/meet-the-team/",
+    "agent": "/meet-the-team/",
+    "service": "/services/",
+    "sell": "/services/",
+    "rent": "/for-rent/",
+    "buy": "/for-sale/",
+    "sale": "/for-sale/",
+    "propert": "/properties/",
+    "listing": "/properties/",
+}
+
+
+def words(text: str) -> set[str]:
+    return {w for w in re.split(r"[^a-z0-9]+", text.lower()) if w and w not in STOP}
+
+
+def score(a: set[str], b: set[str]) -> float:
+    """Share of the old slug's words found in the candidate. Asymmetric on
+    purpose: new slugs are longer, and that should not count against them."""
+    return len(a & b) / len(a) if a else 0.0
+
+
+def best_listing(slug_words: set[str], listings: list[Listing]) -> tuple[Listing | None, float]:
+    best, best_score = None, 0.0
+    for listing in listings:
+        s = score(slug_words, words(listing.slug.rsplit("-", 1)[0]))
+        # Ties go to the listing with photos, then to reference order, so the
+        # mapping is stable between runs.
+        if s > best_score or (s == best_score and best and s > 0 and
+                              (bool(listing.hero_image), listing.reference) >
+                              (bool(best.hero_image), best.reference)):
+            best, best_score = listing, s
+    return best, best_score
+
+
+def fallback_hub(slug_words: set[str], area_slugs: set[str], hub_paths: set[str]) -> str:
+    area = next((a for a in sorted(area_slugs) if set(a.split("-")) <= slug_words), "")
+    ptype = next((TYPE_WORDS[w] for w in sorted(slug_words) if w in TYPE_WORDS), "")
+    for candidate in (
+        f"/for-sale/{ptype}/{area}/" if ptype and area else "",
+        f"/for-sale/{ptype}/" if ptype else "",
+        f"/areas/{area}/" if area else "",
+    ):
+        if candidate and candidate in hub_paths:
+            return candidate
+    return "/properties/"
+
+
+def build_redirects(legacy: dict[str, str], listings: list[Listing],
+                    hub_paths: set[str]) -> dict[str, str]:
+    """Return {old path: new path} for every old URL that does not already
+    resolve on the new site."""
+    area_slugs = {l.location_slug for l in listings if l.location_slug}
+    redirects: dict[str, str] = {}
+
+    for url, kind in sorted(legacy.items()):
+        path = urlsplit(url).path or "/"
+        if path == "/" or path in hub_paths:
+            continue  # resolves as-is
+
+        slug = path.strip("/").split("/")[-1]
+        slug_words = words(slug)
+
+        if kind.startswith("posts-property"):
+            listing, s = best_listing(slug_words, listings)
+            target = listing.url if listing and s >= MATCH_THRESHOLD else \
+                fallback_hub(slug_words, area_slugs, hub_paths)
+        else:
+            target = next((t for key, t in PAGE_TARGETS.items() if key in slug), "/")
+
+        # mod_alias matches by prefix, so a target under its own source would loop.
+        if target != path and not target.startswith(path):
+            redirects[path] = target
+
+    return redirects
+
+
+def load_legacy(path: Path) -> dict[str, str]:
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8")).get("urls", {})
+
+
+def htaccess(redirects: dict[str, str]) -> str:
+    """Apache rules for cPanel hosting. mod_alias, not mod_rewrite, so the file
+    stays readable and does nothing surprising."""
+    # Deliberately no Options directives: hosts that restrict AllowOverride
+    # answer those with a 500 for the entire site.
+    lines = [
+        "# Generated by bin/build-site. Old WordPress URLs -> their new pages.",
+        "ErrorDocument 404 /404.html",
+        "",
+    ]
+    for old, new in sorted(redirects.items()):
+        lines.append(f"Redirect 301 {old} {new}")
+    return "\n".join(lines) + "\n"
+
+
+def netlify_redirects(redirects: dict[str, str]) -> str:
+    return "".join(f"{old} {new} 301\n" for old, new in sorted(redirects.items()))

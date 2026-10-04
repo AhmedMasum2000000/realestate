@@ -16,6 +16,7 @@ from pathlib import Path
 from . import content
 from .aggregate import percentile, sort_for_display, summarize
 from .hubs import area_siblings, build_hubs
+from .legacy import build_redirects, htaccess, load_legacy, netlify_redirects
 from .links import build_related_index
 from .loader import read_catalog
 from .model import Listing, format_price
@@ -398,7 +399,39 @@ def build(root: Path, out: Path, base: str = "", preview: bool = False) -> dict:
         write(out, page["path"], html, base)
         pages.append((page["path"], True))
 
+    # ---- 404 + redirects from the outgoing WordPress site ----
+    not_found = page_tpl.render(**{
+        **ctx,
+        "page_title": "Page not found | Pattaya Home Pro",
+        "page_description": "That page has moved or no longer exists. Browse current "
+                            "property for sale and rent across Pattaya, or call us.",
+        "page_path": "/404.html",
+        "page_indexable": False,
+        "jsonld": "",
+        "kicker": "404",
+        "page_h1": "That page has moved",
+        "intro": [
+            "The listing or page you were after is no longer here — it may have sold, "
+            "or moved when we rebuilt the site.",
+            f"Everything we currently hold is in the catalogue: {len(listings)} properties "
+            "across Pattaya. Or call and tell us what you were looking for.",
+        ],
+        "blocks": [], "cards": sort_for_display(listings)[:6],
+        "cards_kicker": "On our books now", "cards_heading": "Try one of these",
+        "show_form": False, "contact": content.CONTACT, "interests": content.INTERESTS,
+        "property_interests": content.PROPERTY_INTERESTS, "form_action": FORM_ACTION,
+    })
+    from .render import rebase as _rebase
+    (out / "404.html").write_text(_rebase(not_found, base), encoding="utf-8")
+
+    hub_paths = {h.path for h in hubs} | {p for p, _ in pages}
+    redirects = build_redirects(load_legacy(root / "data" / "legacy-urls.json"), listings, hub_paths)
+    if redirects:
+        (out / ".htaccess").write_text(htaccess(redirects), encoding="utf-8")
+        (out / "_redirects").write_text(netlify_redirects(redirects), encoding="utf-8")
+
     return {
+        "redirects": len(redirects),
         "pages": pages,
         "listings": len(listings),
         "hubs": len(hubs),

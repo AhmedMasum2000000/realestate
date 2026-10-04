@@ -89,6 +89,87 @@ class CpanelClient:
 
         return body
 
+    def _api2(self, module: str, function: str, params: dict[str, Any], *, mutating: bool) -> dict[str, Any]:
+        """cPanel API 2. Only needed for file operations UAPI does not offer
+        (rename, extract); everything else goes through UAPI."""
+        label = f"API2 {module}::{function}({_brief(params)})"
+        if mutating and self.dry_run:
+            return {"_dry_run": True, "_label": label}
+        query = {"cpanel_jsonapi_user": self.user, "cpanel_jsonapi_apiversion": "2",
+                 "cpanel_jsonapi_module": module, "cpanel_jsonapi_func": function, **params}
+        try:
+            resp = requests.get(f"{self.base}/json-api/cpanel", headers=self._headers,
+                                params=query, timeout=self.timeout, verify=self.verify_tls)
+        except requests.RequestException as exc:
+            raise CpanelError(f"{label}: could not reach {self.host} -- {exc}") from exc
+        if resp.status_code >= 400:
+            raise CpanelError(f"{label}: HTTP {resp.status_code} -- {resp.text[:400]}")
+        result = resp.json().get("cpanelresult", {})
+        if result.get("error") or str(result.get("event", {}).get("result", 1)) == "0":
+            raise CpanelError(f"{label}: {result.get('error') or result}")
+        for item in result.get("data") or []:
+            if isinstance(item, dict) and str(item.get("result", 1)) == "0":
+                raise CpanelError(f"{label}: {item.get('reason') or item}")
+        return result
+
+    # -- files --------------------------------------------------------------
+
+    def docroot(self, domain: str) -> str:
+        """Document root of `domain`, relative to the home directory."""
+        body = self._call("DomainInfo", "single_domain_data", {"domain": domain}, mutating=False)
+        root = (body.get("data") or {}).get("documentroot", "")
+        home = (body.get("data") or {}).get("homedir", "")
+        if not root:
+            raise CpanelError(f"no document root found for {domain}")
+        return root[len(home):].strip("/") if home and root.startswith(home) else root
+
+    def upload(self, local: "Path", remote_dir: str) -> dict[str, Any]:
+        label = f"UAPI Fileman::upload_files({local.name} -> {remote_dir})"
+        if self.dry_run:
+            return {"_dry_run": True, "_label": label}
+        with open(local, "rb") as handle:
+            resp = requests.post(
+                f"{self.base}/execute/Fileman/upload_files",
+                headers=self._headers,
+                data={"dir": remote_dir, "overwrite": "1"},
+                files={"file-1": (local.name, handle)},
+                timeout=max(self.timeout, 600),
+                verify=self.verify_tls,
+            )
+        if resp.status_code >= 400:
+            raise CpanelError(f"{label}: HTTP {resp.status_code} -- {resp.text[:400]}")
+        body = resp.json()
+        if not body.get("status"):
+            raise CpanelError(f"{label}: {body.get('errors')}")
+        return body
+
+    def mkdir(self, parent: str, name: str) -> dict[str, Any]:
+        return self._api2("Fileman", "mkdir", {"path": parent, "name": name}, mutating=True)
+
+    def rename(self, source: str, dest: str) -> dict[str, Any]:
+        return self._api2("Fileman", "fileop", {"op": "rename", "sourcefiles": source,
+                                                "destfiles": dest, "doubledecode": "0"},
+                          mutating=True)
+
+    def extract(self, archive: str, dest_dir: str) -> dict[str, Any]:
+        return self._api2("Fileman", "fileop", {"op": "extract", "sourcefiles": archive,
+                                                "destfiles": dest_dir, "doubledecode": "0"},
+                          mutating=True)
+
+    def exists(self, path: str) -> bool:
+        parent, _, name = path.rstrip("/").rpartition("/")
+        try:
+            body = self._call("Fileman", "list_files",
+                              {"dir": parent or ".", "include_mime": "0"}, mutating=False)
+        except CpanelError:
+            return False
+        return any(f.get("file") == name for f in body.get("data") or [])
+
+    def full_backup(self) -> dict[str, Any]:
+        """Queue a complete account backup (files, databases, email) into the
+        home directory. Runs asynchronously on the server."""
+        return self._call("Backup", "fullbackup_to_homedir", {}, mutating=True)
+
     # -- reads --------------------------------------------------------------
 
     def list_domains(self) -> dict[str, Any]:
