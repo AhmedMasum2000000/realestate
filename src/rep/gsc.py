@@ -14,7 +14,7 @@ from __future__ import annotations
 import json
 from datetime import date, timedelta
 from typing import Any
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 SCOPES = [
     "https://www.googleapis.com/auth/siteverification",
@@ -73,7 +73,9 @@ class SearchConsole:
         return self._req("POST", f"{VERIFY}/webResource?verificationMethod={method}", json=body)
 
     def add_owner(self, resource_id: str, email: str) -> list[str]:
-        url = f"{VERIFY}/webResource/{quote(resource_id, safe='')}"
+        # Google hands the id back already encoded ("dns%3A%2F%2Fexample.com");
+        # normalising first keeps it from being encoded twice.
+        url = f"{VERIFY}/webResource/{quote(unquote(resource_id), safe='')}"
         res = self._req("GET", url)
         owners = res.get("owners", [])
         if email.lower() not in (o.lower() for o in owners):

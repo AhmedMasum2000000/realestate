@@ -7,6 +7,7 @@ from importlib.machinery import SourceFileLoader
 from pathlib import Path
 
 import pytest
+from urllib.parse import quote
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
@@ -47,9 +48,12 @@ class FakeGoogle:
                 self.verify_failures -= 1
                 return Resp(400, {"error": {"message": "token not found"}})
             ident = json["site"]["identifier"]
-            rid = f"dns://{ident}" if json["site"]["type"] == "INET_DOMAIN" else ident
+            # The real API returns the id percent-encoded.
+            rid = quote(f"dns://{ident}" if json["site"]["type"] == "INET_DOMAIN" else ident, safe="")
             return Resp(body={"id": rid, "owners": self.owners})
         if "/webResource/" in url:
+            if "%25" in url:
+                return Resp(400, {"error": {"message": "The ID for this site is missing or invalid"}})
             if method == "PUT":
                 self.owners = json["owners"]
             return Resp(body={"id": "x", "owners": self.owners})
@@ -175,7 +179,7 @@ def test_meta_flow_needs_a_deploy_then_verifies(tmp_path, monkeypatch):
     tokens = [c for c in fake.calls if c[1].endswith("/token")]
     assert len(tokens) == 1
     state = json.loads((tmp_path / "gsc.json").read_text())
-    assert state["meta"] == "abc123" and state["verified"] == "https://pattayahomepro.com/"
+    assert state["meta"] == "abc123" and state["verified"] == quote("https://pattayahomepro.com/", safe="")
     assert cli.submit() == 0
 
 
