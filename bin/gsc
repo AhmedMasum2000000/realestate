@@ -1,0 +1,259 @@
+#!/usr/bin/env python3
+"""Google Search Console for pattayahomepro.com.
+
+    bin/gsc setup --owner you@gmail.com   prove ownership, add the property,
+                                          make you an owner, submit the sitemap
+    bin/gsc submit                        resubmit the sitemap (run after deploys)
+    bin/gsc report                        markdown report: traffic, queries,
+                                          pages, sitemap and index status
+    bin/gsc status                        exit 0 once setup has verified the site
+
+Credentials come from the environment, never the command line:
+  GOOGLE_SERVICE_ACCOUNT_JSON   the service account's JSON key
+  CPANEL_HOST / CPANEL_USER / CPANEL_API_TOKEN   only for DNS verification
+
+Ownership is proved with a DNS TXT record added through cPanel when the
+domain's DNS is served by this host, which yields a Domain property covering
+http, https and www. Otherwise it falls back to a meta tag on the home page,
+which needs one deploy before it can be verified; setup exits 3 in that case
+so a workflow can deploy and run it again.
+"""
+
+import argparse
+import json
+import os
+import subprocess
+import sys
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.gsc import GscError, SearchConsole, domain_property, url_property  # noqa: E402
+
+DOMAIN = "pattayahomepro.com"
+STATE = ROOT / "data" / "gsc.json"
+SITEMAP = f"https://{DOMAIN}/sitemap.xml"
+NEEDS_DEPLOY = 3
+
+
+def load_state() -> dict:
+    return json.loads(STATE.read_text()) if STATE.exists() else {}
+
+
+def save_state(state: dict) -> None:
+    STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
+
+
+def dig(*args: str) -> list[str]:
+    try:
+        out = subprocess.run(["dig", "+short", *args], capture_output=True, text=True, timeout=20)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return []
+    return [line.strip().rstrip(".").strip('"') for line in out.stdout.splitlines() if line.strip()]
+
+
+def client() -> SearchConsole:
+    raw = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON", "")
+    if not raw:
+        raise SystemExit("error: GOOGLE_SERVICE_ACCOUNT_JSON is not set")
+    return SearchConsole(raw)
+
+
+# -- DNS via cPanel -----------------------------------------------------------
+
+def cpanel():
+    from rep.cpanel import CpanelClient
+    env = os.environ
+    if not all(env.get(k) for k in ("CPANEL_HOST", "CPANEL_USER", "CPANEL_API_TOKEN")):
+        return None
+    return CpanelClient(host=env["CPANEL_HOST"], user=env["CPANEL_USER"],
+                        token=env["CPANEL_API_TOKEN"], dry_run=False)
+
+
+def dns_on_cpanel(nameservers: list[str]) -> bool:
+    """True when the zone cPanel edits is the one the world sees."""
+    host = os.environ.get("CPANEL_HOST", "")
+    hosting = ("web-hosting.com", "namecheaphosting.com", host.split(".", 1)[-1] if host else "~")
+    return bool(nameservers) and all(any(h in ns for h in hosting) for ns in nameservers)
+
+
+def ensure_txt(cp, value: str) -> None:
+    records = cp._api2("ZoneEdit", "fetchzone_records",
+                       {"domain": DOMAIN, "type": "TXT"}, mutating=False).get("data") or []
+    if any(value in str(r.get("txtdata", "")) for r in records):
+        print("  TXT record already present")
+        return
+    cp._api2("ZoneEdit", "add_zone_record",
+             {"domain": DOMAIN, "name": f"{DOMAIN}.", "type": "TXT",
+              "txtdata": value, "ttl": "300"}, mutating=True)
+    print("  TXT record added through cPanel")
+
+
+def wait_for_txt(value: str, nameservers: list[str], minutes: int = 10) -> bool:
+    deadline = time.time() + minutes * 60
+    while time.time() < deadline:
+        if all(value in dig("TXT", DOMAIN, f"@{ns}") for ns in nameservers):
+            return True
+        time.sleep(20)
+    return False
+
+
+# -- commands -----------------------------------------------------------------
+
+def verify_with_retry(gsc: SearchConsole, kind: str, identifier: str, method: str,
+                      attempts: int = 4, pause: int = 45) -> dict:
+    """Google's resolvers and crawler can lag a minute behind the change."""
+    for i in range(attempts):
+        try:
+            return gsc.verify(kind, identifier, method)
+        except GscError as exc:
+            if i == attempts - 1:
+                raise
+            print(f"  not verified yet ({str(exc)[:120]}); retrying in {pause}s")
+            time.sleep(pause)
+    raise AssertionError("unreachable")
+
+
+def verify_by_dns(gsc: SearchConsole, cp, nameservers: list[str]) -> dict | None:
+    from rep.cpanel import CpanelError
+    print("DNS is served by this host -> Domain property via TXT record")
+    try:
+        value = gsc.token("INET_DOMAIN", DOMAIN, "DNS_TXT")
+        ensure_txt(cp, value)
+    except CpanelError as exc:
+        print(f"  cPanel would not edit the zone ({str(exc)[:160]}); using a meta tag instead")
+        return None
+    print("  waiting for the record to be visible …")
+    if not wait_for_txt(value, nameservers):
+        print("  TXT record still not visible; using a meta tag instead")
+        return None
+    return verify_with_retry(gsc, "INET_DOMAIN", DOMAIN, "DNS_TXT")
+
+
+def setup(owner: str) -> int:
+    gsc = client()
+    state = load_state()
+    print(f"service account: {gsc.email}")
+
+    nameservers = dig("NS", DOMAIN)
+    print(f"nameservers: {nameservers or 'unknown'}")
+    cp = cpanel()
+
+    resource = None
+    if cp and dns_on_cpanel(nameservers) and state.get("method") != "meta":
+        resource = verify_by_dns(gsc, cp, nameservers)
+        if resource:
+            site = domain_property(DOMAIN)
+            state.update(method="dns", property=site)
+            state.pop("meta", None)
+
+    if resource is None:
+        print("URL property via meta tag on the home page")
+        site = url_property(DOMAIN)
+        if not state.get("meta"):
+            tag = gsc.token("SITE", site, "META")
+            content = tag.split('content="', 1)[-1].split('"', 1)[0]
+            state.update(method="meta", property=site, meta=content)
+            state.pop("verified", None)
+            save_state(state)
+            print("  meta token saved to data/gsc.json — deploy the site, then run setup again")
+            return NEEDS_DEPLOY
+        resource = verify_with_retry(gsc, "SITE", site, "META")
+
+    state["verified"] = resource.get("id", site)
+    print(f"verified: {state['verified']}")
+    save_state(state)
+
+    gsc.add_site(site)
+    print(f"property added: {site}")
+    if owner:
+        owners = gsc.add_owner(resource["id"], owner)
+        print(f"owners: {', '.join(owners)}")
+    gsc.submit_sitemap(site, SITEMAP)
+    print(f"sitemap submitted: {SITEMAP}")
+    return 0
+
+
+def connected_property() -> str:
+    state = load_state()
+    return state["property"] if state.get("verified") and state.get("property") else ""
+
+
+def submit() -> int:
+    site = connected_property()
+    if not site:
+        print("not set up yet — run: bin/gsc setup", file=sys.stderr)
+        return 1
+    client().submit_sitemap(site, SITEMAP)
+    print(f"sitemap resubmitted to {site}")
+    return 0
+
+
+def report() -> int:
+    site = connected_property()
+    if not site:
+        print("not set up yet — run: bin/gsc setup", file=sys.stderr)
+        return 1
+    gsc = client()
+    out = [f"## Search Console — {DOMAIN}", ""]
+
+    totals = gsc.analytics(site, 28, [], 1)
+    t = totals[0] if totals else {}
+    out += ["**Last 28 days** (data runs ~2 days behind)", "",
+            "| Clicks | Impressions | CTR | Avg position |", "|---|---|---|---|",
+            f"| {int(t.get('clicks', 0))} | {int(t.get('impressions', 0))} | "
+            f"{t.get('ctr', 0) * 100:.1f}% | {t.get('position', 0):.1f} |", ""]
+
+    for dim, title in (("query", "Top searches"), ("page", "Top pages")):
+        rows = gsc.analytics(site, 28, [dim], 10)
+        out += [f"**{title}**", ""]
+        if not rows:
+            out += ["_No data yet — new properties take a few days._", ""]
+            continue
+        out += [f"| {dim.title()} | Clicks | Impressions | Position |", "|---|---|---|---|"]
+        for r in rows:
+            key = r["keys"][0].replace(f"https://{DOMAIN}", "") or "/"
+            out.append(f"| {key} | {int(r['clicks'])} | {int(r['impressions'])} | {r['position']:.1f} |")
+        out.append("")
+
+    out += ["**Sitemaps**", "", "| Sitemap | Submitted | Last read | Errors | Warnings |",
+            "|---|---|---|---|---|"]
+    for s in gsc.sitemaps(site):
+        out.append(f"| {s.get('path')} | {s.get('lastSubmitted', '')[:10]} | "
+                   f"{s.get('lastDownloaded', '')[:10]} | {s.get('errors', 0)} | {s.get('warnings', 0)} |")
+    out.append("")
+
+    out += ["**Index status — sample**", "", "| Page | Verdict | Coverage |", "|---|---|---|"]
+    for path in ("/", "/properties/", "/for-sale/", "/for-sale/condos/jomtien/", "/areas/jomtien/"):
+        try:
+            r = gsc.inspect(site, f"https://{DOMAIN}{path}")
+            out.append(f"| {path} | {r.get('verdict', '?')} | {r.get('coverageState', '?')} |")
+        except GscError as exc:
+            out.append(f"| {path} | error | {str(exc)[:60]} |")
+
+    print("\n".join(out))
+    return 0
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    s = sub.add_parser("setup")
+    s.add_argument("--owner", default="", help="Google account to add as an owner")
+    sub.add_parser("submit")
+    sub.add_parser("report")
+    sub.add_parser("status", help="exit 0 when connected, 1 when not")
+    args = ap.parse_args()
+    status = lambda: 0 if connected_property() else 1  # noqa: E731
+    try:
+        return {"setup": lambda: setup(args.owner), "submit": submit, "report": report,
+                "status": status}[args.cmd]()
+    except GscError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

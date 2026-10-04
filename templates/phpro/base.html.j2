@@ -22,6 +22,9 @@
 {%- endif %}
 <meta name="twitter:card" content="summary_large_image">
 <meta name="theme-color" content="{{ palette.navy }}">
+{%- if gsc_meta %}
+<meta name="google-site-verification" content="{{ gsc_meta }}">
+{%- endif %}
 <link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32">
 <link rel="apple-touch-icon" href="/assets/brand/icon-180.png">
 <link rel="preload" href="/assets/brand/fonts/archivo-700.woff2" as="font" type="font/woff2" crossorigin>

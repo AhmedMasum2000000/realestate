@@ -123,6 +123,10 @@ def build(root: Path, out: Path, base: str = "", preview: bool = False) -> dict:
     ]
 
     ctx = base_context(areas, today.year)
+    # Search Console's verification tag, when ownership is proved by meta tag.
+    # It has to stay on every future build or Google drops the verification.
+    gsc_state = root / "data" / "gsc.json"
+    ctx["gsc_meta"] = json.loads(gsc_state.read_text()).get("meta", "") if gsc_state.exists() else ""
     project_paths = {h.listings[0].project_slug for h in hubs if h.kind == "project"}
 
     if out.exists():

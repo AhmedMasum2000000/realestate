@@ -74,6 +74,7 @@ def base_context(areas: list[dict], build_year: int) -> dict:
         "menu_items": MENU_ITEMS,
         "body_attrs": "",
         "body_class": "",
+        "gsc_meta": "",
         "jsonld": "",
         "page_indexable": True,
     }

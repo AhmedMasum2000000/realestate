@@ -61,3 +61,17 @@ jobs:
           done
           grep -q 'page--hero' page.html || { echo "::error::the new site is not being served"; exit 1; }
 
+      # New and changed pages reach Google through the sitemap. Never fails the
+      # deploy: the site is already live by now.
+      - name: Tell Google the sitemap changed
+        if: inputs.mode == 'apply'
+        continue-on-error: true
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ] || ! bin/gsc status; then
+            echo "Search Console not connected yet; skipping"
+            exit 0
+          fi
+          bin/gsc submit
+
