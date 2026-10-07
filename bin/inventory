@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""What this cPanel account can reach: every domain, where it lives, what it serves.
+
+    bin/inventory                       every domain on the account
+    bin/inventory example.com …         also report on these, on the account or not
+
+Reads only. For each domain: whether it is on this account (and as what), its
+document root, whether that holds WordPress or a static site, its nameservers
+(i.e. whether DNS is editable through cPanel), and what the live URL returns.
+Prints markdown.
+"""
+
+import os
+import re
+import subprocess
+import sys
+from pathlib import Path
+
+import requests
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.cpanel import CpanelClient, CpanelError  # noqa: E402
+
+HOSTING_NS = ("web-hosting.com", "namecheaphosting.com")
+
+
+def dig(*args: str) -> list[str]:
+    try:
+        out = subprocess.run(["dig", "+short", *args], capture_output=True, text=True, timeout=20)
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        return []
+    return [l.strip().rstrip(".") for l in out.stdout.splitlines() if l.strip()]
+
+
+def live(domain: str) -> str:
+    try:
+        r = requests.get(f"https://{domain}/", timeout=20, allow_redirects=True,
+                         headers={"User-Agent": "Mozilla/5.0 (inventory)"})
+    except requests.RequestException as exc:
+        return f"unreachable ({type(exc).__name__})"
+    title = re.search(r"<title[^>]*>([^<]*)", r.text, re.I)
+    gen = re.search(r'<meta name="generator" content="([^"]+)"', r.text, re.I)
+    parts = [str(r.status_code)]
+    if r.url.rstrip("/") != f"https://{domain}":
+        parts.append(f"→ {r.url}")
+    if title:
+        parts.append(f"“{title.group(1).strip()[:60]}”")
+    if gen:
+        parts.append(gen.group(1)[:30])
+    return " ".join(parts)
+
+
+def contents(cp: CpanelClient, docroot: str) -> str:
+    try:
+        names = cp.list_dir(docroot)
+    except CpanelError:
+        return "unreadable"
+    if "wp-config.php" in names:
+        return "WordPress"
+    if "index.html" in names:
+        return "static site"
+    if "index.php" in names:
+        return "PHP site"
+    return f"{len(names)} entries, no index" if names else "empty"
+
+
+def main() -> int:
+    env = os.environ
+    if not all(env.get(k) for k in ("CPANEL_HOST", "CPANEL_USER", "CPANEL_API_TOKEN")):
+        print("error: CPANEL_HOST, CPANEL_USER and CPANEL_API_TOKEN must be set", file=sys.stderr)
+        return 1
+    cp = CpanelClient(host=env["CPANEL_HOST"], user=env["CPANEL_USER"],
+                      token=env["CPANEL_API_TOKEN"], dry_run=True, timeout=25)
+    data = cp.list_domains()
+
+    kinds: dict[str, str] = {}
+    if data.get("main_domain"):
+        kinds[str(data["main_domain"]).lower()] = "main"
+    for key, label in (("addon_domains", "addon"), ("parked_domains", "alias")):
+        for d in data.get(key) or []:
+            kinds[str(d).lower()] = label
+    subs = sorted(str(d).lower() for d in data.get("sub_domains") or [])
+
+    asked = [a.lower().strip() for a in sys.argv[1:] if a.strip()]
+    rows = []
+    for domain in sorted(kinds) + [a for a in asked if a not in kinds]:
+        on_account = domain in kinds
+        ns = dig("NS", domain)
+        a = dig("A", domain)
+        if not ns and not a:
+            rows.append((domain, "not on this account" if not on_account else kinds[domain],
+                         "—", "—", "no DNS — not registered or not pointed anywhere", "—"))
+            continue
+        dns = "cPanel (editable)" if ns and all(any(h in n for h in HOSTING_NS) for n in ns) \
+            else (", ".join(ns) or "unknown")
+        if on_account:
+            try:
+                root = cp.docroot(domain)
+                what = contents(cp, root)
+            except CpanelError as exc:
+                root, what = "?", str(exc)[:60]
+        else:
+            root, what = "—", "—"
+        rows.append((domain, kinds.get(domain, "not on this account"), root, what, dns, live(domain)))
+
+    print(f"## cPanel account `{env['CPANEL_USER']}` — what I can reach\n")
+    print("| Domain | On account | Folder | Contains | DNS | Live |")
+    print("|---|---|---|---|---|---|")
+    for r in rows:
+        print("| " + " | ".join(str(c).replace("|", "/") for c in r) + " |")
+    if subs:
+        print(f"\n{len(subs)} subdomains: " + ", ".join(subs[:40]) + (" …" if len(subs) > 40 else ""))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
