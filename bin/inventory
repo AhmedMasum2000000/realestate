@@ -10,6 +10,7 @@ document root, whether that holds WordPress or a static site, its nameservers
 Prints markdown.
 """
 
+import html
 import os
 import re
 import subprocess
@@ -40,13 +41,16 @@ def live(domain: str) -> str:
                          headers={"User-Agent": "Mozilla/5.0 (inventory)"})
     except requests.RequestException as exc:
         return f"unreachable ({type(exc).__name__})"
-    title = re.search(r"<title[^>]*>([^<]*)", r.text, re.I)
-    gen = re.search(r'<meta name="generator" content="([^"]+)"', r.text, re.I)
+    # Without a charset in the header, requests assumes Latin-1; pages here
+    # declare UTF-8 in a meta tag instead.
+    text = r.content.decode("utf-8", "replace")
+    title = re.search(r"<title[^>]*>([^<]*)", text, re.I)
+    gen = re.search(r'<meta name="generator" content="([^"]+)"', text, re.I)
     parts = [str(r.status_code)]
     if r.url.rstrip("/") != f"https://{domain}":
         parts.append(f"→ {r.url}")
     if title:
-        parts.append(f"“{title.group(1).strip()[:60]}”")
+        parts.append(f"“{html.unescape(title.group(1)).strip()[:60]}”")
     if gen:
         parts.append(gen.group(1)[:30])
     return " ".join(parts)
