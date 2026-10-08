@@ -62,9 +62,7 @@ def collect():
         manifest["media_folders"] = sorted(dates)
         for year in sorted((v for v in dates if re.fullmatch(r"20\d\d", v)), reverse=True)[:2]:
             year_dir = f"{uploads}/{year}"
-            for month in sorted(cp.list_dir(year_dir), reverse=True)[:4]:
-                if not re.fullmatch(r"\d\d", month):
-                    continue
+            for month in sorted((v for v in cp.list_dir(year_dir) if re.fullmatch(r"\d\d", v)), reverse=True)[:4]:
                 folder = f"{year_dir}/{month}"
                 files = cp.list_dir(folder)
                 originals = [n for n in files if re.search(r"\.(jpg|jpeg|png|webp)$", n, re.I) and not re.search(r"-\d+x\d+\.", n)]
@@ -99,6 +97,18 @@ def collect():
         manifest["assets"].append({"file": relative, "url": url, "alt": alt, "kind": kind, "bytes": len(response.content), "cpanel_confirmed": bool(cp)})
         if len(manifest["assets"]) >= 65:
             break
+    if cp:
+        partner_root = cp.docroot("pattayahomepro.com")
+        for reference in ("CP1790", "CP1799", "CP1849", "CP1860"):
+            relative = f"assets/properties/{reference}/hero.webp"
+            if not cp.exists(f"{partner_root}/{relative}"):
+                continue
+            response = session.get(f"https://pattayahomepro.com/{relative}", timeout=25)
+            response.raise_for_status()
+            destination = OUT / "partner" / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(response.content)
+            manifest["assets"].append({"file": f"partner/{relative}", "url": f"https://pattayahomepro.com/{relative}", "alt": f"Partner property photograph {reference}", "kind": "image", "bytes": len(response.content), "cpanel_confirmed": True})
     (OUT / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
     print(json.dumps({"document_root": root, "files": len(manifest["assets"]), "assets": manifest["assets"]}, indent=2))
 
