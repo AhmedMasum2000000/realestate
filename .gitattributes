@@ -1,0 +1,5 @@
+# Keep website media byte-for-byte on Windows checkouts.
+mit/assets/*.pdf -text
+mit/assets/*.png -text
+mit/assets/*.webp -text
+mit/assets/fonts/*.woff2 -text
