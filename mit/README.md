@@ -4,7 +4,7 @@ Thirty editorial pages built around the visitor's visa question, with the origin
 
 ## Content and editing
 
-The production website is served by `wp-content/mu-plugins/mit-experience.php`. On first load it creates native WordPress page records under **Move In Thailand Pages**. Each page has an HTML content block, drafts, revisions, a preview link and editable search title/description. Existing WordPress editor permissions govern page editing. Only administrators can open **Move Enquiries** or change delivery settings.
+The production website is served by `wp-content/mu-plugins/mit-experience.php`. On first load it creates native WordPress page records under **Move In Thailand Pages**. Each page has an HTML content block, drafts, revisions, a preview link and editable search title/description. Existing WordPress editor permissions govern page editing. Only administrators can open **Move Enquiries** or change delivery settings. GitHub copy updates apply automatically while a page still matches its previous default; staff edits are preserved and flagged for review when a newer default exists.
 
 The existing theme, original pages, uploads, accounts and unrelated plugins remain in place. New website navigation and footer are maintained in `mit/templates/base.html.j2`.
 
@@ -40,6 +40,6 @@ Production: `python mit/build.py`. The compiler checks all generated internal de
 
 To restore the original WordPress front end, rename `wp-content/mu-plugins/mit-experience.php` to `mit-experience.php.disabled` in cPanel. Content drafts and enquiries remain stored. Re-enable by restoring the `.php` filename. Existing WordPress, backup and access settings are not changed.
 
-New pages appear in `/mit-sitemap.xml`, added to the WordPress robots response. The old `/about-2/`, `/contact-2/` and `/services-2/` paths redirect to their rebuilt equivalents. Other existing URLs continue through WordPress.
+New pages appear in `/mit-sitemap.xml`, included in the existing All in One SEO sitemap index. Modification dates follow the published WordPress copy. The normal WordPress robots hook also advertises the sitemap when WordPress serves that response. The old `/about-2/`, `/contact-2/` and `/services-2/` paths redirect to their rebuilt equivalents. Other existing URLs continue through WordPress.
 
 This release implements the website foundation. Ads, newsletters, social publishing, new translations, third-party CRM integrations, verified reviews and operational legal review are separate phases of the business plan.

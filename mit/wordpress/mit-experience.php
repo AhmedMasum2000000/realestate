@@ -33,8 +33,12 @@ function mit_page_file($route) {
 function mit_serve_sitemap() {
     $path=parse_url($_SERVER['REQUEST_URI'] ?? '/',PHP_URL_PATH);
     if($path!=='/mit-sitemap.xml'){return;}
-    $file=mit_site_directory().'/sitemap.xml';
-    if(is_readable($file)){status_header(200);header('Content-Type: application/xml; charset=UTF-8');readfile($file);exit;}
+    $manifest=mit_manifest();$routes=$manifest['routes']??array();if(!$routes){return;}
+    $dates=array();foreach(get_posts(array('post_type'=>'mit_page','post_status'=>'publish','numberposts'=>1000,'suppress_filters'=>true)) as $page){$dates[get_post_meta($page->ID,'_mit_route',true)]=$page->post_modified_gmt;}
+    status_header(200);header('Content-Type: application/xml; charset=UTF-8');
+    echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
+    foreach($routes as $route){$stamp=isset($dates[$route['path']])?gmdate('c',strtotime($dates[$route['path']].' UTC')):($manifest['built_at'].'T00:00:00Z');echo '<url><loc>'.htmlspecialchars(home_url($route['path']),ENT_XML1|ENT_COMPAT,'UTF-8').'</loc><lastmod>'.esc_html($stamp).'</lastmod></url>';}
+    echo '</urlset>';exit;
 }
 // Existing SEO plugins may claim *-sitemap.xml during parse_request.
 add_action('init','mit_serve_sitemap',1);
@@ -53,10 +57,11 @@ function mit_register_types() {
 }
 add_action('init', 'mit_register_types', 10);
 
-/* Only trusted, bundled HTML is seeded. A later release never overwrites staff edits. */
+/* Apply bundled defaults only while a page still matches its last seeded copy. */
 function mit_seed_editorial_pages() {
-    if (get_option('mit_editorial_seeded') === '1') { return; }
-    $routes = mit_manifest()['routes'] ?? array();
+    $manifest=mit_manifest();$routes=$manifest['routes']??array();
+    $version=$manifest['content_version']??($manifest['version']??'');
+    if ($version && get_option('mit_editorial_content_version') === $version) { return; }
     if (!$routes) { return; }
     $lock = get_option('mit_editorial_seed_lock');
     if ($lock && (int)$lock > time() - 120) { return; }
@@ -66,16 +71,29 @@ function mit_seed_editorial_pages() {
     kses_remove_filters();
     foreach ($routes as $route) {
         $existing = get_posts(array('post_type'=>'mit_page','post_status'=>'any','numberposts'=>1,'meta_key'=>'_mit_route','meta_value'=>$route['path'],'suppress_filters'=>true));
-        if ($existing) { continue; }
         $file = mit_page_file($route);
         if (!$file) { $completed=false; continue; }
         $html = file_get_contents($file);
         if (!preg_match('/<!--mit-content-start-->(.*?)<!--mit-content-end-->/s', $html, $match)) { $completed=false; continue; }
-        $id = wp_insert_post(array('post_type'=>'mit_page','post_status'=>'publish','post_title'=>wp_strip_all_tags($route['title']),'post_content'=>wp_slash('<!-- wp:html -->' . $match[1] . '<!-- /wp:html -->'),'meta_input'=>array('_mit_route'=>$route['path'],'_mit_seo_title'=>$route['title'],'_mit_seo_description'=>$route['description'])), true);
+        $default='<!-- wp:html -->'.$match[1].'<!-- /wp:html -->';$hash=hash('sha256',$default);
+        if($existing){
+            $page=$existing[0];$old_hash=get_post_meta($page->ID,'_mit_seed_hash',true);$current_hash=hash('sha256',$page->post_content);
+            if(!$old_hash){$old_hash=$hash;}
+            if($current_hash===$old_hash){
+                if($current_hash!==$hash){$updated=wp_update_post(array('ID'=>$page->ID,'post_content'=>wp_slash($default)),true);if(is_wp_error($updated)){$completed=false;continue;}}
+                foreach(array('title','description') as $field){$meta='_mit_seo_'.$field;$previous=get_post_meta($page->ID,'_mit_seed_'.$field,true);$current=get_post_meta($page->ID,$meta,true);if(!$previous){$previous=$route[$field];}if($current===$previous){update_post_meta($page->ID,$meta,$route[$field]);}update_post_meta($page->ID,'_mit_seed_'.$field,$route[$field]);}
+                update_post_meta($page->ID,'_mit_seed_hash',$hash);update_post_meta($page->ID,'_mit_source_update_pending','0');
+            }else{
+                update_post_meta($page->ID,'_mit_source_update_pending',$hash!==$old_hash?'1':'0');
+                if(!get_post_meta($page->ID,'_mit_seed_hash',true)){update_post_meta($page->ID,'_mit_seed_hash',$hash);}
+            }
+            continue;
+        }
+        $id = wp_insert_post(array('post_type'=>'mit_page','post_status'=>'publish','post_title'=>wp_strip_all_tags($route['title']),'post_content'=>wp_slash($default),'meta_input'=>array('_mit_route'=>$route['path'],'_mit_seo_title'=>$route['title'],'_mit_seo_description'=>$route['description'],'_mit_seed_hash'=>$hash,'_mit_seed_title'=>$route['title'],'_mit_seed_description'=>$route['description'])), true);
         if (is_wp_error($id) || !$id) { $completed=false; }
     }
     kses_init_filters();
-    if ($completed) { update_option('mit_editorial_seeded','1',false); }
+    if ($completed) { update_option('mit_editorial_seeded','1',false);update_option('mit_editorial_content_version',$version,false); }
     delete_option('mit_editorial_seed_lock');
 }
 add_action('init','mit_seed_editorial_pages',30);
@@ -150,6 +168,14 @@ function mit_render_site() {
 }
 add_action('template_redirect','mit_render_site',0);
 add_filter('robots_txt',function($text){return rtrim($text)."\nSitemap: ".home_url('/mit-sitemap.xml')."\n";},99);
+// Add our routes through the existing SEO plugin's documented index hook.
+add_filter('aioseo_sitemap_indexes',function($indexes){
+    $manifest=mit_manifest();if(empty($manifest['routes'])){return $indexes;}
+    $url=home_url('/mit-sitemap.xml');foreach($indexes as $index){if(($index['loc']??'')===$url){return $indexes;}}
+    $latest=get_posts(array('post_type'=>'mit_page','post_status'=>'publish','numberposts'=>1,'orderby'=>'modified','order'=>'DESC','suppress_filters'=>true));
+    $stamp=$latest?gmdate('c',strtotime($latest[0]->post_modified_gmt.' UTC')):($manifest['built_at'].'T00:00:00Z');
+    $indexes[]=array('loc'=>$url,'lastmod'=>$stamp,'count'=>count($manifest['routes']));return $indexes;
+});
 
 /* Native WordPress drafts, revisions, publishing and scoped staff permissions. */
 add_filter('preview_post_link',function($link,$post){
@@ -167,6 +193,7 @@ function mit_page_details_box($post) {
     $route=get_post_meta($post->ID,'_mit_route',true);
     echo '<p><strong>Website address</strong><br>'.esc_html(home_url($route?:'/')).'</p>';
     echo '<p>Edit the HTML block to change the page. Save a draft or revision, preview, then publish. The navigation and footer are shared.</p>';
+    if(get_post_meta($post->ID,'_mit_source_update_pending',true)==='1'){echo '<p><strong>A newer default copy exists in GitHub. Your published edits were kept; ask the site maintainer to review the copy before replacing it.</strong></p>';}
     echo '<p><label>Search title<input name="mit_seo_title" class="widefat" maxlength="180" value="'.esc_attr(get_post_meta($post->ID,'_mit_seo_title',true)).'"></label></p>';
     echo '<p><label>Search description<textarea name="mit_seo_description" class="widefat" rows="4" maxlength="320">'.esc_textarea(get_post_meta($post->ID,'_mit_seo_description',true)).'</textarea></label></p>';
     if ($route) { echo '<p><a href="'.esc_url(home_url($route)).'" target="_blank" rel="noopener">View published page</a></p>'; }

@@ -86,13 +86,19 @@ def deploy(build,release):
         bootstrap=requests.get(public+'/wp-json/mit/v1/bootstrap',headers={'Cache-Control':'no-cache'},timeout=45)
         bootstrap.raise_for_status()
         if not bootstrap.json().get('token'): raise RuntimeError('The secure enquiry bootstrap was unavailable.')
+        sitemap=requests.get(public+'/mit-sitemap.xml',params={'release':release},timeout=45)
+        sitemap.raise_for_status()
+        if sitemap.text.count('<loc>')!=len(manifest['routes']): raise RuntimeError('The website sitemap was incomplete.')
+        index=requests.get(public+'/sitemap.xml',params={'release':release},timeout=45)
+        index.raise_for_status()
+        if public+'/mit-sitemap.xml' not in index.text: raise RuntimeError('The existing SEO sitemap index did not include the rebuilt pages.')
     except Exception:
         if switched_plugin: move(live_plugin,staging+'/failed-mit-experience.php')
         if had_plugin and client.exists(previous_plugin): move(previous_plugin,live_plugin)
         if switched_site: move(live_site,staging+'/failed-mit-site')
         if had_site and client.exists(previous_site): move(previous_site,live_site)
         raise
-    report={'domain':DOMAIN,'release':release,'version':manifest['version'],'pages':len(manifest['routes']),'original_wordpress_preserved':True,'retained_previous_release':staging if had_site or had_plugin else None,'published_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'public_homepage':True,'visa_finder_page':True,'secure_form_bootstrap':True}
+    report={'domain':DOMAIN,'release':release,'version':manifest['version'],'pages':len(manifest['routes']),'original_wordpress_preserved':True,'retained_previous_release':staging if had_site or had_plugin else None,'published_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'public_homepage':True,'visa_finder_page':True,'secure_form_bootstrap':True,'sitemap_in_existing_seo_index':True}
     (ROOT/'.cache'/'mit-deploy-report.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report,indent=2))
 

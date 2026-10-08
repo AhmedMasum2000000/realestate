@@ -89,7 +89,7 @@ def build(output: Path, preview: bool):
         main=re.search(r'<!--mit-content-start-->(.*?)<!--mit-content-end-->',html,re.S)
         if not main:
             raise SystemExit(f'No editable page region: {slug}')
-        routes.append({'path':'/'+slug+'/' if slug else '/','file':relative,'slug':slug or 'home','title':page['title'],'description':page['description']})
+        routes.append({'path':'/'+slug+'/' if slug else '/','file':relative,'slug':slug or 'home','title':page['title'],'description':page['description'],'content_hash':hashlib.sha256(('<!-- wp:html -->'+main[1]+'<!-- /wp:html -->').encode('utf-8')).hexdigest()})
     # Check generated internal destinations while compiling the site.
     known_paths={route['path'].rstrip('/') or '/' for route in routes}
     for route in routes:
@@ -101,7 +101,8 @@ def build(output: Path, preview: bool):
                     raise SystemExit(f'Missing asset {path} in {route["path"]}')
             elif target.startswith('/') and not path.startswith('/wp-json/') and (path.rstrip('/') or '/') not in known_paths:
                 raise SystemExit(f'Unknown internal link {target} in {route["path"]}')
-    manifest={'version':version,'built_at':date.today().isoformat(),'domain':'moveinthailand.com','routes':routes,'aliases':{'/services-2/':'/services/','/about-2/':'/about/','/contact-2/':'/contact/'}}
+    content_version=hashlib.sha256(json.dumps(routes,ensure_ascii=False,sort_keys=True).encode('utf-8')).hexdigest()[:16]
+    manifest={'version':version,'content_version':content_version,'built_at':date.today().isoformat(),'domain':'moveinthailand.com','routes':routes,'aliases':{'/services-2/':'/services/','/about-2/':'/about/','/contact-2/':'/contact/'}}
     (output/'routes.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
     sitemap='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join('<url><loc>'+xml_escape('https://moveinthailand.com'+route['path'])+'</loc><lastmod>2026-10-08</lastmod></url>\n' for route in routes)+'</urlset>\n'
     (output/'sitemap.xml').write_text(sitemap,encoding='utf-8')
