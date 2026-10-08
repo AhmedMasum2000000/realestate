@@ -1,0 +1,9 @@
+{% extends 'base.html.j2' %}
+{% from 'components.html.j2' import eyebrow, faq, cta, sources with context %}
+{% block content %}
+<div class="wrap breadcrumb"><a href="{{ url('') }}">Home</a><span>/</span><a href="{{ url('visas/') }}">Visa Desk</a><span>/</span><span>{{ page.visa.short }}</span></div>
+<section class="page-hero wrap visa-detail-hero"><div>{{ eyebrow(page.visa.name|upper) }}<h1>{{ page.visa.title }}</h1><p>{{ page.visa.intro }}</p><a class="button" href="{{ url('contact/?interest=' ~ page.visa.slug) }}">Talk through this route {{ icon('arrow') }}</a></div><div class="visa-facts"><span class="tag">{{ page.visa.badge }}</span>{% for value,label in page.visa.facts %}<div><strong>{{ value }}</strong><span>{{ label }}</span></div>{% endfor %}<p>Official sources checked {{ checked }}.<br>A planning overview, subject to your authority’s requirements.</p></div></section>
+<section class="section"><div class="wrap article-layout"><article class="article-body">{% for title,text in page.visa.sections %}<section><h2>{{ title }}</h2><p>{{ text }}</p></section>{% endfor %}{{ sources(page.visa.sources) }}</article><aside class="article-sidebar"><div class="sidebar-card">{{ eyebrow('PREPARE THE CONVERSATION') }}<h3>Bring a little context.</h3><ul class="check-list">{% for item in page.visa.checklist %}<li>{{ icon('check') }}{{ item }}</li>{% endfor %}</ul><a class="button" href="{{ url('contact/?interest=' ~ page.visa.slug) }}">Plan my next step {{ icon('arrow') }}</a><a class="text-link" href="{{ url('fees/') }}">How the fees work {{ icon('arrow') }}</a></div><div class="sidebar-note"><h3>Still comparing?</h3><p>The Visa Finder gives you a starting shortlist around your circumstances.</p><a href="{{ url('tools/visa-finder/') }}">Find my options {{ icon('arrow') }}</a></div></aside></div></section>
+{{ faq(page.visa.faqs) }}{{ cta() }}
+{% endblock %}
+

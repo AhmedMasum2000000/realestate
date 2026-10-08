@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ page.title }}</title>
+  <meta name="description" content="{{ page.description }}">
+  <meta name="theme-color" content="#1a2b56">
+  <meta name="robots" content="{{ 'noindex,nofollow' if preview else 'index,follow' }}">
+  <link rel="canonical" href="https://moveinthailand.com/{{ page.slug }}{{ '/' if page.slug else '' }}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Move In Thailand">
+  <meta property="og:title" content="{{ page.title }}">
+  <meta property="og:description" content="{{ page.description }}">
+  <meta property="og:url" content="https://moveinthailand.com/{{ page.slug }}{{ '/' if page.slug else '' }}">
+  <meta property="og:image" content="https://moveinthailand.com/wp-content/mit-site/assets/coast.webp">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
+  <link rel="preload" href="{{ asset('fonts/rubik-400.woff2') }}" as="font" type="font/woff2" crossorigin>
+  {% if not page.slug %}<link rel="preload" href="{{ asset('coast.webp') }}" as="image">{% endif %}
+  <link rel="stylesheet" href="{{ asset('site.css') }}">
+  <script type="application/ld+json">{{ schema|tojson }}</script>
+</head>
+<body data-page="{{ page.template }}">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="topline"><div class="wrap"><span>Visa. Home. Business. Handled.</span><a href="{{ url('about/') }}">Your local desk in Pattaya {{ icon('arrow') }}</a></div></div>
+<header class="header">
+  <div class="wrap header-inner">
+    <a class="brand" href="{{ url('') }}" aria-label="Move In Thailand home"><span class="brand-mark"><img src="{{ asset('logo.png') }}" alt="" width="120" height="120"></span><span>Move In Thailand<small>VISA & RELOCATION</small></span></a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation">{{ icon('menu') }}</button>
+    <nav id="navigation" class="navigation" aria-label="Main navigation">
+      {% for label, path in [('Visa Desk','visas/'),('Homes','homes/'),('Business','business/'),('Living','living/'),('Tools','tools/')] %}<a href="{{ url(path) }}" {% if page.slug.startswith(path.rstrip('/')) %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+    </nav>
+    <a class="button button-small header-cta" href="{{ url('contact/') }}">Plan my move {{ icon('arrow') }}</a>
+  </div>
+</header>
+<main id="main">
+<!--mit-content-start-->
+{% block content %}{% endblock %}
+<!--mit-content-end-->
+</main>
+<footer class="footer">
+  <div class="wrap footer-top">
+    <div class="footer-intro"><a class="footer-brand" href="{{ url('') }}">Move In Thailand<span>.</span></a><p>Your next chapter, thoughtfully planned.<br>Visa. Home. Business. Handled.</p><a class="text-link" href="{{ url('contact/') }}">Let’s talk about your move {{ icon('arrow') }}</a></div>
+    <div><h2>Your move</h2><a href="{{ url('visas/') }}">Visa Desk</a><a href="{{ url('homes/') }}">Homes in Thailand</a><a href="{{ url('business/') }}">Business setup</a><a href="{{ url('invest/') }}">Investment review</a><a href="{{ url('residency-care/') }}">Residency Care</a></div>
+    <div><h2>Start here</h2><a href="{{ url('tools/visa-finder/') }}">Visa Finder</a><a href="{{ url('tools/cost-calculator/') }}">Move budget calculator</a><a href="{{ url('living/moving-checklist/') }}">Moving checklist</a><a href="{{ url('fees/') }}">Fees & what to expect</a><a href="{{ url('about/') }}">About us</a></div>
+    <div><h2>Our property partners</h2><a href="https://pattayahomepro.com/" target="_blank" rel="noopener">Pattaya Home Pro {{ icon('external') }}</a><a href="https://secondhomethailand.com/" target="_blank" rel="noopener">Second Home Thailand {{ icon('external') }}</a><p class="footer-note">Browse homes. Confirm current availability and terms with the listing team.</p></div>
+  </div>
+  <div class="wrap footer-bottom"><span>© 2026 Move In Thailand</span><span>Thoughtful advice. Clear next steps.</span><a href="{{ url('privacy/') }}">Privacy & enquiries</a></div>
+</footer>
+<a class="mobile-cta" href="{{ url('contact/') }}">Plan my move {{ icon('arrow') }}</a>
+<script id="mit-config" type="application/json">{{ config|tojson }}</script>
+<script defer src="{{ asset('site.js') }}"></script>
+</body>
+</html>
+
