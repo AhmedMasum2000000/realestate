@@ -30,6 +30,14 @@ function mit_page_file($route) {
     $file = realpath(mit_site_directory() . '/' . $route['file']);
     return $root && $file && strpos($file, $root . DIRECTORY_SEPARATOR) === 0 && is_readable($file) ? $file : false;
 }
+function mit_serve_sitemap() {
+    $path=parse_url($_SERVER['REQUEST_URI'] ?? '/',PHP_URL_PATH);
+    if($path!=='/mit-sitemap.xml'){return;}
+    $file=mit_site_directory().'/sitemap.xml';
+    if(is_readable($file)){status_header(200);header('Content-Type: application/xml; charset=UTF-8');readfile($file);exit;}
+}
+// Existing SEO plugins may claim *-sitemap.xml during parse_request.
+add_action('init','mit_serve_sitemap',1);
 function mit_register_types() {
     register_post_type('mit_page', array(
         'labels' => array('name'=>'Move In Thailand Pages','singular_name'=>'Move In Thailand Page','edit_item'=>'Edit website page','add_new_item'=>'Add website page draft'),
@@ -141,7 +149,7 @@ function mit_render_site() {
     echo $html;exit;
 }
 add_action('template_redirect','mit_render_site',0);
-add_filter('robots_txt',function($text){return rtrim($text)."\nSitemap: ".home_url('/mit-sitemap.xml')."\n";});
+add_filter('robots_txt',function($text){return rtrim($text)."\nSitemap: ".home_url('/mit-sitemap.xml')."\n";},99);
 
 /* Native WordPress drafts, revisions, publishing and scoped staff permissions. */
 add_filter('preview_post_link',function($link,$post){
