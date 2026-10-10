@@ -30,7 +30,7 @@
     <a class="brand" href="{{ url('') }}" aria-label="Move In Thailand home"><span class="brand-mark"><img src="{{ asset('logo.png') }}" alt="" width="120" height="120"></span><span>Move In Thailand<small>VISA & RELOCATION</small></span></a>
     <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation">{{ icon('menu') }}</button>
     <nav id="navigation" class="navigation" aria-label="Main navigation">
-      {% for label, path, also in [('Start here','start-here/',''),('Visa Desk','visas/','stay-legal'),('Homes','homes/',''),('Business','business/','invest'),('Living','living/',''),('Tools','tools/','')] %}<a href="{{ url(path) }}" {% if page.slug.startswith(path.rstrip('/')) or (also and page.slug.startswith(also)) %}aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+      {% for label, path, also in [('Start here','start-here/',''),('Visa Desk','visas/','stay-legal'),('Homes','homes/',''),('Business','business/','invest'),('Living','living/',''),('Tools','tools/','')] %}<a href="{{ url(path) }}" {% if page.slug.startswith(path.rstrip('/')) or (also and page.slug.startswith(also)) %}aria-current="page"{% endif %}><span class="roll"><span data-text="{{ label }}">{{ label }}</span></span></a>{% endfor %}
     </nav>
     <a class="button button-small header-cta" href="{{ url('contact/') }}">Plan my move {{ icon('arrow') }}</a>
   </div>
@@ -47,12 +47,15 @@
     <div><h2>Start here</h2><a href="{{ url('start-here/') }}">Moving step by step</a><a href="{{ url('stay-legal/') }}">Staying legal after arrival</a><a href="{{ url('faq/') }}">Questions people ask</a><a href="{{ url('tools/visa-finder/') }}">Visa Finder</a><a href="{{ url('tools/cost-calculator/') }}">Move budget calculator</a><a href="{{ url('living/moving-checklist/') }}">Moving checklist</a><a href="{{ url('fees/') }}">Fees & what to expect</a><a href="{{ url('about/') }}">About us</a></div>
     <div><h2>Our property partners</h2><a href="https://pattayahomepro.com/" target="_blank" rel="noopener">Pattaya Home Pro {{ icon('external') }}</a><a href="https://secondhomethailand.com/" target="_blank" rel="noopener">Second Home Thailand {{ icon('external') }}</a><p class="footer-note">Browse homes. Confirm current availability and terms with the listing team.</p></div>
   </div>
+  <div class="wrap footer-wordmark" aria-hidden="true">Move In Thailand<span>.</span></div>
   <div class="wrap footer-bottom"><span>© 2026 Move In Thailand</span><span>Thoughtful advice. Clear next steps.</span><a href="{{ url('privacy/') }}">Privacy & enquiries</a></div>
 </footer>
 <a class="mobile-cta" href="{{ url('contact/') }}">Plan my move {{ icon('arrow') }}</a>
 <script id="mit-config" type="application/json">{{ config|tojson }}</script>
 <script defer src="{{ asset('vendor/gsap.min.js') }}"></script>
 <script defer src="{{ asset('vendor/ScrollTrigger.min.js') }}"></script>
+<script defer src="{{ asset('vendor/SplitText.min.js') }}"></script>
+<script defer src="{{ asset('vendor/lenis.min.js') }}"></script>
 <script defer src="{{ asset('site.js') }}"></script>
 <script defer src="{{ asset('motion.js') }}"></script>
 </body>

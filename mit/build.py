@@ -64,7 +64,7 @@ def structured_data(page):
 def build(output: Path, preview: bool):
     output.mkdir(parents=True,exist_ok=True)
     asset_source = HERE/'assets'
-    required = ['logo.png','coast.webp','home.webp','fonts/rubik-400.woff2','fonts/rubik-500.woff2','moving-checklist.pdf','site.css','site.js','motion.js','vendor/gsap.min.js','vendor/ScrollTrigger.min.js']
+    required = ['logo.png','coast.webp','home.webp','fonts/rubik-400.woff2','fonts/rubik-500.woff2','moving-checklist.pdf','site.css','site.js','motion.js','vendor/gsap.min.js','vendor/ScrollTrigger.min.js','vendor/SplitText.min.js','vendor/lenis.min.js']
     missing = [name for name in required if not (asset_source/name).is_file()]
     if missing:
         raise SystemExit('Missing prepared assets: ' + ', '.join(missing))

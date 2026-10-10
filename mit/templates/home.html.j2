@@ -74,6 +74,7 @@
   </div>
   <p class="section-footnote">The authorities decide eligibility, and rules change. Every guide links the official source. <a href="{{ url('visas/') }}">Compare all visa routes {{ icon('arrow') }}</a></p>
 </div></section>
+<div class="marquee" data-marquee aria-hidden="true"><div class="marquee-track">{% for copy in range(2) %}<span class="marquee-group">{% for word in ['Retirement','Remote work','Family','Pool villas','Condos','Company setup','Investment','90-day reports','Pattaya'] %}<span>{{ word }}</span><i></i>{% endfor %}</span>{% endfor %}</div></div>
 <section class="statement-section"><div class="wrap">
   <p class="statement" data-scramble><span class="statement-a">Big life decisions.</span> <em class="statement-b">Made one clear step at a time.</em></p>
   <ul class="stats-strip">{% for value, label in stats %}<li class="stat"><b data-count="{{ value }}">{{ value }}</b><span>{{ label }}</span></li>{% endfor %}</ul>

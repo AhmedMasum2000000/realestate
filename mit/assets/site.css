@@ -139,5 +139,101 @@
 .stat:nth-child(n+3){border-top:1px solid #ddd5ca}
 .stat span{font-size:9px}
 }
+/* ---------- Craft layer: smooth scroll, line reveals, cursor, magnetic buttons, marquee, wordmark, page transitions.
+   Pointer effects only for a mouse or trackpad; everything is static with reduced motion. ---------- */
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.lenis.lenis-stopped{overflow:clip}
+.lenis.lenis-smooth iframe{pointer-events:none}
+
+/* Buttons: a navy fill rises from below; the arrow nudges forward. */
+.button{position:relative;overflow:hidden;isolation:isolate}
+.button:before{content:'';position:absolute;inset:-1px;background:var(--navy);border-radius:inherit;transform:translateY(102%);transition:transform .55s cubic-bezier(.2,.7,.2,1);z-index:-1}
+.button:hover:before{transform:translateY(0)}
+.button-light:before{background:var(--sand)}
+.button-outline:hover{color:#fff;border-color:var(--navy)}
+.button .icon,.text-link .icon{transition:transform .35s cubic-bezier(.2,.7,.2,1)}
+.button:hover .icon,.text-link:hover .icon,a:hover>.text-link .icon{transform:translateX(4px)}
+
+/* Navigation: each label rolls up to a burgundy copy on hover. */
+.roll{display:inline-block;overflow:hidden;vertical-align:top;line-height:1.5}
+.roll>span{display:inline-block;transition:transform .5s cubic-bezier(.2,.7,.2,1);text-shadow:0 1.5em 0 var(--burgundy)}
+.navigation>a:hover .roll>span{transform:translateY(-1.5em)}
+@media(max-width:900px){.roll>span{text-shadow:none}.navigation>a:hover .roll>span{transform:none}}
+
+/* Whole cards are clickable where they hold a single destination. */
+.route-spec .text-link,.visa-card .text-link{position:static}
+.route-spec .text-link:after,.visa-card .text-link:after{content:'';position:absolute;inset:0;border-radius:inherit}
+.visa-card{position:relative}
+
+/* Headline lines rise from behind a mask. */
+.split-line{padding-bottom:.06em;margin-bottom:-.06em}
+@keyframes failsafe-show{to{visibility:visible}}
+@keyframes failsafe-clip{to{clip-path:inset(0)}}
+.motion-ok .page-hero h1,.motion-ok .tool-intro h1{visibility:hidden;animation:failsafe-show 0s 2.6s forwards}
+.motion-ok .editorial-photo{clip-path:inset(100% 0 0 0);animation:failsafe-clip 0s 2.6s forwards}
+
+/* Film grain over the dark story and closing sections. */
+.story-stage:after,.closing:before{content:'';position:absolute;inset:-60%;z-index:1;pointer-events:none;opacity:.07;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.motion-ok .story-stage:after,.motion-ok .closing:before{animation:grain 1.2s steps(5) infinite}
+@keyframes grain{20%{transform:translate(-4%,3%)}40%{transform:translate(3%,-4%)}60%{transform:translate(-2%,4%)}80%{transform:translate(4%,-1%)}}
+.story-labels{z-index:2}
+
+/* Marquee: topics drift sideways and answer the speed of your scroll. */
+.marquee{overflow:hidden;padding:30px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper)}
+.marquee-track{display:flex;width:max-content;will-change:transform}
+.marquee-group{display:flex;align-items:center;flex:none}
+.marquee-group span{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:clamp(30px,4.4vw,62px);line-height:1.15;letter-spacing:-.035em;color:var(--navy);padding:0 32px;white-space:nowrap}
+.marquee-group span:nth-of-type(even){color:transparent;-webkit-text-stroke:1px var(--navy)}
+.marquee-group i{width:9px;height:9px;border-radius:50%;background:var(--burgundy);flex:none}
+
+/* Process: a burgundy line draws through the four steps. */
+.process-grid{position:relative}
+.process-grid.is-drawn:before{content:'';position:absolute;top:0;left:0;right:0;height:2px;margin-top:-1px;background:var(--burgundy);transform:scaleX(var(--p,0));transform-origin:left;z-index:1}
+
+/* Footer wordmark. */
+.footer-wordmark{font-family:Georgia,'Times New Roman',serif;font-size:min(calc((100vw - 88px) / 6.65),180px);line-height:.95;letter-spacing:-.055em;color:var(--navy);white-space:nowrap;overflow:hidden;padding:6px 0 26px;user-select:none}
+.footer-wordmark span{color:#be6275}
+.footer-wordmark .wm-char{display:inline-block;will-change:transform}
+
+/* Reading progress on guides. */
+.read-progress{position:fixed;top:0;left:0;right:0;height:3px;z-index:300;pointer-events:none}
+.read-progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--navy),var(--burgundy));transform-origin:left;transform:scaleX(0)}
+
+/* Cursor: a ring that trails the pointer and becomes a labelled disc over cards. */
+.cursor-ring,.cursor-label{position:fixed;top:0;left:0;z-index:400;pointer-events:none;opacity:0;transition:opacity .3s}
+.cursor-ring{width:34px;height:34px;border:1.5px solid #fff;border-radius:50%;mix-blend-mode:difference;transition:opacity .3s,width .35s cubic-bezier(.2,.7,.2,1),height .35s cubic-bezier(.2,.7,.2,1)}
+.cursor-on .cursor-ring{opacity:1}
+.cursor-ring.is-link{width:58px;height:58px}
+.cursor-ring.is-down{width:24px;height:24px}
+.cursor-on .cursor-ring.is-card,.cursor-on .cursor-ring.is-text{opacity:0}
+.cursor-label{width:88px;height:88px}
+.cursor-on .cursor-label{opacity:1}
+.cursor-label>span{display:flex;width:100%;height:100%;align-items:center;justify-content:center;border-radius:50%;background:var(--burgundy);color:#fff;font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 12px 30px #86263840;transform:scale(0);transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.cursor-label.is-card>span{transform:scale(1)}
+
+/* Home: the header settles in on first paint. */
+@keyframes header-in{from{opacity:0;transform:translateY(-14px)}}
+.motion-ok body[data-page=home] .header-inner>*{animation:header-in .9s cubic-bezier(.2,.7,.2,1) backwards}
+.motion-ok body[data-page=home] .header-inner>:nth-child(2){animation-delay:.08s}
+.motion-ok body[data-page=home] .header-inner>:nth-child(3){animation-delay:.16s}
+.motion-ok body[data-page=home] .header-inner>:nth-child(4){animation-delay:.24s}
+
+/* Phone menu: links arrive one after another. */
+@keyframes nav-in{from{opacity:0;transform:translateY(12px)}}
+@media(max-width:900px){.motion-ok .navigation.is-open>a{animation:nav-in .5s cubic-bezier(.2,.7,.2,1) backwards}
+.motion-ok .navigation.is-open>a:nth-child(2){animation-delay:.04s}.motion-ok .navigation.is-open>a:nth-child(3){animation-delay:.08s}.motion-ok .navigation.is-open>a:nth-child(4){animation-delay:.12s}.motion-ok .navigation.is-open>a:nth-child(5){animation-delay:.16s}.motion-ok .navigation.is-open>a:nth-child(6){animation-delay:.2s}}
+
+/* Page to page: the content eases across while the header stays put (browsers with view transitions). */
+@media(prefers-reduced-motion:no-preference){
+@view-transition{navigation:auto}
+::view-transition-old(root){animation:page-out .3s cubic-bezier(.4,0,1,1) both}
+::view-transition-new(root){animation:page-in .55s cubic-bezier(.2,.7,.2,1) both}
+.header{view-transition-name:site-header}
+}
+@keyframes page-out{to{opacity:0;transform:translateY(-12px)}}
+@keyframes page-in{from{opacity:0;transform:translateY(18px)}}
+
+@media(max-width:700px){.marquee{padding:20px 0}.marquee-group span{padding:0 20px}.footer-wordmark{font-size:calc((100vw - 40px) / 6.65);padding-bottom:18px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.finder-preview{transform:none}}
 @media print{.topline,.header,.footer,.closing,.mobile-cta,.button-row,.article-sidebar,.faq-section{display:none!important}body{background:#fff;color:#111;font:11pt/1.5 Georgia,serif}.wrap{width:100%;margin:0}.section,.page-hero{padding:20px 0}.page-hero{display:block}.editorial-photo{display:none}.article-layout{display:block}.article-body section{break-inside:avoid}.article-body p{color:#111}.sources a:after{content:' (' attr(href) ')';font-size:8pt}.eyebrow{color:#333}.download-block{display:none}}
