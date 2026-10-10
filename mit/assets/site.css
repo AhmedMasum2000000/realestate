@@ -377,5 +377,58 @@ mark.hl-dark{background-image:linear-gradient(100deg,transparent 20%,#ffffff70 5
 .motes{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
 .motes i{position:absolute;bottom:-20px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:#fff;opacity:0;box-shadow:0 0 calc(var(--s) * 3) #fff6;animation:mote-rise var(--d) linear var(--w) infinite}
 @keyframes mote-rise{0%{transform:translate(0,0);opacity:0}12%{opacity:var(--o)}85%{opacity:var(--o)}100%{transform:translate(var(--dx),-105vh);opacity:0}}
+/* ---------- Mali, the cookie mascot: a light joke a few seconds after the home page opens. ---------- */
+.cookie-jar{position:fixed;right:28px;bottom:28px;z-index:250;width:min(468px,calc(100vw - 32px));padding:22px 24px 20px 176px;min-height:170px;background:var(--paper);border:1px solid #e6dfd5;border-radius:18px;box-shadow:0 24px 60px #0e172f2e,0 4px 14px #0e172f14;color:var(--ink)}
+.cookie-jar[hidden],.cookie-jar [hidden]{display:none!important}
+.cookie-mascot{position:absolute;left:-12px;bottom:0;width:192px;pointer-events:none;filter:drop-shadow(0 10px 14px #0e172f1f)}
+.cookie-mascot svg{display:block;width:100%;height:auto;overflow:visible}
+.cookie-copy{display:flex;flex-direction:column;gap:7px}
+.cookie-hello{font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--burgundy);padding-right:30px}
+.cookie-jar h2{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:22px;line-height:1.15;letter-spacing:-.025em;color:var(--navy);padding-right:24px}
+.cookie-copy>p:not(.cookie-hello):not(.cookie-joke){font-size:12px;line-height:1.65;color:var(--muted)}
+.cookie-joke{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-size:13.5px;line-height:1.45;color:var(--burgundy);padding:9px 12px;background:var(--sand);border-radius:12px 12px 12px 3px}
+.cookie-actions{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:4px}
+.cookie-diet{background:none;border:0;padding:6px 0;font:500 12px Rubik,Arial,sans-serif;color:var(--navy);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.cookie-diet:hover{color:var(--burgundy)}
+.cookie-next{margin-top:4px}
+.cookie-close{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;transition:transform .4s cubic-bezier(.2,.7,.2,1),background .25s,border-color .25s}
+.cookie-close span:before,.cookie-close span:after{content:'';position:absolute;left:50%;top:50%;width:12px;height:1.5px;border-radius:2px;background:var(--navy);transform:translate(-50%,-50%) rotate(45deg)}
+.cookie-close span:after{transform:translate(-50%,-50%) rotate(-45deg)}
+.cookie-close:hover{transform:rotate(90deg);background:var(--sand);border-color:#d9cfc3}
+.cookie-close:active{transform:rotate(90deg) scale(.88)}
+.cookie-jar svg g,.cookie-jar svg path,.cookie-jar svg ellipse{transform-box:view-box}
+.cookie-jar .m-happy-eyes,.cookie-jar .m-mouth-o{opacity:0}
+.cookie-jar .m-body{transform-origin:80px 168px}
+.cookie-jar .m-wave{transform-origin:59px 123px}
+.cookie-jar .m-eyes{transform-origin:80px 77px}
+.cookie-jar .m-offer{transform-origin:101px 123px}
+.cookie-jar.is-happy .m-eyes{opacity:0}.cookie-jar.is-happy .m-happy-eyes{opacity:1}
+.cookie-jar.is-shrug .m-mouth,.cookie-jar.is-shrug .m-tongue{opacity:0}.cookie-jar.is-shrug .m-mouth-o{opacity:1}
+.cookie-jar.is-taken .m-top-cookie{opacity:0}
+@keyframes jar-in{0%{opacity:0;transform:translateY(46px) scale(.9)}60%{opacity:1;transform:translateY(-7px) scale(1.02)}100%{opacity:1;transform:none}}
+@keyframes jar-out{to{opacity:0;transform:translateY(36px) scale(.94)}}
+@keyframes m-bob{50%{transform:translateY(-3px)}}
+@keyframes m-wave{0%,58%,100%{transform:rotate(0)}10%,30%,50%{transform:rotate(-18deg)}20%,40%{transform:rotate(10deg)}}
+@keyframes m-blink{0%,93%,100%{transform:scaleY(1)}96%{transform:scaleY(.1)}}
+@keyframes m-steam{0%{opacity:0;transform:translateY(4px)}40%{opacity:.9}100%{opacity:0;transform:translateY(-9px)}}
+@keyframes m-offer{50%{transform:rotate(-4deg) translateY(-2px)}}
+@keyframes m-jump{25%{transform:translateY(-14px)}50%{transform:none}70%{transform:translateY(-5px)}}
+@keyframes m-tilt{25%,75%{transform:rotate(-7deg)}}
+.cookie-jar.is-in{animation:jar-in .85s cubic-bezier(.2,.8,.2,1) both}
+.cookie-jar.is-out{animation:jar-out .45s ease-in forwards}
+.cookie-jar .m-body{animation:m-bob 3s ease-in-out infinite}
+.cookie-jar .m-wave{animation:m-wave 2.8s ease-in-out infinite}
+.cookie-jar .m-eyes{animation:m-blink 4s infinite}
+.cookie-jar .m-steam{animation:m-steam 2.2s ease-out infinite}
+.cookie-jar .m-steam-2{animation-delay:1.1s}
+.cookie-jar .m-offer{animation:m-offer 2.6s ease-in-out infinite}
+.cookie-jar.is-happy .m-body{animation:m-jump .8s ease-out 2}
+.cookie-jar.is-shrug .m-body{animation:m-tilt 1.1s ease-in-out}
+.flying-cookie{position:fixed;z-index:500;pointer-events:none}
+.flying-cookie svg{display:block;width:100%;height:100%}
+.crumb{position:fixed;z-index:500;width:7px;height:6px;border-radius:45%;pointer-events:none}
+@media(max-width:700px){.cookie-jar{left:10px;right:10px;bottom:62px;width:auto;padding:14px 14px 14px 104px;min-height:0;border-radius:16px}
+.cookie-mascot{width:116px;left:-8px}.cookie-hello{font-size:9px}.cookie-jar h2{font-size:18px}.cookie-copy{gap:6px}
+.cookie-copy>p:not(.cookie-hello):not(.cookie-joke){font-size:11px;line-height:1.55}.cookie-joke{font-size:12px;padding:8px 10px}.cookie-close{top:9px;right:9px;width:28px;height:28px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.finder-preview{transform:none}}
 @media print{.topline,.header,.footer,.closing,.mobile-cta,.button-row,.article-sidebar,.faq-section{display:none!important}body{background:#fff;color:#111;font:11pt/1.5 Georgia,serif}.wrap{width:100%;margin:0}.section,.page-hero{padding:20px 0}.page-hero{display:block}.editorial-photo{display:none}.article-layout{display:block}.article-body section{break-inside:avoid}.article-body p{color:#111}.sources a:after{content:' (' attr(href) ')';font-size:8pt}.eyebrow{color:#333}.download-block{display:none}}

@@ -50,6 +50,7 @@
   <div class="wrap footer-wordmark" aria-hidden="true">Move In Thailand<span>.</span></div>
   <div class="wrap footer-bottom"><span>© 2026 Move In Thailand</span><span>Thoughtful advice. Clear next steps.</span><a href="{{ url('privacy/') }}">Privacy & enquiries</a></div>
 </footer>
+{% if not page.slug %}{% include 'cookie-jar.html.j2' %}{% endif %}
 <a class="mobile-cta" href="{{ url('contact/') }}">Plan my move {{ icon('arrow') }}</a>
 <script id="mit-config" type="application/json">{{ config|tojson }}</script>
 <script defer src="{{ asset('vendor/gsap.min.js') }}"></script>

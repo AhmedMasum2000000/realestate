@@ -43,6 +43,13 @@ def check(page, url, tag, problems):
         problems.append(f'{tag}: page looks still while idle (changed: {alive})')
     if after['painted'] != '1':
         problems.append(f'{tag}: core message not highlighted')
+    # The cookie mascot says the only cookies here are edible: fail if the live site sets a tracking cookie.
+    cookies = sorted(cookie['name'] for cookie in page.context.cookies())
+    trackers = [name for name in cookies if name.lower().startswith(('_ga', '_gid', '_gcl', '_fbp', '_fbc', '_hj', '_clck', '_clsk', '_uet', 'ajs_', 'mp_', '_ttp', '_pin'))]
+    mascot = page.evaluate("!!document.getElementById('cookie-jar')")
+    print(f'{tag}: cookies={cookies} tracking={trackers} mascot_on_page={mascot}')
+    if trackers:
+        problems.append(f'{tag}: tracking cookies set ({trackers}); the cookie mascot copy would be untrue')
     if tag == 'reduced-motion':
         return
     if after['running'] < 10:

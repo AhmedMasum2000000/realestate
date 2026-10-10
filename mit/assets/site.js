@@ -201,3 +201,103 @@
     });
   }
 })();
+
+/* Mali, the cookie mascot. Home page only: a light joke a few seconds after the page opens, once a month.
+   Remembered in local storage, not a cookie, so the joke stays true. */
+(() => {
+  'use strict';
+  const jar = document.getElementById('cookie-jar');
+  if (!jar) return;
+  const KEY = 'mit-cookie-jar';
+  const MONTH = 30 * 24 * 60 * 60 * 1000;
+  let seen = 0;
+  try { seen = Number(localStorage.getItem(KEY)) || 0; } catch (error) { seen = 0; }
+  if (Date.now() - seen < MONTH) return;
+  const remember = () => { try { localStorage.setItem(KEY, String(Date.now())); } catch (error) { /* private mode: show again next time */ } };
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const part = name => jar.querySelector('[data-cookie-' + name + ']');
+  const jokes = [
+    'Why did the cookie move to Thailand? It was tired of feeling crummy at home.',
+    'Why did the cookie call a visa desk? It didn’t want to crumble under the paperwork.',
+    'What’s a cookie’s dream move? One with zero crumby surprises.',
+    'Why are our cookies so relaxed? They already found their visa.'
+  ];
+  part('joke').textContent = jokes[Math.floor(Math.random() * jokes.length)];
+
+  let closed = false;
+  const onKey = event => { if (event.key === 'Escape') close(); };
+  function open() {
+    if (closed) return;
+    jar.hidden = false;
+    jar.classList.add('is-in');
+    document.addEventListener('keydown', onKey);
+  }
+  function close() {
+    if (closed) return;
+    closed = true;
+    remember();
+    document.removeEventListener('keydown', onKey);
+    jar.classList.remove('is-in');
+    jar.classList.add('is-out');
+    setTimeout(() => { jar.hidden = true; }, reduce ? 0 : 450);
+  }
+  function say(title, text) {
+    part('title').textContent = title;
+    part('text').textContent = text;
+    part('joke').hidden = true;
+    part('hello').hidden = true;
+    part('actions').hidden = true;
+  }
+
+  // A cookie flies off the plate toward the visitor and bursts into crumbs.
+  function fly(source) {
+    const box = source.getBoundingClientRect();
+    const cookie = document.createElement('span');
+    cookie.className = 'flying-cookie';
+    cookie.setAttribute('aria-hidden', 'true');
+    cookie.innerHTML = '<svg viewBox="-9 -9 18 18"><circle r="8" fill="#dca468" stroke="#b47838" stroke-width="1.2"/><circle cx="-2.5" cy="-2.5" r="1.4" fill="#4b2e22"/><circle cx="2.5" cy="-.5" r="1.3" fill="#4b2e22"/><circle cx="-.5" cy="3" r="1.2" fill="#4b2e22"/></svg>';
+    cookie.style.cssText = 'left:' + box.left + 'px;top:' + box.top + 'px;width:' + box.width + 'px;height:' + box.height + 'px';
+    document.body.appendChild(cookie);
+    const dx = innerWidth * 0.5 - box.left - box.width / 2, dy = innerHeight * 0.42 - box.top - box.height / 2;
+    const flight = cookie.animate([
+      {transform: 'translate(0, 0) scale(1) rotate(0deg)', opacity: 1},
+      {transform: 'translate(' + dx * 0.55 + 'px, ' + (dy * 0.55 - 90) + 'px) scale(3) rotate(200deg)', opacity: 1, offset: 0.6},
+      {transform: 'translate(' + dx + 'px, ' + dy + 'px) scale(4.4) rotate(330deg)', opacity: 0}
+    ], {duration: 1100, easing: 'cubic-bezier(.2,.7,.2,1)'});
+    flight.onfinish = () => { cookie.remove(); burst(box.left + box.width / 2 + dx, box.top + box.height / 2 + dy); };
+  }
+  function burst(x, y) {
+    const colours = ['#dca468', '#c98b4a', '#4b2e22', '#e8bf86'];
+    for (let i = 0; i < 14; i++) {
+      const crumb = document.createElement('span');
+      crumb.className = 'crumb';
+      crumb.style.cssText = 'left:' + x + 'px;top:' + y + 'px;background:' + colours[i % colours.length];
+      document.body.appendChild(crumb);
+      const angle = Math.random() * Math.PI * 2, distance = 50 + Math.random() * 90;
+      crumb.animate([
+        {transform: 'translate(-50%, -50%) scale(1)', opacity: 1},
+        {transform: 'translate(calc(-50% + ' + Math.cos(angle) * distance + 'px), calc(-50% + ' + (Math.sin(angle) * distance + 40) + 'px)) rotate(' + Math.random() * 360 + 'deg) scale(.6)', opacity: 0}
+      ], {duration: 700 + Math.random() * 400, easing: 'cubic-bezier(.2,.7,.2,1)'}).onfinish = () => crumb.remove();
+    }
+  }
+
+  part('take').addEventListener('click', () => {
+    remember();
+    jar.classList.add('is-happy', 'is-taken');
+    if (!reduce && Element.prototype.animate) fly(jar.querySelector('.m-top-cookie'));
+    say('Crunch! Enjoy your cookie', 'Now that you’re fuelled up: which visa fits you? Four quick questions, no sign-up.');
+    const next = part('next');
+    next.hidden = false;
+    next.focus({preventScroll: true});
+  });
+  part('diet').addEventListener('click', () => {
+    remember();
+    jar.classList.add('is-shrug');
+    say('More for me, then!', 'No pressure. The cookie jar is always open, and so is our desk.');
+    jar.querySelector('.cookie-close').focus({preventScroll: true});
+    setTimeout(close, 3200);
+  });
+  part('next').addEventListener('click', remember);
+  jar.querySelector('.cookie-close').addEventListener('click', close);
+  setTimeout(open, 4500);
+})();
