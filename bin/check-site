@@ -10,6 +10,7 @@ bar. These are whole-output invariants, so they are checked against the built
 files rather than in isolation.
 """
 
+import json
 import re
 import sys
 from collections import Counter
@@ -19,6 +20,7 @@ RE_REF = re.compile(r'(?:href|src)="(/[^"]*)"')
 RE_TITLE = re.compile(r"<title>(.*?)</title>", re.S)
 RE_H1 = re.compile(r"<h1\b", re.I)
 RE_BODY = re.compile(r"<body[^>]*class=\"([^\"]*)\"")
+RE_LD = re.compile(r'<script type="application/ld\+json">(.*?)</script>', re.S)
 RE_DESC = re.compile(r'<meta name="description" content="([^"]*)"')
 
 
@@ -74,6 +76,14 @@ def main() -> int:
         desc = RE_DESC.search(html)
         if not desc or len(desc.group(1).strip()) < 40:
             fail(problems, f"{rel}: missing or thin meta description")
+
+        # --- structured data parses: browsers and Google read <script> raw,
+        # so an HTML-escaped block (&#34;) is invisible to rich results ---
+        for block in RE_LD.findall(html):
+            try:
+                json.loads(block)
+            except ValueError:
+                fail(problems, f"{rel}: JSON-LD does not parse: {block[:60]}")
 
         # --- exactly one h1 ---
         h1s = len(RE_H1.findall(html))

@@ -12,6 +12,7 @@ from datetime import date
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
+from markupsafe import Markup
 
 from . import content
 from .art import placeholder
@@ -109,9 +110,17 @@ def paginate(items: list, size: int = PAGE_SIZE) -> list[list]:
     return [items[i:i + size] for i in range(0, len(items), size)]
 
 
-def jsonld(payload: dict) -> str:
+def jsonld(payload: dict) -> Markup:
+    """JSON for a <script type="application/ld+json"> block.
+
+    Browsers do not decode HTML entities inside <script>, so autoescaping this
+    (`&#34;` for every quote) leaves Google an unparseable block. It is marked
+    safe instead, with <, > and & written as JSON unicode escapes so no value
+    (a listing title, say) can close the script tag early.
+    """
     # separators + sort_keys keep the serialized block byte-stable between builds.
-    return json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return Markup(raw.replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026"))
 
 
 def breadcrumb_ld(trail: list[tuple[str, str]], current: str, current_path: str) -> dict:
