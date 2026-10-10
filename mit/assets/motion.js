@@ -25,10 +25,10 @@
   /* Pattaya local time in the hero corner label. */
   const clock = document.querySelector('[data-local-time]');
   if (clock && window.Intl) {
-    const format = new Intl.DateTimeFormat('en-GB', {timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit'});
+    const format = new Intl.DateTimeFormat('en-GB', {timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', second: '2-digit'});
     const tick = () => { clock.textContent = format.format(new Date()) + ' GMT+7'; };
     tick();
-    setInterval(tick, 30000);
+    setInterval(tick, 1000);
   }
 
   /* Cards: a soft brand glow follows the pointer. */
@@ -42,8 +42,22 @@
   });
 
   const gsap = window.gsap, ScrollTrigger = window.ScrollTrigger, SplitText = window.SplitText;
-  if (!root.classList.contains('motion-ok') || !gsap || !ScrollTrigger) { root.classList.remove('motion-ok'); return; }
+  const lite = root.classList.contains('motion-lite');
+  if ((!root.classList.contains('motion-ok') && !lite) || !gsap || !ScrollTrigger) { root.classList.remove('motion-ok'); return; }
   gsap.registerPlugin(ScrollTrigger);
+
+  /* Devices set to reduce motion still get a living page, without movement across the screen:
+     highlights paint in, words cross-fade, numbers count and notes type themselves. */
+  if (lite) {
+    highlights();
+    rotators(true);
+    ticks();
+    counters();
+    typewriters();
+    journey();
+    statement(document.querySelector('[data-scramble]'));
+    return;
+  }
   if (SplitText) gsap.registerPlugin(SplitText);
   ScrollTrigger.config({ignoreMobileResize: true});
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -73,6 +87,7 @@
   highlights();
   rotators();
   ticks();
+  typewriters();
   journey();
   pressFeedback();
   if (finePointer) { cursor(); magnetic(); tilt(); }
@@ -179,6 +194,7 @@
     timeline
       .to(state, {frame: count - 1, duration: 10, onUpdate: () => { current = state.frame; requestDraw(); showScene(); }}, 0)
       // Intro exits: each headline line leaves in its own direction.
+      .to(hero.querySelector('.story-cue'), {autoAlpha: 0, duration: 0.4}, 0)
       // Explicit start values: the CSS load-in may still be running when the timeline is built.
       .fromTo(hero.querySelector('.story-brand'), {y: 0, autoAlpha: 1}, {y: -40, autoAlpha: 0, duration: 0.9, ease: 'power1.in', immediateRender: false}, 0.05)
       .fromTo(hero.querySelector('.story-intro-meta'), {y: 0, autoAlpha: 1}, {y: 50, autoAlpha: 0, duration: 0.9, ease: 'power1.in', immediateRender: false}, 0.05)
@@ -198,7 +214,9 @@
       // The key line of each beat is painted once it is on screen.
       .fromTo(taglines[0], {'--hl': 0}, {'--hl': 1, duration: 0.8, ease: 'power2.inOut'}, 2.95)
       .fromTo(taglines[1], {'--hl': 0}, {'--hl': 1, duration: 0.8, ease: 'power2.inOut'}, 5.55)
-      .fromTo(hero.querySelector('.story-end-left h2'), {'--hl': 0}, {'--hl': 1, duration: 0.8, ease: 'power2.inOut'}, 8.9);
+      .fromTo(hero.querySelector('.story-end-left h2'), {'--hl': 0}, {'--hl': 1, duration: 0.8, ease: 'power2.inOut',
+        onComplete: () => hero.querySelector('.story-end-left h2').classList.add('is-lit'),
+        onReverseComplete: () => hero.querySelector('.story-end-left h2').classList.remove('is-lit')}, 8.9);
 
     // Depth: the headline drifts with the pointer while the scene shifts the other way.
     if (finePointer) {
@@ -214,8 +232,21 @@
       hero.addEventListener('pointerleave', () => { introX(0); introY(0); sceneX(0); sceneY(0); });
     }
 
+    // Points of light drift up through the scene; fewer on phones.
+    const motes = document.createElement('div');
+    motes.className = 'motes';
+    motes.setAttribute('aria-hidden', 'true');
+    for (let i = 0; i < (phone ? 10 : 18); i++) {
+      const mote = document.createElement('i');
+      const size = 2 + Math.random() * 4;
+      mote.style.cssText = '--x:' + (Math.random() * 100).toFixed(1) + '%;--s:' + size.toFixed(1) + 'px;--d:' + (11 + Math.random() * 12).toFixed(1) +
+        's;--w:-' + (Math.random() * 20).toFixed(1) + 's;--dx:' + ((Math.random() - 0.5) * 160).toFixed(0) + 'px;--o:' + (0.25 + Math.random() * 0.45).toFixed(2);
+      motes.appendChild(mote);
+    }
+    hero.querySelector('.story-shade').after(motes);
+
     // The scene breathes very slowly, so the opening is never quite still.
-    gsap.fromTo(canvas, {scale: finePointer ? 1.05 : 1}, {scale: finePointer ? 1.09 : 1.04, duration: 9, ease: 'sine.inOut', yoyo: true, repeat: -1});
+    gsap.fromTo(canvas, {scale: finePointer ? 1.05 : 1.02, xPercent: -1.2}, {scale: finePointer ? 1.13 : 1.1, xPercent: 1.2, duration: 10, ease: 'sine.inOut', yoyo: true, repeat: -1});
 
     fit();
     let resizeTimer;
@@ -227,7 +258,7 @@
     // Headings, photos and the process steps have their own entrances; these are the blocks around them.
     const selector = ['.section-heading .eyebrow', '.section-heading > p', '.section-heading > .text-link', '.promise-strip p',
       '.intent-card', '.route-spec', '.story-copy > :not(h2)', '.service-card', '.finder-preview',
-      '.finder-feature-grid > div > :not(h2)', processDrawn ? '' : '.process-grid > li', '.tool-card', '.faq-layout > :last-child',
+      '.finder-feature-grid > div > :not(h2):not(.button)', processDrawn ? '' : '.process-grid > li', '.tool-card', '.faq-layout > :last-child',
       '.faq-layout > :first-child > :not(h2)', '.closing-inner > *', '.visa-card', '.related-card', '.article-body > section > :not(h2)',
       '.sidebar-card', '.section-footnote', '.download-block > :not(h2)', '.page-hero > *', '.stat', '.marquee'].filter(Boolean).join(',');
     // Content already on screen is left alone, so nothing visible ever blinks out.
@@ -236,9 +267,20 @@
     gsap.set(targets, {opacity: 0, y: 30});
     targets.forEach(el => { if (el.classList.contains('eyebrow')) el.classList.add('draw-line'); });
     targets.forEach(el => { const bar = el.matches('.route-spec') && el.querySelector('.spec-bar i'); if (bar) gsap.set(bar, {scaleX: 0}); });
+    // Once something has scrolled fully below the screen it resets, so it enters again on the way back down.
+    ScrollTrigger.batch(targets, {
+      start: 'top bottom',
+      onLeaveBack: batch => {
+        gsap.set(batch, {opacity: 0, y: 30, overwrite: 'auto'});
+        batch.forEach(el => {
+          el.classList.remove('is-in');
+          const bar = el.matches('.route-spec') && el.querySelector('.spec-bar i');
+          if (bar) gsap.set(bar, {scaleX: 0, overwrite: 'auto'});
+        });
+      }
+    });
     ScrollTrigger.batch(targets, {
       start: 'top 90%',
-      once: true,
       onEnter: batch => {
         // After a jump (a chapter link, an anchor), whatever was skipped past appears at once, and what is
         // on screen staggers in within 0.6s, so the section you jumped to never waits behind the others.
@@ -269,10 +311,9 @@
         type: 'lines', mask: 'lines', linesClass: 'split-line', autoSplit: true,
         onSplit: self => {
           gsap.set(el, {visibility: 'visible'});
-          return gsap.from(self.lines, {
-            yPercent: 110, duration: 1.15, ease: 'expo.out', stagger: 0.09, delay: onScreen ? 0.1 : 0,
-            ...(onScreen ? {} : {scrollTrigger: {trigger: el, start: 'top 88%', once: true}})
-          });
+          const rise = gsap.from(self.lines, {yPercent: 110, duration: 1.15, ease: 'expo.out', stagger: 0.09, delay: onScreen ? 0.1 : 0, paused: !onScreen});
+          replay(el, rise, 'top 88%');
+          return rise;
         }
       });
     });
@@ -284,10 +325,11 @@
       const img = frame.querySelector('img');
       if (!img) return;
       const onScreen = frame.getBoundingClientRect().top < innerHeight * 0.92;
-      const when = onScreen ? {delay: 0.05} : {scrollTrigger: {trigger: frame, start: 'top 85%', once: true}};
       gsap.set(img, {scale: 1.12});
-      gsap.fromTo(frame, {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: onScreen ? 1.1 : 1.4, ease: onScreen ? 'expo.out' : 'expo.inOut', ...when});
-      gsap.from(img, {scale: 1.45, duration: 2, ease: 'expo.out', ...when});
+      const wipe = gsap.timeline({paused: !onScreen, delay: onScreen ? 0.05 : 0})
+        .fromTo(frame, {clipPath: 'inset(100% 0% 0% 0%)'}, {clipPath: 'inset(0% 0% 0% 0%)', duration: onScreen ? 1.1 : 1.4, ease: onScreen ? 'expo.out' : 'expo.inOut'}, 0)
+        .fromTo(img, {scale: 1.45}, {scale: 1.12, duration: 2, ease: 'expo.out'}, 0);
+      replay(frame, wipe, 'top 85%');
       gsap.fromTo(img, {yPercent: -5}, {yPercent: 5, ease: 'none', scrollTrigger: {trigger: frame, start: 'top bottom', end: 'bottom top', scrub: true}});
     });
   }
@@ -335,17 +377,23 @@
     const mark = document.querySelector('.footer-wordmark');
     if (!mark || !SplitText) return;
     const split = SplitText.create(mark, {type: 'chars', charsClass: 'wm-char', aria: 'none'});
-    gsap.from(split.chars, {yPercent: 105, duration: 1.2, ease: 'expo.out', stagger: 0.035, scrollTrigger: {trigger: mark, start: 'top 98%', once: true}});
+    const rise = gsap.from(split.chars, {yPercent: 105, duration: 1.2, ease: 'expo.out', stagger: 0.035, paused: true});
+    replay(mark, rise, 'top 98%');
+    // A slow wave keeps running through the letters while the footer is on screen.
+    const amplitude = Math.max(3, split.chars[0].offsetHeight * 0.045);
+    const wave = gsap.to(split.chars, {y: -amplitude, duration: 1.5, ease: 'sine.inOut', stagger: {each: 0.13, repeat: -1, yoyo: true}, paused: true});
+    ScrollTrigger.create({trigger: mark, start: 'top bottom', end: 'bottom top', onToggle: self => (self.isActive ? wave.play() : wave.pause())});
     if (!finePointer) return;
-    const lifts = split.chars.map(char => gsap.quickTo(char, 'y', {duration: 0.6, ease: 'power3'}));
+    const swell = split.chars.map(char => gsap.quickTo(char, 'scale', {duration: 0.6, ease: 'power3'}));
+    gsap.set(split.chars, {transformOrigin: '50% 100%'});
     mark.addEventListener('pointermove', event => {
       split.chars.forEach((char, index) => {
         const box = char.getBoundingClientRect();
         const distance = Math.abs(event.clientX - (box.left + box.width / 2));
-        lifts[index](-Math.max(0, 1 - distance / 240) * box.height * 0.16);
+        swell[index](1 + Math.max(0, 1 - distance / 240) * 0.14);
       });
     });
-    mark.addEventListener('pointerleave', () => lifts.forEach(lift => lift(0)));
+    mark.addEventListener('pointerleave', () => swell.forEach(set => set(1)));
   }
 
   /* ---------- Guides: a thin progress line along the top of the window. ---------- */
@@ -428,34 +476,49 @@
   /* ---------- Highlights: the core message is painted on arrival; every key line is painted as you scroll to it,
      and unpainted if you scroll back, so the eye is always led to the next promise. ---------- */
   function highlights() {
+    const lit = el => el.classList.add('is-lit');
     const marks = gsap.utils.toArray('mark.hl');
     marks.filter(mark => mark.hasAttribute('data-hl-load'))
-      .forEach(mark => gsap.fromTo(mark, {'--hl': 0}, {'--hl': 1, duration: 1.3, ease: 'power2.inOut', delay: 1.35}));
+      .forEach(mark => gsap.fromTo(mark, {'--hl': 0}, {'--hl': 1, duration: 1.3, ease: 'power2.inOut', delay: 1.35, onComplete: () => lit(mark)}));
     const scopes = new Set();
     marks.forEach(mark => {
       if (mark.hasAttribute('data-hl-load') || mark.closest('[data-story-hero]')) return;
       scopes.add(mark.closest('h1, h2, h3, p, li, dd') || mark.parentElement);
     });
+    // Once a line is fully painted a light keeps gleaming across it (class is-lit), so painted promises stay alive.
     scopes.forEach(scope => {
       if (scope.getBoundingClientRect().top < innerHeight * 0.8) {
-        gsap.fromTo(scope, {'--hl': 0}, {'--hl': 1, duration: 1.2, ease: 'power2.inOut', delay: 0.9});
+        gsap.fromTo(scope, {'--hl': 0}, {'--hl': 1, duration: 1.2, ease: 'power2.inOut', delay: 0.9, onComplete: () => lit(scope)});
       } else {
-        gsap.fromTo(scope, {'--hl': 0}, {'--hl': 1, ease: 'none', scrollTrigger: {trigger: scope, start: 'top 82%', end: 'top 48%', scrub: 0.4}});
+        gsap.fromTo(scope, {'--hl': 0}, {'--hl': 1, ease: 'none', scrollTrigger: {
+          trigger: scope, start: 'top 82%', end: 'top 48%', scrub: 0.4,
+          onUpdate: self => scope.classList.toggle('is-lit', self.progress > 0.97),
+          onLeave: () => lit(scope)
+        }});
       }
     });
   }
 
-  /* ---------- Rotating words: one reason at a time, with the box easing to each word's width. ---------- */
-  function rotators() {
-    const ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
-    ready.then(() => document.querySelectorAll('[data-rotator]').forEach(rotator));
+  /* ---------- Replay: play when the element reaches `start`, reset once it is fully below the screen again. ---------- */
+  function replay(el, animation, start) {
+    (el._replay || []).forEach(trigger => trigger.kill());
+    el._replay = [
+      ScrollTrigger.create({trigger: el, start, onEnter: () => animation.restart(true)}),
+      ScrollTrigger.create({trigger: el, start: 'top bottom', onLeaveBack: () => animation.pause(0)})
+    ];
   }
-  function rotator(box) {
+
+  /* ---------- Rotating words: one reason at a time, with the box easing to each word's width. ---------- */
+  function rotators(fadeOnly) {
+    const ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+    ready.then(() => document.querySelectorAll('[data-rotator]').forEach(box => rotator(box, fadeOnly ? 0 : 110)));
+  }
+  function rotator(box, travel) {
     const words = [...box.children];
     if (words.length < 2) return;
     const first = {height: words[0].offsetHeight, width: words[0].offsetWidth};
     gsap.set(box, {display: 'inline-block', position: 'relative', ...first});
-    words.forEach((word, index) => gsap.set(word, {display: 'block', position: 'absolute', left: 0, top: 0, yPercent: index ? 110 : 0, opacity: index ? 0 : 1}));
+    words.forEach((word, index) => gsap.set(word, {display: 'block', position: 'absolute', left: 0, top: 0, yPercent: index ? travel : 0, opacity: index ? 0 : 1}));
     let current = 0;
     addEventListener('resize', () => gsap.set(box, {height: words[current].offsetHeight, width: words[current].offsetWidth}));
     setInterval(() => {
@@ -463,11 +526,32 @@
       const seen = box.getBoundingClientRect();
       if (seen.bottom < 0 || seen.top > innerHeight) return;   // only change what someone can see
       const next = (current + 1) % words.length;
-      gsap.to(words[current], {yPercent: -110, opacity: 0, duration: 0.55, ease: 'power3.in'});
-      gsap.fromTo(words[next], {yPercent: 110, opacity: 0}, {yPercent: 0, opacity: 1, duration: 0.7, ease: 'power3.out', delay: 0.35});
-      gsap.to(box, {width: words[next].offsetWidth, duration: 0.6, ease: 'power3.inOut', delay: 0.2});
+      gsap.to(words[current], {yPercent: -travel, opacity: 0, duration: 0.55, ease: 'power3.in'});
+      gsap.fromTo(words[next], {yPercent: travel, opacity: 0}, {yPercent: 0, opacity: 1, duration: 0.7, ease: 'power3.out', delay: 0.35});
+      gsap.to(box, {width: words[next].offsetWidth, duration: travel ? 0.6 : 0, ease: 'power3.inOut', delay: 0.2});
       current = next;
     }, 2600);
+  }
+
+  /* ---------- Typewriter: short notes type, pause, delete and move on to the next. ---------- */
+  function typewriters() {
+    document.querySelectorAll('[data-typewriter]').forEach(el => {
+      const lines = el.dataset.typewriter.split('|');
+      let line = 0, length = lines[0].length, deleting = false;
+      const step = () => {
+        const box = el.getBoundingClientRect();
+        let wait = 500;
+        if (!document.hidden && box.bottom > 0 && box.top < innerHeight) {
+          if (!deleting && length < lines[line].length) { length += 1; wait = 45 + Math.random() * 70; }
+          else if (!deleting) { deleting = true; wait = 2600; }
+          else if (length > 0) { length -= 1; wait = 26; }
+          else { deleting = false; line = (line + 1) % lines.length; wait = 380; }
+          el.textContent = lines[line].slice(0, length);
+        }
+        setTimeout(step, wait);
+      };
+      setTimeout(step, 2400);
+    });
   }
 
   /* ---------- Hero numbers tick into place: 4 questions, 2 minutes, and sign-ups counting down to 0. ---------- */
@@ -529,7 +613,7 @@
 
   /* ---------- Statement: letters resolve from scrambled glyphs, one after another. ---------- */
   function statement(el) {
-    if (!el || el.getBoundingClientRect().top < innerHeight * 0.9) return;
+    if (!el) return;
     const spoken = document.createElement('span');
     spoken.className = 'visually-hidden';
     spoken.textContent = el.textContent.replace(/\s+/g, ' ').trim();
@@ -543,10 +627,9 @@
         wrap.className = 'word';
         for (const letter of word) {
           const char = document.createElement('span');
-          char.className = 'char';
+          char.className = 'char is-set';
           char.dataset.char = letter;
           char.textContent = letter;
-          char.style.opacity = '0';
           wrap.appendChild(char);
           chars.push(char);
         }
@@ -556,36 +639,37 @@
     });
     el.prepend(spoken);
     const glyphs = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz0123456789฿';
-    ScrollTrigger.create({
-      trigger: el,
-      start: 'top 82%',
-      once: true,
-      onEnter: () => chars.forEach((char, index) => {
-        setTimeout(() => {
-          char.style.opacity = '1';
-          let turns = 0;
-          const timer = setInterval(() => {
-            if (++turns > 6) { char.textContent = char.dataset.char; char.classList.add('is-set'); clearInterval(timer); }
-            else char.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
-          }, 42);
-        }, index * 26);
-      })
-    });
+    let timers = [];
+    const stop = () => { timers.forEach(clearTimeout); timers.forEach(clearInterval); timers = []; };
+    const hide = () => { stop(); chars.forEach(char => { char.style.opacity = '0'; char.textContent = char.dataset.char; char.classList.remove('is-set'); }); };
+    // Every visit resolves the sentence again from scrambled letters.
+    const run = () => {
+      stop();
+      chars.forEach((char, index) => timers.push(setTimeout(() => {
+        char.style.opacity = '1';
+        let turns = 0;
+        const timer = setInterval(() => {
+          if (++turns > 6) { char.textContent = char.dataset.char; char.classList.add('is-set'); clearInterval(timer); }
+          else char.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+        }, 42);
+        timers.push(timer);
+      }, index * 26)));
+    };
+    if (el.getBoundingClientRect().top > innerHeight * 0.9) hide();
+    ScrollTrigger.create({trigger: el, start: 'top 82%', onEnter: run});
+    ScrollTrigger.create({trigger: el, start: 'top bottom', onLeaveBack: hide});
   }
 
   /* ---------- Stats: count up from zero when the strip comes into view. ---------- */
   function counters() {
     document.querySelectorAll('[data-count]').forEach(el => {
-      if (el.getBoundingClientRect().top < innerHeight * 0.95) return;
       const target = Number(el.dataset.count);
       const value = {n: 0};
-      el.textContent = '0';
-      ScrollTrigger.create({
-        trigger: el,
-        start: 'top 88%',
-        once: true,
-        onEnter: () => gsap.to(value, {n: target, duration: 1.6, ease: 'power2.out', onUpdate: () => { el.textContent = String(Math.round(value.n)); }})
-      });
+      const count = gsap.fromTo(value, {n: 0}, {n: target, duration: 1.6, ease: 'power2.out', paused: true,
+        onUpdate: () => { el.textContent = String(Math.round(value.n)); }});
+      if (el.getBoundingClientRect().top > innerHeight * 0.95) el.textContent = '0';
+      else count.progress(1);
+      replay(el, count, 'top 88%');
     });
   }
 })();

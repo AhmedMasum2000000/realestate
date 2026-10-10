@@ -3,9 +3,11 @@
 
     python tools/mit_live_check.py https://moveinthailand.com/
 
-For desktop and phone sizes it reports: script errors, whether motion started, whether
-the hero pinned, how many story frames loaded, whether the closing panels appear at the
-end of the story, whether the header hides and returns, and any sideways overflow.
+For desktop, an iPhone profile and a reduced-motion visitor it reports: the release
+served, whether the page keeps moving while left alone (clock, rotating words, running
+animations, the highlighted core message), script errors, whether the hero pinned, how
+many story frames loaded, whether the closing panels appear at the end of the story,
+whether the header hides and returns, and any sideways overflow.
 Screenshots go to .cache/live-check/. Exits non-zero if a check fails.
 """
 import os
@@ -26,6 +28,25 @@ def check(page, url, tag, problems):
     page.add_style_tag(content='html{scroll-behavior:auto!important}')
     time.sleep(3)
     page.screenshot(path=str(OUT / f'{tag}-intro.png'))
+    release = page.evaluate("(document.querySelector('link[href*=\"site.css\"]') || {}).href || ''").split('v=')[-1]
+    # Left alone for three seconds, the page must still be moving: clock, rotating words, running animations.
+    snap = '''(() => ({clock: (document.querySelector('[data-local-time]') || {}).textContent,
+      words: [...document.querySelectorAll('[data-rotator] > span')].map(s => getComputedStyle(s).opacity).join(),
+      running: document.getAnimations().filter(a => a.playState === 'running').length,
+      painted: getComputedStyle(document.querySelector('[data-hl-load]')).getPropertyValue('--hl').trim()}))()'''
+    before = page.evaluate(snap)
+    time.sleep(3)
+    after = page.evaluate(snap)
+    alive = [name for name in ('clock', 'words') if before[name] != after[name]]
+    print(f'{tag}: release={release} idle_changes={alive} running_animations={after["running"]} core_highlight={after["painted"]}')
+    if len(alive) < 2:
+        problems.append(f'{tag}: page looks still while idle (changed: {alive})')
+    if after['painted'] != '1':
+        problems.append(f'{tag}: core message not highlighted')
+    if tag == 'reduced-motion':
+        return
+    if after['running'] < 10:
+        problems.append(f'{tag}: only {after["running"]} animations running')
     motion = page.evaluate("document.documentElement.classList.contains('motion-ok')")
     pin = page.evaluate("(() => { const t = window.ScrollTrigger && ScrollTrigger.getAll().find(s => s.pin); return t ? [t.start, t.end] : null })()")
     print(f'{tag}: motion={motion} pin={pin}')
@@ -66,10 +87,13 @@ def main():
     problems = []
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(executable_path=os.environ.get('CHROMIUM_PATH') or None)
-        for width, height, tag in ((1440, 900, 'desktop'), (390, 844, 'phone')):
-            page = browser.new_page(viewport={'width': width, 'height': height})
-            check(page, url, tag, problems)
-            page.close()
+        profiles = (('desktop', {'viewport': {'width': 1440, 'height': 900}}),
+                    ('phone', {k: v for k, v in playwright.devices['iPhone 13'].items() if k != 'default_browser_type'}),
+                    ('reduced-motion', {'viewport': {'width': 1440, 'height': 900}, 'reduced_motion': 'reduce'}))
+        for tag, options in profiles:
+            context = browser.new_context(**options)
+            check(context.new_page(), url, tag, problems)
+            context.close()
         browser.close()
     if problems:
         print('PROBLEMS:\n- ' + '\n- '.join(problems))

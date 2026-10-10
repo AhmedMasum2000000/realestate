@@ -237,11 +237,11 @@ html.lenis,html.lenis body{height:auto}
 @media(max-width:700px){.marquee{padding:20px 0}.marquee-group span{padding:0 20px}.footer-wordmark{font-size:calc((100vw - 40px) / 6.65);padding-bottom:18px}}
 /* ---------- Story layer: highlighted key messages, rotating words, journey rail and micro-interactions. ---------- */
 @property --hl{syntax:'<number>';inherits:true;initial-value:1}
-mark.hl{background-color:transparent;color:inherit;background-image:linear-gradient(100deg,#efd6db,#e7c4cc);background-repeat:no-repeat;background-position:0 88%;background-size:calc(var(--hl) * 100%) .44em;padding:0 .05em;margin:0 -.05em;-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:.1em}
-mark.hl-dark{background-image:linear-gradient(100deg,#862638e8,#9c3247e0);background-position:0 72%;background-size:calc(var(--hl) * 100%) .95em;color:#fff}
+mark.hl{background-color:transparent;color:inherit;background-image:linear-gradient(100deg,transparent 20%,#fff 50%,transparent 80%),linear-gradient(100deg,#efd6db,#e7c4cc);background-repeat:no-repeat;background-position:var(--gleam) 88%,0 88%;background-size:42% .44em,calc(var(--hl) * 100%) .44em;padding:0 .05em;margin:0 -.05em;-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:.1em}
+mark.hl-dark{background-image:linear-gradient(100deg,transparent 20%,#ffffff70 50%,transparent 80%),linear-gradient(100deg,#862638e8,#9c3247e0);background-position:var(--gleam) 72%,0 72%;background-size:42% .95em,calc(var(--hl) * 100%) .95em;color:#fff}
 .gradient-headline mark.hl{-webkit-text-fill-color:#fff;color:#fff}
 @keyframes hl-failsafe{to{--hl:1}}
-.motion-ok [data-hl-load]{--hl:0;animation:hl-failsafe 0s 4s forwards}
+.motion-ok [data-hl-load]{--hl:0;animation:hl-failsafe 0s 4s forwards}.motion-lite [data-hl-load]{--hl:0}
 
 /* Hero: the question, the rotating reason, and three ease numbers. */
 .story-ask{font-size:clamp(17px,1.45vw,21px);font-weight:500;color:#fff;margin-bottom:10px;text-shadow:0 1px 18px #0e172f99}
@@ -316,5 +316,66 @@ mark.hl-dark{background-image:linear-gradient(100deg,#862638e8,#9c3247e0);backgr
 
 @media(max-width:700px){.story-ask{font-size:15px;margin-bottom:6px}.ease-chips{margin-top:14px;gap:6px}.ease-chips li{font-size:10px;padding:5px 10px}.ease-chips b{font-size:14px}
 .trust-chips{top:14px;right:14px;gap:7px}.trust-chips li{font-size:10px;padding:7px 11px}}
+/* ---------- Always-on layer: things keep moving while the page is open, not only on first scroll. ---------- */
+@property --gleam{syntax:'<percentage>';inherits:false;initial-value:-80%}
+@keyframes hl-gleam{0%{--gleam:-80%}45%,100%{--gleam:180%}}
+.motion-ok mark.hl.is-lit,.motion-ok .is-lit mark.hl{animation:hl-gleam 3.6s ease-in-out infinite}
+.motion-ok .is-lit mark.hl:nth-of-type(2){animation-delay:.6s}
+
+/* Primary buttons: a shine crosses every few seconds to draw the eye. */
+.button:after{content:'';position:absolute;top:-2px;bottom:-2px;left:-60%;width:38%;background:linear-gradient(100deg,transparent,#ffffff59,transparent);transform:skewX(-20deg);pointer-events:none}
+.button-light:after,.button-outline:after{background:linear-gradient(100deg,transparent,#8626382e,transparent)}
+@keyframes button-shine{0%{transform:skewX(-20deg) translateX(0)}24%,100%{transform:skewX(-20deg) translateX(440%)}}
+.motion-ok .button:after{animation:button-shine 5.2s 1.8s ease-in-out infinite}
+
+/* The hero's "Thailand." carries a slow sheen. */
+.story-intro h1 em{background:linear-gradient(100deg,#e2b9c1 0%,#e2b9c1 34%,#fff 50%,#e2b9c1 66%,#e2b9c1 100%);background-size:240% 100%;background-position:100% 0;-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 2px 18px #0e172f73)}
+@keyframes text-sheen{to{background-position:-160% 0}}
+.motion-ok .story-intro h1 em{animation:text-sheen 6.5s linear infinite}
+
+/* Scroll cue: a line keeps falling under the word Scroll. */
+.story-cue{position:absolute;left:50%;bottom:26px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:8px;transform:translateX(-50%);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:#ffffffc7;pointer-events:none}
+.story-cue i{position:relative;display:block;width:1px;height:42px;background:#ffffff38;overflow:hidden}
+.story-cue i:after{content:'';position:absolute;left:0;top:0;width:1px;height:16px;background:#fff;transform:translateY(-100%)}
+@keyframes cue-fall{to{transform:translateY(300%)}}
+.motion-ok .story-cue i:after{animation:cue-fall 1.6s cubic-bezier(.6,0,.3,1) infinite}
+.story-cue{display:none}.motion-ok .story-cue{display:flex}
+@media(max-width:700px){.motion-ok .story-cue{display:none}}
+
+/* Soft brand-tinted shapes drift behind a few sections. */
+.ambient{position:relative;isolation:isolate;overflow-x:clip}
+.ambient:before,.ambient:after{content:'';position:absolute;z-index:-1;border-radius:50%;pointer-events:none;aspect-ratio:1}
+.ambient:before{width:min(46vw,640px);top:4%;right:-8%;background:radial-gradient(circle,#86263817,transparent 66%)}
+.ambient:after{width:min(40vw,560px);bottom:-6%;left:-10%;background:radial-gradient(circle,#1a2b5614,transparent 66%)}
+@keyframes drift-a{to{transform:translate(-16%,14%) scale(1.18)}}
+@keyframes drift-b{to{transform:translate(18%,-12%) scale(1.12)}}
+.motion-ok .ambient:before{animation:drift-a 17s ease-in-out infinite alternate}
+.motion-ok .ambient:after{animation:drift-b 21s ease-in-out infinite alternate}
+
+/* Comparison bars keep a light running through them. */
+.spec-bar i{position:relative;overflow:hidden}
+.spec-bar i:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,#ffffffa6,transparent);transform:translateX(-100%)}
+@keyframes bar-run{55%,100%{transform:translateX(100%)}}
+.motion-ok .spec-bar i:after{animation:bar-run 3s ease-in-out infinite}
+
+/* The chapter rail's current dot breathes; the statement gets a second, counter-turning ring. */
+@keyframes dot-breathe{50%{box-shadow:0 0 0 6px #86263826}}
+.motion-ok .journey a.is-active i{animation:dot-breathe 2s ease-in-out infinite}
+.statement-section:after{content:'';position:absolute;width:min(380px,62vw);aspect-ratio:1;left:50%;top:44%;margin-left:max(-190px,-31vw);margin-top:max(-190px,-31vw);border:1px dotted #c9bcae;border-radius:50%;pointer-events:none}
+@keyframes spin-back{to{transform:rotate(-360deg)}}
+.motion-ok .statement-section:after{animation:spin-back 55s linear infinite}
+.motion-ok .statement-section:before{animation-duration:48s}
+.motion-ok .promise-strip .icon{animation-duration:3.2s}
+@keyframes float-tilt{50%{transform:translateY(-6px) rotate(-6deg)}}
+.motion-ok .promise-strip .icon{animation-name:float-tilt}
+
+/* Typewriter notes. */
+.handwritten[data-typewriter]:after{content:'';display:inline-block;width:1px;height:1em;margin-left:3px;vertical-align:-2px;background:currentColor;opacity:0}
+@keyframes caret{50%{opacity:1}}
+.motion-ok .handwritten[data-typewriter]:after,.motion-lite .handwritten[data-typewriter]:after{opacity:1;animation:caret 1s steps(1) infinite}
+/* Points of light drifting up through the opening scene. */
+.motes{position:absolute;inset:0;z-index:2;pointer-events:none;overflow:hidden}
+.motes i{position:absolute;bottom:-20px;left:var(--x);width:var(--s);height:var(--s);border-radius:50%;background:#fff;opacity:0;box-shadow:0 0 calc(var(--s) * 3) #fff6;animation:mote-rise var(--d) linear var(--w) infinite}
+@keyframes mote-rise{0%{transform:translate(0,0);opacity:0}12%{opacity:var(--o)}85%{opacity:var(--o)}100%{transform:translate(var(--dx),-105vh);opacity:0}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.finder-preview{transform:none}}
 @media print{.topline,.header,.footer,.closing,.mobile-cta,.button-row,.article-sidebar,.faq-section{display:none!important}body{background:#fff;color:#111;font:11pt/1.5 Georgia,serif}.wrap{width:100%;margin:0}.section,.page-hero{padding:20px 0}.page-hero{display:block}.editorial-photo{display:none}.article-layout{display:block}.article-body section{break-inside:avoid}.article-body p{color:#111}.sources a:after{content:' (' attr(href) ')';font-size:8pt}.eyebrow{color:#333}.download-block{display:none}}
