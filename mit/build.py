@@ -13,7 +13,7 @@ from urllib.parse import urlsplit
 from xml.sax.saxutils import escape as xml_escape
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined
-from markupsafe import Markup
+from markupsafe import Markup, escape
 
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
@@ -75,8 +75,21 @@ def build(output: Path, preview: bool):
         return asset_prefix + path + ('?v='+version if path.endswith(('.css','.js')) else '')
     def url(path):
         return '/' + path.lstrip('/')
+    def md(text):
+        # Guide copy may carry **bold** and [label](href) links; everything else is escaped.
+        out=str(escape(text or ''))
+        out=re.sub(r'\[([^\]]+)\]\(([^)\s]+)\)',lambda m:f'<a href="{m[2]}" target="_blank" rel="noopener">{m[1]}</a>' if m[2].startswith('http') else f'<a href="{url(m[2])}">{m[1]}</a>',out)
+        return Markup(re.sub(r'\*\*(.+?)\*\*',r'<strong>\1</strong>',out))
     env=Environment(loader=FileSystemLoader(HERE/'templates'),autoescape=True,undefined=StrictUndefined,keep_trailing_newline=True)
-    env.globals.update(icon=icon,url=url,asset=asset)
+    env.filters['md']=md
+    hub_labels={'visas':'Visa Desk','homes':'Homes','business':'Business','living':'Living','tools':'Tools','stay-legal':'Stay legal','invest':'Investment'}
+    def crumb_label(page):
+        # Short trail label: hub name, then the page's short name, the visa's short name, or its heading.
+        if page['slug'] in hub_labels:
+            return hub_labels[page['slug']]
+        label=page.get('short') or page.get('visa',{}).get('short') or (page.get('eyebrow') or '').title()
+        return label or re.sub(r'<[^>]+>',' ',page['heading']).strip()
+    env.globals.update(icon=icon,url=url,asset=asset,crumb_label=crumb_label,pages_by_slug={page['slug']:page for page in PAGES})
     routes=[]
     config={'basePath':'/','apiBase':'/wp-json/mit/v1/','preview':preview,'checked':CHECKED,'visas':{visa['slug']:{'name':visa['name']} for visa in VISAS},'fees':{},'whatsapp':''}
     for page in PAGES:
@@ -102,7 +115,7 @@ def build(output: Path, preview: bool):
             elif target.startswith('/') and not path.startswith('/wp-json/') and (path.rstrip('/') or '/') not in known_paths:
                 raise SystemExit(f'Unknown internal link {target} in {route["path"]}')
     content_version=hashlib.sha256(json.dumps(routes,ensure_ascii=False,sort_keys=True).encode('utf-8')).hexdigest()[:16]
-    manifest={'version':version,'content_version':content_version,'built_at':date.today().isoformat(),'domain':'moveinthailand.com','routes':routes,'aliases':{'/services-2/':'/services/','/about-2/':'/about/','/contact-2/':'/contact/'}}
+    manifest={'version':version,'content_version':content_version,'built_at':date.today().isoformat(),'domain':'moveinthailand.com','routes':routes,'aliases':{'/services-2/':'/services/','/about-2/':'/about/','/contact-2/':'/contact/','/home/':'/','/sample-page/':'/','/gallery/':'/','/reviews/':'/about/','/our-mission/':'/about/','/pricing/':'/fees/'}}
     (output/'routes.json').write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding='utf-8')
     sitemap='<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'+''.join('<url><loc>'+xml_escape('https://moveinthailand.com'+route['path'])+'</loc><lastmod>2026-10-08</lastmod></url>\n' for route in routes)+'</urlset>\n'
     (output/'sitemap.xml').write_text(sitemap,encoding='utf-8')

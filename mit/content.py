@@ -185,14 +185,44 @@ EXTRA_VISA_FAQ = {
     'education': [('What should I ask the school or activity provider?', 'Ask about recognition, the actual programme, attendance, supporting documents, total fees and cancellation terms. Confirm accepted visa evidence independently with your responsible embassy.'), ('Is an activity-based DTV the same as an education visa?', 'They are different purposes and processes. Explain the genuine study or activity you intend to undertake and compare the current accepted routes and evidence.'), ('How should a child’s school plan be reviewed?', 'Start with the intended school attendance and the institution’s supporting documents. Review the child’s education route and any parent or guardian arrangements separately.')],
 }
 
+from guides import GUIDE_SOURCES, GUIDES, PAGE_UPDATES, VISA_UPDATES
+
+SOURCES.update(GUIDE_SOURCES)
+for visa in VISAS:
+    update = VISA_UPDATES.get(visa['slug'], {})
+    if update.get('sections'):
+        visa['sections'] = update['sections']
+    visa['faqs'].extend(update.get('faqs', []))
+    visa['sources'] += [key for key in update.get('sources', []) if key not in visa['sources']]
+    visa['related'] = update.get('related', [])
+    visa['next'] = update.get('next')
+
 for visa in VISAS:
     visa['faqs'].extend(EXTRA_VISA_FAQ[visa['slug']])
     PAGES.append(dict(slug=f"visas/{visa['slug']}", title=f"{visa['name']} | Requirements & Planning | Move In Thailand", description=visa["summary"][:155], template="visa", visa=visa))
+
+_by_slug = {page['slug']: page for page in PAGES}
+for slug, update in PAGE_UPDATES.items():
+    page = _by_slug[slug]
+    if update.get('sections'):
+        page['sections'] = update['sections']
+    page['faqs'] = page.get('faqs', []) + update.get('faqs', [])
+    page['sources'] = page.get('sources', []) + [key for key in update.get('sources', []) if key not in page.get('sources', [])]
+    known = {card[2] for card in page.get('cards', [])}
+    page['cards'] = page.get('cards', []) + [card for card in update.get('cards', []) if card[2] not in known]
+    page['related'] = update.get('related', [])
+    page['next'] = update.get('next')
+for guide in GUIDES:
+    if guide.get('checklist'):
+        guide.setdefault('checklist_title', 'Key facts at a glance.')
+PAGES.extend(GUIDES)
 
 for page in PAGES:
     page.setdefault("heading", page["title"].split(" | ")[0])
     page.setdefault("faqs", [])
     page.setdefault("sources", [])
+    for key, empty in (("related", []), ("next", None), ("short", ""), ("checklist_title", ""), ("cards", []), ("checklist", [])):
+        page.setdefault(key, empty)
 
 CALCULATOR_DEFAULTS = {
     "rent": 22000, "food": 12000, "transport": 3500,
