@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+"""Render a homepage preview for every site in previews/spec.yml.
+
+    bin/build-previews
+
+Writes standalone HTML to previews/out/. Each page is the real design and copy
+for that site -- the same content is written into WordPress when provisioning
+runs, so the preview and the built site do not drift apart.
+"""
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+from rep.preview import SpecError, build_all  # noqa: E402
+
+
+def main() -> int:
+    try:
+        written = build_all()
+    except SpecError as exc:
+        print(f"ERROR: {exc}", file=sys.stderr)
+        return 1
+    for path in written:
+        print(f"  {path.relative_to(Path.cwd()) if path.is_relative_to(Path.cwd()) else path}"
+              f"  ({path.stat().st_size // 1024} KB)")
+    print(f"\n  {len(written)} previews written to previews/out/\n")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

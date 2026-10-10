@@ -1,0 +1,136 @@
+name: Search Console
+
+# Connects pattayahomepro.com to Google Search Console and keeps it current.
+#
+#   setup   (manual, once)  prove ownership, add the property, add you as an
+#                           owner, submit the sitemap
+#   submit  (manual)        resubmit the sitemap
+#   report  (manual)        post traffic, queries, pages, sitemap and index
+#                           status as a GitHub issue
+#   weekly  (Mondays)       resubmit the sitemap, then post the report
+#
+# Go-live also resubmits the sitemap after every deploy.
+#
+# Secrets: GOOGLE_SERVICE_ACCOUNT_JSON, plus the CPANEL_* secrets already used
+# by go-live (for DNS verification and, if needed, a redeploy).
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        type: choice
+        options: [setup, submit, report]
+        default: report
+      owner:
+        description: "Google account to make an owner (setup only)"
+        required: false
+        default: ""
+  schedule:
+    - cron: "0 2 * * 1"   # Mondays 02:00 UTC — 09:00 in Pattaya
+
+permissions:
+  contents: write   # setup commits data/gsc.json
+  issues: write     # reports
+
+concurrency:
+  group: search-console
+  cancel-in-progress: false
+
+jobs:
+  gsc:
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+      CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+      CPANEL_USER: ${{ secrets.CPANEL_USER }}
+      CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+      MODE: ${{ inputs.mode || 'weekly' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      # A scheduled run before setup is not an error; a manual one is.
+      - name: Check the connection
+        id: ready
+        run: |
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            msg="GOOGLE_SERVICE_ACCOUNT_JSON secret is not set"
+          elif [ "$MODE" != "setup" ] && ! bin/gsc status; then
+            msg="Search Console is not set up yet — run this workflow with mode: setup"
+          fi
+          if [ -n "${msg:-}" ]; then
+            if [ "$MODE" = "weekly" ]; then echo "::notice::$msg"; echo "ok=false" >> "$GITHUB_OUTPUT"; exit 0; fi
+            echo "::error::$msg"; exit 1
+          fi
+          echo "ok=true" >> "$GITHUB_OUTPUT"
+
+      - name: Setup
+        if: env.MODE == 'setup'
+        run: |
+          set +e
+          bin/gsc setup --owner "${{ inputs.owner }}"
+          code=$?
+          set -e
+          if [ "$code" = "3" ]; then
+            echo "Meta-tag verification: deploying the site with the tag, then verifying."
+            bin/go-live --apply --skip-backup
+            sleep 15
+            curl -s https://pattayahomepro.com/ | grep -o '<meta name="google-site-verification"[^>]*>' \
+              || { echo "::error::the verification tag is not on the live home page"; exit 1; }
+            bin/gsc setup --owner "${{ inputs.owner }}"
+          elif [ "$code" != "0" ]; then
+            exit "$code"
+          fi
+
+      # Runs even when verification failed after the meta token was issued,
+      # so the next attempt reuses the same token instead of a fresh one.
+      - name: Save Search Console state
+        if: always() && env.MODE == 'setup'
+        run: |
+          [ -f data/gsc.json ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/gsc.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Record Search Console property and verification"
+          for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep $((i * 5)); done
+          exit 1
+
+      - name: Submit sitemap
+        if: steps.ready.outputs.ok == 'true' && (env.MODE == 'submit' || env.MODE == 'weekly')
+        run: bin/gsc submit
+
+      - name: Report
+        if: steps.ready.outputs.ok == 'true' && (env.MODE == 'report' || env.MODE == 'weekly')
+        run: |
+          bin/gsc report > report.md
+          cat report.md
+
+      # One open report at a time: the new one closes the ones before it.
+      - name: Post the report as an issue
+        if: steps.ready.outputs.ok == 'true' && (env.MODE == 'report' || env.MODE == 'weekly')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const { owner, repo } = context.repo;
+            const body = fs.readFileSync('report.md', 'utf8');
+            const title = `Search Console report — ${new Date().toISOString().slice(0, 10)}`;
+            try {
+              await github.rest.issues.createLabel({ owner, repo, name: 'search-console', color: 'c9a86e' });
+            } catch (e) { if (e.status !== 422) throw e; }  // 422: already exists
+            const older = await github.paginate(github.rest.issues.listForRepo,
+              { owner, repo, labels: 'search-console', state: 'open' });
+            const { data: issue } = await github.rest.issues.create(
+              { owner, repo, title, body, labels: ['search-console'] });
+            for (const old of older) {
+              await github.rest.issues.update({ owner, repo, issue_number: old.number,
+                state: 'closed', state_reason: 'completed' });
+            }
+            core.notice(`Report posted: ${issue.html_url}`);

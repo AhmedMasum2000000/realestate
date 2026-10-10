@@ -1,0 +1,221 @@
+#!/usr/bin/env python3
+"""Replace the live WordPress site on pattayahomepro.com with the new build.
+
+    bin/go-live                  # dry run: shows every step, changes nothing
+    bin/go-live --apply          # do it
+    bin/go-live --apply --undo   # put WordPress back
+
+Needs only a cPanel API token (CPANEL_HOST, CPANEL_USER, CPANEL_API_TOKEN in
+the environment or config/.env) — no SSH, no FTP.
+
+What --apply does, in order:
+  1. Builds the production site and runs both verification passes. Any failure
+     stops here, before the server is touched.
+  2. Queues a full cPanel account backup (files, databases, email).
+  3. Uploads the build as one zip and extracts it into a NEW folder beside the
+     live document root.
+  4. Renames the live document root to <root>.wp-<timestamp> and the new folder
+     into its place. Two renames: the site is never half-written.
+
+WordPress is moved, never deleted — its files sit in <root>.wp-<timestamp> and
+its database is not touched, so --undo restores it exactly.
+"""
+
+import argparse
+import shutil
+import subprocess
+import sys
+import tempfile
+import time
+import zipfile
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.config import load_env  # noqa: E402
+from rep.cpanel import CpanelClient, CpanelError  # noqa: E402
+
+DOMAIN = "pattayahomepro.com"
+
+
+def build(out: Path) -> None:
+    for step in (["build-site", str(out)], ["check-site", str(out)], ["check-layout", str(out)]):
+        print(f"\n$ bin/{step[0]}")
+        if subprocess.run([sys.executable, str(ROOT / "bin" / step[0]), *step[1:]], cwd=ROOT).returncode:
+            raise SystemExit(f"bin/{step[0]} failed — nothing on the server was touched")
+
+
+def bundle(src: Path, dest: Path) -> Path:
+    with zipfile.ZipFile(dest, "w", zipfile.ZIP_DEFLATED) as zf:
+        for path in sorted(src.rglob("*")):
+            if path.is_file():
+                zf.write(path, path.relative_to(src))
+    return dest
+
+
+def connect(env: dict, *, dry_run: bool):
+    """Reach the cPanel API, preferring the configured host and port.
+
+    cPanel normally answers on :2083, which some networks (including sandboxed
+    agent environments) cannot reach. cPanel also serves the same API through
+    the cpanel.<domain> proxy subdomain on 443, so that is tried next.
+    """
+    port = int(env.get("CPANEL_PORT") or 2083)
+    candidates = [(env["CPANEL_HOST"], port), (f"cpanel.{DOMAIN}", 443)]
+    for host, p in candidates:
+        cp = CpanelClient(host=host, user=env["CPANEL_USER"], token=env["CPANEL_API_TOKEN"],
+                          port=p, dry_run=dry_run, timeout=25)
+        try:
+            cp._call("Variables", "get_user_information", mutating=False)
+        except CpanelError as exc:
+            print(f"  {host}:{p} — not reachable ({str(exc)[:90]})")
+            continue
+        print(f"  connected via {host}:{p}")
+        return cp
+    print("error: could not reach the cPanel API on any route.\n"
+          f"  Add cpanel.{DOMAIN} to Allowed domains under Network access.", file=sys.stderr)
+    return None
+
+
+def probe(cp, live, parent, name) -> int:
+    import json
+    print("\n== current folders ==")
+    for entry, size in sorted(cp.list_dir(parent or ".").items()):
+        if entry.startswith(name):
+            print(f"  {entry}  ({len(cp.list_dir((parent + '/' if parent else '') + entry))} entries)")
+    if not cp.dry_run:
+        stamp = time.strftime("%H%M%S")
+        scratch = f".phpro-probe-{stamp}"
+        work = Path(tempfile.mkdtemp())
+        (work / "src" / "sub").mkdir(parents=True)
+        (work / "src" / "index.html").write_text("<h1>probe</h1>")
+        (work / "src" / "sub" / "a.txt").write_text("a")
+        archive = bundle(work / "src", work / "probe.zip")
+        print(f"\n== probe in ~/{scratch} ==")
+        print("mkdir  ->", json.dumps(cp.mkdir(".", scratch))[:300])
+        print("upload ->", json.dumps(cp.upload(archive, scratch))[:500])
+        print("list   ->", cp.list_dir(scratch))
+        print("extract->", json.dumps(cp.extract(f"{scratch}/probe.zip", scratch))[:500])
+        print("list   ->", cp.list_dir(scratch))
+        print("sub    ->", cp.list_dir(f"{scratch}/sub"))
+    return 0
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--apply", action="store_true", help="make the change; otherwise a dry run")
+    ap.add_argument("--undo", action="store_true", help="restore the most recent WordPress backup")
+    ap.add_argument("--skip-backup", action="store_true", help="do not queue a full account backup")
+    ap.add_argument("--probe", action="store_true",
+                    help="upload and extract a tiny test archive in a scratch folder, printing "
+                         "cPanel's raw answers; touches nothing else")
+    args = ap.parse_args()
+
+    env = load_env()
+    missing = [k for k in ("CPANEL_HOST", "CPANEL_USER", "CPANEL_API_TOKEN") if not env.get(k)]
+    if missing:
+        print(f"error: not set: {', '.join(missing)}\n"
+              "  Add them to this session's environment variables (or config/.env).\n"
+              "  Never paste them into a chat.", file=sys.stderr)
+        return 1
+
+    cp = connect(env, dry_run=not args.apply)
+    if cp is None:
+        return 1
+    print(f"go-live {DOMAIN} [{'APPLY' if args.apply else 'DRY RUN — nothing will change'}]")
+
+    try:
+        live = cp.docroot(DOMAIN)
+    except CpanelError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    print(f"  document root: ~/{live}")
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    parent, _, name = live.rpartition("/")
+
+    if args.probe:
+        return probe(cp, live, parent, name)
+
+    if args.undo:
+        listing = cp._call("Fileman", "list_files", {"dir": parent or "."}, mutating=False)
+        backups = sorted(f["file"] for f in listing.get("data") or []
+                         if str(f.get("file", "")).startswith(f"{name}.wp-"))
+        if not backups:
+            print("no WordPress backup folder found", file=sys.stderr)
+            return 1
+        restore = f"{parent}/{backups[-1]}" if parent else backups[-1]
+        print(f"  restoring {restore}")
+        cp.rename(live, f"{live}.static-{stamp}")
+        cp.rename(restore, live)
+        print("WordPress restored." if args.apply else "dry run complete")
+        return 0
+
+    work = Path(tempfile.mkdtemp(prefix="golive-"))
+    try:
+        site = work / "site"
+        build(site)
+        archive = bundle(site, work / f"phpro-{stamp}.zip")
+        print(f"\npackaged {archive.stat().st_size / 1_048_576:.1f}MB")
+
+        # cPanel names full backups backup-<M.D.YYYY>_<time>_<user>.tar.gz. One
+        # from today already covers the site being replaced; a second would
+        # only eat disk quota.
+        today = f"backup-{time.gmtime().tm_mon}.{time.gmtime().tm_mday}.{time.gmtime().tm_year}_"
+        existing = [] if cp.dry_run else [f for f in cp.list_dir(".") if f.startswith(today)]
+        if args.skip_backup:
+            print("skipping account backup (--skip-backup)")
+        elif existing:
+            print(f"today's account backup already exists: {existing[-1]}")
+        else:
+            print("queueing full account backup (files + databases) …")
+            cp.full_backup()
+
+        incoming = f"{live}.new-{stamp}"
+        staging_parent, _, staging_name = incoming.rpartition("/")
+        print(f"creating ~/{incoming}")
+        cp.mkdir(staging_parent or ".", staging_name)
+        print("uploading …")
+        cp.upload(archive, incoming)
+        if args.apply:
+            landed = cp.list_dir(incoming).get(archive.name, 0)
+            print(f"  on server: {landed:,} bytes (local {archive.stat().st_size:,})")
+            if landed != archive.stat().st_size:
+                raise CpanelError("the archive did not arrive intact; live site untouched")
+        print("extracting …")
+        cp.extract(f"{incoming}/{archive.name}", incoming)
+        if args.apply:
+            entries = cp.list_dir(incoming)
+            print(f"  extracted: {len(entries)} top-level entries")
+            if "index.html" not in entries or "assets" not in entries:
+                raise CpanelError(f"extraction produced {sorted(entries)[:8]}; live site untouched")
+        # The archive would otherwise sit in the public folder, downloadable.
+        cp._api2("Fileman", "fileop", {"op": "unlink", "sourcefiles": f"{incoming}/{archive.name}",
+                                       "doubledecode": "0"}, mutating=True)
+
+        print(f"swapping: ~/{live} -> ~/{live}.wp-{stamp}, new site into place")
+        cp.rename(live, f"{live}.wp-{stamp}")
+        try:
+            cp.rename(incoming, live)
+        except CpanelError:
+            # Never leave the domain pointing at a missing folder: put the old
+            # site straight back before reporting the failure.
+            cp.rename(f"{live}.wp-{stamp}", live)
+            raise
+
+        if args.apply:
+            print(f"\nLIVE. WordPress kept at ~/{live}.wp-{stamp} (database untouched).")
+            print("  put it back with: bin/go-live --apply --undo")
+        else:
+            print("\ndry run complete — re-run with --apply to go live")
+        return 0
+    except CpanelError as exc:
+        print(f"\nerror: {exc}\n  the live site was not swapped unless the line above says so",
+              file=sys.stderr)
+        return 1
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

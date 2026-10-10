@@ -1,0 +1,1009 @@
+<title>Pattaya Homes Pro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=Inter+Tight:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ============================================================================
+   Pattaya Homes Pro — art direction
+   Ground: deep ocean at night. The Gulf after sunset, not a bright brochure.
+   One accent (warm brass) used sparingly so it always means "act here".
+   ========================================================================= */
+:root{
+  --bg:#F7F6F2; --bg-2:#EFEEE8; --surface:#FFFFFF; --surface-2:#FAF9F6;
+  --ink:#0F1A1C; --ink-2:#33474A; --muted:#6C807F;
+  --line:#DDDCD3; --line-2:#C9C8BD;
+  --brass:#A9762B; --brass-2:#C89A4E; --deep:#0B2426; --deep-2:#123639;
+  --sea:#1C5E5A; --coral:#B4503A;
+  --shadow-s:0 1px 2px rgba(15,26,28,.05);
+  --shadow-m:0 12px 32px -18px rgba(15,26,28,.32);
+  --shadow-l:0 32px 70px -30px rgba(15,26,28,.42);
+  --r:14px; --r-s:9px;
+  /* Illustration tokens. Defined here, not on the <svg>, because the shared
+     gradient in <defs> resolves variables against its own element. */
+  --ck1:var(--deep-2); --ck2:var(--deep); --c1:var(--sea); --c2:var(--deep-2);
+  --cg:var(--brass-2); --cw:var(--sea); --cs:var(--brass); --cr:var(--brass);
+  --cp:var(--sea);
+  --ease:cubic-bezier(.22,1,.36,1); --ease-io:cubic-bezier(.65,0,.35,1);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#08191B; --bg-2:#0C2124; --surface:#0F2A2D; --surface-2:#123033;
+  --ink:#EDF2F0; --ink-2:#B9CBC8; --muted:#7E9895;
+  --line:#1D4145; --line-2:#2A575B;
+  --brass:#D6A660; --brass-2:#E9C287; --deep:#06181A; --deep-2:#0A2225;
+  --sea:#4FA9A1; --coral:#E08B74;
+  --shadow-s:0 1px 2px rgba(0,0,0,.4);
+  --shadow-m:0 12px 32px -18px rgba(0,0,0,.75);
+  --shadow-l:0 32px 70px -30px rgba(0,0,0,.85);
+}}
+:root[data-theme="dark"]{
+  --bg:#08191B; --bg-2:#0C2124; --surface:#0F2A2D; --surface-2:#123033;
+  --ink:#EDF2F0; --ink-2:#B9CBC8; --muted:#7E9895;
+  --line:#1D4145; --line-2:#2A575B;
+  --brass:#D6A660; --brass-2:#E9C287; --deep:#06181A; --deep-2:#0A2225;
+  --sea:#4FA9A1; --coral:#E08B74;
+  --shadow-s:0 1px 2px rgba(0,0,0,.4);
+  --shadow-m:0 12px 32px -18px rgba(0,0,0,.75);
+  --shadow-l:0 32px 70px -30px rgba(0,0,0,.85);
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:"Inter Tight",system-ui,sans-serif;
+  font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{font-family:Fraunces,Georgia,serif;font-weight:600;line-height:1.08;
+  letter-spacing:-.02em;margin:0;text-wrap:balance}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:2px solid var(--brass);outline-offset:3px;border-radius:4px}
+button{font:inherit;cursor:pointer;border:0;background:none;color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.wrap{max-width:78rem;margin:0 auto;padding:0 clamp(1rem,4vw,2.5rem)}
+.narrow{max-width:54rem}
+
+/* ---- draft ribbon ---- */
+.ribbon{background:var(--deep);color:var(--brass-2);text-align:center;padding:.45rem 1rem;
+  font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;font-weight:600;position:relative;z-index:60}
+
+/* ---- scroll progress ---- */
+.progress{position:fixed;top:0;left:0;height:2px;background:var(--brass);z-index:100;
+  transition:width .1s linear;box-shadow:0 0 12px var(--brass)}
+
+/* ---- nav ---- */
+.nav{position:sticky;top:0;z-index:50;transition:all .5s var(--ease);
+  border-bottom:1px solid transparent}
+.nav.solid{background:color-mix(in srgb,var(--bg) 86%,transparent);
+  backdrop-filter:blur(16px) saturate(140%);border-bottom-color:var(--line)}
+.nav__in{display:flex;align-items:center;gap:2rem;padding:1rem 0;transition:padding .5s var(--ease)}
+.nav.solid .nav__in{padding:.65rem 0}
+.logo{display:flex;align-items:center;gap:.6rem;font-family:Fraunces,serif;font-weight:600;
+  font-size:1.15rem;letter-spacing:-.02em}
+.logo__m{width:32px;height:32px;border-radius:9px;background:linear-gradient(140deg,var(--brass),var(--brass-2));
+  display:grid;place-items:center;color:var(--deep);font-family:"Inter Tight",sans-serif;
+  font-weight:700;font-size:.78rem;flex:none;box-shadow:var(--shadow-s)}
+.nav__links{margin-left:auto;display:flex;gap:1.75rem;font-size:.93rem;font-weight:500}
+.nav__links a{position:relative;color:var(--ink-2);transition:color .3s}
+.nav__links a::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:1.5px;
+  background:var(--brass);transition:width .35s var(--ease)}
+.nav__links a:hover{color:var(--ink)}
+.nav__links a:hover::after{width:100%}
+@media(max-width:56rem){.nav__links{display:none}}
+
+/* ---- buttons ---- */
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.82rem 1.6rem;border-radius:100px;
+  font-weight:600;font-size:.95rem;transition:transform .35s var(--ease),box-shadow .35s var(--ease),
+  background .3s,color .3s;position:relative;overflow:hidden;will-change:transform}
+.btn--p{background:var(--brass);color:var(--deep);box-shadow:var(--shadow-m)}
+.btn--p:hover{transform:translateY(-2px) scale(1.02);box-shadow:var(--shadow-l)}
+.btn--g{border:1px solid var(--line-2);color:var(--ink);background:color-mix(in srgb,var(--surface) 60%,transparent)}
+.btn--g:hover{border-color:var(--brass);color:var(--brass);transform:translateY(-2px)}
+.btn__sheen{position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,
+  rgba(255,255,255,.42) 50%,transparent 70%);transform:translateX(-120%)}
+.btn--p:hover .btn__sheen{transform:translateX(120%);transition:transform .75s var(--ease)}
+
+/* ---- reveal ---- */
+.rv{opacity:0;transform:translateY(26px);transition:opacity .85s var(--ease),transform .85s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.rv-d1{transition-delay:.09s}.rv-d2{transition-delay:.18s}.rv-d3{transition-delay:.27s}
+.rv-d4{transition-delay:.36s}.rv-d5{transition-delay:.45s}.rv-d6{transition-delay:.54s}
+
+/* ---- hero ---- */
+.hero{position:relative;min-height:clamp(38rem,92vh,54rem);display:flex;align-items:center;
+  background:var(--deep);color:#F1EDE4;overflow:hidden;isolation:isolate}
+.hero__sky{position:absolute;inset:-6% 0 -6%;z-index:0}
+.hero__sky svg{width:100%;height:100%;display:block}
+.hero__veil{position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(180deg,color-mix(in srgb,var(--deep) 45%,transparent) 0%,
+    transparent 30%,transparent 70%,color-mix(in srgb,var(--deep) 60%,transparent) 100%)}
+/* Water shimmer. Three offset drifts so the surface never looks like it is
+   marching in step. */
+.shim{animation:drift 9s ease-in-out infinite}
+.shim2{animation-duration:12s;animation-delay:-3s}
+.shim3{animation-duration:15s;animation-delay:-6s}
+@keyframes drift{0%,100%{transform:translateX(-14px);opacity:.5}
+  50%{transform:translateX(16px);opacity:1}}
+.hero__in{position:relative;z-index:2;padding:6rem 0 5rem;width:100%}
+.hero__kicker{display:inline-flex;align-items:center;gap:.6rem;font-size:.74rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--brass-2);font-weight:600;margin-bottom:1.5rem}
+.hero__kicker::before{content:"";width:2rem;height:1px;background:var(--brass-2)}
+.hero h1{font-size:clamp(2.4rem,6.4vw,4.8rem);font-weight:300;line-height:1.04;max-width:18ch}
+.hero h1 em{font-style:normal;font-weight:600;color:var(--brass-2)}
+.hero__p{font-size:clamp(1.02rem,1.7vw,1.2rem);color:#C9D6D2;max-width:34rem;margin:1.6rem 0 0;line-height:1.65}
+.hero__cta{display:flex;flex-wrap:wrap;gap:.85rem;margin-top:2.4rem}
+.hero .btn--g{border-color:rgba(255,255,255,.3);color:#F1EDE4;background:rgba(255,255,255,.06)}
+.hero .btn--g:hover{border-color:var(--brass-2);color:var(--brass-2)}
+
+/* kinetic word reveal */
+.kin{display:inline-block;overflow:hidden;vertical-align:bottom;
+  padding-bottom:.12em;margin-bottom:-.12em}
+.kin>span{display:inline-block;transform:translateY(110%);
+  animation:kinUp .95s var(--ease) forwards;will-change:transform}
+@keyframes kinUp{to{transform:none}}
+
+.scrollcue{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);z-index:3;
+  display:flex;flex-direction:column;align-items:center;gap:.5rem;color:#9FB3AE;font-size:.7rem;
+  letter-spacing:.16em;text-transform:uppercase}
+.scrollcue__l{width:1px;height:2.4rem;background:linear-gradient(var(--brass-2),transparent);
+  animation:cue 2.2s var(--ease-io) infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}
+  45%{transform:scaleY(1);transform-origin:top}
+  55%{transform:scaleY(1);transform-origin:bottom}
+  100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* ---- trust strip ---- */
+.trust{background:var(--deep-2);color:#B9CBC8;border-top:1px solid rgba(255,255,255,.07)}
+.trust__in{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:1.5rem;padding:1.75rem 0}
+.trust__i{display:flex;flex-direction:column;gap:.15rem}
+.trust__n{font-family:Fraunces,serif;font-size:1.75rem;font-weight:600;color:var(--brass-2);
+  font-variant-numeric:tabular-nums;line-height:1}
+.trust__l{font-size:.82rem;color:#8FA5A1}
+
+/* ---- section furniture ---- */
+section{padding:clamp(4rem,9vw,7.5rem) 0;position:relative}
+.eyebrow{display:inline-flex;align-items:center;gap:.6rem;font-size:.72rem;letter-spacing:.18em;
+  text-transform:uppercase;color:var(--brass);font-weight:600}
+.eyebrow::before{content:"";width:1.6rem;height:1px;background:var(--brass)}
+.h2{font-size:clamp(1.9rem,4.4vw,3rem);margin:.9rem 0 0;font-weight:400}
+.h2 em{font-style:normal;font-weight:600;color:var(--brass)}
+.lead{color:var(--ink-2);font-size:1.05rem;max-width:40rem;margin:1rem 0 0}
+
+/* ---- scroll story ---- */
+.story{background:var(--bg-2)}
+.beat{display:grid;grid-template-columns:1fr 1fr;gap:clamp(2rem,6vw,5rem);align-items:center;
+  padding:clamp(2.5rem,6vw,4.5rem) 0;border-bottom:1px solid var(--line)}
+.beat:last-child{border-bottom:0}
+.beat:nth-child(even) .beat__art{order:-1}
+@media(max-width:56rem){.beat{grid-template-columns:1fr}.beat:nth-child(even) .beat__art{order:0}}
+.beat__n{font-family:"IBM Plex Mono",monospace;font-size:.78rem;color:var(--brass);letter-spacing:.12em}
+.beat h3{font-size:clamp(1.4rem,2.8vw,2rem);margin:.7rem 0 .8rem;font-weight:500}
+.beat p{color:var(--ink-2);margin:0}
+.beat__art{aspect-ratio:5/4;border-radius:var(--r);overflow:hidden;background:var(--deep-2);
+  box-shadow:var(--shadow-l);position:relative}
+.beat__art svg{width:100%;height:100%;display:block}
+
+/* ---- filters ---- */
+.filterbar{display:flex;flex-wrap:wrap;gap:.5rem;margin:2rem 0 0}
+.chip{padding:.5rem 1.05rem;border-radius:100px;border:1px solid var(--line-2);font-size:.9rem;
+  font-weight:500;color:var(--ink-2);background:var(--surface);transition:all .3s var(--ease)}
+.chip:hover{border-color:var(--brass);color:var(--brass);transform:translateY(-1px)}
+.chip[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:var(--deep)}
+.resultline{margin:1.4rem 0 0;font-size:.9rem;color:var(--muted);font-variant-numeric:tabular-nums}
+
+/* ---- property grid ---- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(19rem,1fr));gap:1.6rem;margin-top:1.4rem}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;
+  display:flex;flex-direction:column;box-shadow:var(--shadow-s);cursor:pointer;text-align:left;
+  transition:transform .5s var(--ease),box-shadow .5s var(--ease),border-color .4s;will-change:transform}
+.pcard:hover{transform:translateY(-6px);box-shadow:var(--shadow-l);border-color:var(--line-2)}
+.pcard__art{aspect-ratio:4/3;position:relative;overflow:hidden;background:var(--deep-2)}
+.pcard__art svg{width:100%;height:100%;display:block;transition:transform .9s var(--ease)}
+.pcard:hover .pcard__art svg{transform:scale(1.07)}
+.pcard__tag{position:absolute;top:.8rem;left:.8rem;background:var(--brass);color:var(--deep);
+  font-size:.66rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;
+  padding:.24rem .6rem;border-radius:100px}
+.pcard__tag--r{background:var(--sea);color:#fff}
+.pcard__flag{position:absolute;top:.8rem;right:.8rem;background:color-mix(in srgb,var(--deep) 78%,transparent);
+  color:var(--brass-2);font-size:.66rem;font-weight:600;padding:.24rem .6rem;border-radius:100px;
+  backdrop-filter:blur(6px)}
+.pcard__b{padding:1.1rem 1.25rem 1.35rem;display:flex;flex-direction:column;gap:.35rem;flex:1}
+.pcard__place{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.pcard__t{font-size:1.1rem;font-weight:500}
+.pcard__price{font-family:Fraunces,serif;font-size:1.3rem;font-weight:600;color:var(--brass);
+  font-variant-numeric:tabular-nums}
+.pcard__anchor{font-size:.8rem;color:var(--muted);margin-top:-.15rem}
+.pcard__f{list-style:none;display:flex;gap:1.1rem;padding:0;margin:.5rem 0 0;font-size:.86rem;
+  color:var(--ink-2);border-top:1px solid var(--line);padding-top:.7rem}
+.pcard__f strong{font-variant-numeric:tabular-nums}
+
+/* ---- detail ---- */
+.detail{animation:fadeUp .6s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+.back{display:inline-flex;align-items:center;gap:.45rem;font-size:.9rem;color:var(--muted);
+  margin-bottom:1.5rem;transition:color .3s,gap .3s}
+.back:hover{color:var(--brass);gap:.7rem}
+.dhero{border-radius:var(--r);overflow:hidden;aspect-ratio:16/9;background:var(--deep-2);
+  box-shadow:var(--shadow-l)}
+.dhero svg{width:100%;height:100%;display:block}
+.dthumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-top:.6rem}
+.dthumbs button{aspect-ratio:1;border-radius:var(--r-s);overflow:hidden;background:var(--deep-2);
+  border:2px solid transparent;transition:border-color .3s,transform .3s}
+.dthumbs button:hover{transform:translateY(-2px)}
+.dthumbs button[aria-current="true"]{border-color:var(--brass)}
+.dthumbs svg{width:100%;height:100%;display:block}
+.dgrid{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(17rem,1fr);gap:2.5rem;margin-top:2rem}
+@media(max-width:58rem){.dgrid{grid-template-columns:1fr}}
+.specs{width:100%;border-collapse:collapse;font-size:.94rem}
+.specs th,.specs td{text-align:left;padding:.6rem .2rem;border-bottom:1px solid var(--line)}
+.specs th{color:var(--muted);font-weight:500}
+.specs td{font-variant-numeric:tabular-nums;font-weight:500}
+.aside{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:1.4rem;position:sticky;top:5.5rem;box-shadow:var(--shadow-m)}
+
+/* ---- enquiry ladder ---- */
+.ladder{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  padding:1.5rem;box-shadow:var(--shadow-m)}
+.ladder__steps{display:flex;gap:.4rem;margin-bottom:1.1rem}
+.ladder__pip{height:3px;flex:1;background:var(--line);border-radius:2px;transition:background .45s var(--ease)}
+.ladder__pip.on{background:var(--brass)}
+.opts{display:flex;flex-direction:column;gap:.55rem;margin-top:.9rem}
+.opt{text-align:left;padding:.85rem 1.1rem;border:1px solid var(--line-2);border-radius:var(--r-s);
+  background:var(--surface-2);font-weight:500;transition:all .3s var(--ease)}
+.opt:hover{border-color:var(--brass);background:color-mix(in srgb,var(--brass) 7%,var(--surface));
+  transform:translateX(4px)}
+.ladder__done{text-align:center;padding:1rem 0}
+.ladder__check{width:3rem;height:3rem;border-radius:50%;background:var(--sea);margin:0 auto .9rem;
+  display:grid;place-items:center;color:#fff;font-size:1.4rem;animation:pop .5s var(--ease)}
+@keyframes pop{from{transform:scale(.5);opacity:0}to{transform:none;opacity:1}}
+
+/* ---- link architecture ---- */
+.linkzone{background:var(--deep);color:#C9D6D2}
+.linkzone .h2{color:#F1EDE4}
+.linkzone .eyebrow{color:var(--brass-2)}
+.linkzone .eyebrow::before{background:var(--brass-2)}
+.lgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));gap:1.6rem;margin-top:2.2rem}
+.lcol h4{font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-2);
+  font-family:"Inter Tight",sans-serif;font-weight:600;margin-bottom:.75rem}
+.lcol ul{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.42rem;font-size:.93rem}
+.lcol a{color:#B9CBC8;transition:color .3s,padding-left .3s}
+.lcol a:hover{color:var(--brass-2);padding-left:.3rem}
+
+footer{background:var(--deep-2);color:#8FA5A1;padding:2rem 0;font-size:.86rem;
+  border-top:1px solid rgba(255,255,255,.07)}
+.foot{display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;
+    transition-duration:.01ms!important}
+  .rv{opacity:1;transform:none}
+  .kin>span{transform:none;animation:none}
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/htm/3.1.1/htm.js"></script>
+
+<div id="root"></div>
+
+<script>
+const {useState,useEffect,useRef,useMemo,useCallback} = React;
+const html = htm.bind(React.createElement);
+
+/* ===========================================================================
+   Sample inventory. Replaced wholesale by the CSV import — nothing here is
+   presented as a genuine listing, and every reference is prefixed SAMPLE.
+   ======================================================================== */
+const AREAS = ["Pratumnak","Jomtien","Wongamat","Central Pattaya","Naklua","East Pattaya"];
+
+const PROPS = [
+  {id:"sample-001",ref:"SAMPLE-001",t:"Sea-view residence, 24th floor",area:"Pratumnak",
+   type:"Condo",deal:"sale",price:4500000,beds:2,baths:2,sqm:78,floor:24,project:"Sample Residences",
+   art:"tower",areaMedian:5200000,
+   d:"A corner unit facing south-west along the bay, so the sun sets across the living room rather than behind it. Two bedrooms, both with windows. Foreign freehold quota available.",
+   feat:["Sea view","Foreign freehold","Pool","Gym","Covered parking"]},
+  {id:"sample-002",ref:"SAMPLE-002",t:"Pool villa, five minutes from the beach",area:"Jomtien",
+   type:"Villa",deal:"rent",rent:45000,beds:3,baths:3,sqm:210,land:400,project:"Sample Gardens",
+   art:"villa",areaMedian:52000,
+   d:"Single-storey villa on a walled plot with a private pool and mature garden. Long-term lease, unfurnished or furnished by arrangement.",
+   feat:["Private pool","Walled garden","Pet friendly","Covered parking","Maid's room"]},
+  {id:"sample-003",ref:"SAMPLE-003",t:"Beachfront penthouse with wrap terrace",area:"Wongamat",
+   type:"Penthouse",deal:"sale",price:25000000,rent:120000,beds:4,baths:4,sqm:320,floor:30,
+   project:"Sample Tower",art:"beach",areaMedian:19500000,
+   d:"The top floor, taken as a single unit. A terrace runs the full length of the north face, and the lift opens into a private lobby rather than a corridor.",
+   feat:["Private lift lobby","Wrap terrace","Sea view","Concierge","Two parking bays"]},
+  {id:"sample-004",ref:"SAMPLE-004",t:"Townhouse in a gated project",area:"East Pattaya",
+   type:"Townhouse",deal:"sale",price:3250000,beds:3,baths:2,sqm:140,land:160,project:"Sample Park",
+   art:"town",areaMedian:3600000,
+   d:"Three bedrooms over two floors on a corner plot, in a managed estate with a shared pool. Practical rather than glamorous, and priced accordingly.",
+   feat:["Gated estate","Shared pool","Corner plot","Parking for two"]},
+  {id:"sample-005",ref:"SAMPLE-005",t:"Studio, walk to Beach Road",area:"Central Pattaya",
+   type:"Condo",deal:"rent",rent:14000,beds:0,baths:1,sqm:28,floor:7,project:"Sample Central",
+   art:"tower",areaMedian:16500,
+   d:"A compact studio in a building with a rooftop pool, ten minutes' walk from the beach. Suits a single occupant or a pied-à-terre.",
+   feat:["Rooftop pool","Furnished","Gym","City view"]},
+  {id:"sample-006",ref:"SAMPLE-006",t:"Family house with mature garden",area:"East Pattaya",
+   type:"House",deal:"sale",price:6900000,beds:4,baths:3,sqm:265,land:520,project:"Sample Grove",
+   art:"villa",areaMedian:6400000,
+   d:"A four-bedroom house on a generous plot, twelve years old and well maintained. Room to extend at the rear if you need it.",
+   feat:["Large plot","Mature garden","Western kitchen","Storage building"]},
+  {id:"sample-007",ref:"SAMPLE-007",t:"Two-bedroom with direct pool access",area:"Naklua",
+   type:"Condo",deal:"sale",price:7400000,beds:2,baths:2,sqm:96,floor:2,project:"Sample Lagoon",
+   art:"beach",areaMedian:7100000,
+   d:"A ground-adjacent unit that opens onto the lagoon pool from the terrace. Rare layout in this building — only six units have it.",
+   feat:["Direct pool access","Terrace","Foreign freehold","Gym"]},
+  {id:"sample-008",ref:"SAMPLE-008",t:"Duplex with roof terrace",area:"Wongamat",
+   type:"Condo",deal:"rent",rent:65000,beds:3,baths:3,sqm:180,floor:28,project:"Sample Tower",
+   art:"tower",areaMedian:58000,
+   d:"Two floors joined by an internal stair, with a private roof terrace above. Long lease preferred.",
+   feat:["Roof terrace","Sea view","Two levels","Concierge"]},
+];
+
+const fmt = n => "฿" + n.toLocaleString("en-US");
+const priceOf = p => p.deal === "rent" ? fmt(p.rent) + " / month" : fmt(p.price);
+
+/* ---- illustrations, coloured from the page palette ---------------------- */
+const ART = {
+  tower: html`<g>
+    <rect width="400" height="300" fill="url(#gsky)"/>
+    <rect x="236" y="84" width="72" height="216" fill="var(--c2)"/>
+    <rect x="118" y="34" width="114" height="266" fill="var(--c1)"/>
+    ${[58,91,124,157,190,223].map(y=>html`<g key=${y} fill="var(--cg)" opacity=".62">
+      <rect x="132" y=${y} width="27" height="17"/><rect x="169" y=${y} width="27" height="17"/></g>`)}
+    ${[104,135,166,197].map(y=>html`<g key=${y} fill="var(--cg)" opacity=".5">
+      <rect x="248" y=${y} width="21" height="15"/><rect x="277" y=${y} width="21" height="15"/></g>`)}
+    <rect x="0" y="264" width="400" height="36" fill="var(--cw)"/>
+    <circle cx="336" cy="54" r="17" fill="var(--cs)" opacity=".9"/></g>`,
+  villa: html`<g>
+    <rect width="400" height="300" fill="url(#gsky)"/>
+    <rect x="0" y="210" width="400" height="90" fill="var(--cp)" opacity=".32"/>
+    <rect x="84" y="130" width="182" height="94" fill="var(--c1)"/>
+    <path d="M66 132 L175 70 L284 132 Z" fill="var(--cr)"/>
+    <rect x="110" y="162" width="35" height="35" fill="var(--cg)" opacity=".7"/>
+    <rect x="163" y="162" width="35" height="35" fill="var(--cg)" opacity=".7"/>
+    <rect x="214" y="158" width="31" height="66" fill="var(--cr)" opacity=".5"/>
+    <rect x="56" y="236" width="290" height="46" rx="9" fill="var(--cw)"/>
+    <ellipse cx="346" cy="146" rx="12" ry="34" fill="var(--cp)"/>
+    <rect x="342" y="146" width="6" height="86" fill="var(--cr)" opacity=".55"/></g>`,
+  beach: html`<g>
+    <rect width="400" height="300" fill="url(#gsky)"/>
+    <circle cx="70" cy="62" r="24" fill="var(--cs)" opacity=".9"/>
+    <rect x="0" y="150" width="400" height="72" fill="var(--cw)"/>
+    <rect x="0" y="222" width="400" height="78" fill="var(--cp)" opacity=".4"/>
+    <rect x="226" y="62" width="122" height="160" fill="var(--c1)"/>
+    ${[86,118,150,182].map(y=>html`<g key=${y} fill="var(--cg)" opacity=".6">
+      <rect x="242" y=${y} width="30" height="18"/><rect x="286" y=${y} width="30" height="18"/></g>`)}
+    <ellipse cx="62" cy="184" rx="17" ry="44" fill="var(--cp)"/>
+    <rect x="58" y="184" width="7" height="62" fill="var(--cr)" opacity=".55"/></g>`,
+  town: html`<g>
+    <rect width="400" height="300" fill="url(#gsky)"/>
+    <rect x="0" y="238" width="400" height="62" fill="var(--c2)" opacity=".45"/>
+    <rect x="44" y="120" width="96" height="120" fill="var(--c1)"/>
+    <rect x="148" y="94" width="96" height="146" fill="var(--c2)"/>
+    <rect x="252" y="132" width="96" height="108" fill="var(--c1)"/>
+    <path d="M36 122 L92 80 L148 122 Z" fill="var(--cr)"/>
+    <path d="M140 96 L196 56 L252 96 Z" fill="var(--cr)"/>
+    <path d="M244 134 L300 92 L356 134 Z" fill="var(--cr)"/>
+    <g fill="var(--cg)" opacity=".68">
+      <rect x="64" y="146" width="25" height="23"/><rect x="99" y="146" width="25" height="23"/>
+      <rect x="168" y="122" width="25" height="23"/><rect x="203" y="122" width="25" height="23"/>
+      <rect x="272" y="158" width="25" height="23"/><rect x="307" y="158" width="25" height="23"/></g>
+    <rect x="182" y="188" width="29" height="52" fill="var(--cr)" opacity=".6"/></g>`,
+};
+
+const Defs = () => html`
+  <svg width="0" height="0" style=${{position:"absolute"}} aria-hidden="true"><defs>
+    <linearGradient id="gsky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="var(--ck1)"/><stop offset="100%" stop-color="var(--ck2)"/>
+    </linearGradient>
+  </defs></svg>`;
+
+const Art = ({kind, cls, fill}) => html`
+  <svg viewBox="0 0 400 300" class=${cls||""} role="img" aria-label="Illustration of the property"
+    preserveAspectRatio=${fill ? "xMidYMid slice" : "xMidYMid meet"}>
+    ${ART[kind] || ART.tower}
+  </svg>`;
+</script>
+
+<script>
+/* ===========================================================================
+   Hooks
+   ======================================================================== */
+
+// Reveal on scroll. One observer for the whole page rather than one per node.
+function useReveal(){
+  useEffect(()=>{
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced || typeof IntersectionObserver === "undefined") {
+      document.querySelectorAll(".rv").forEach(n=>n.classList.add("in"));
+      return;
+    }
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); }
+      });
+    },{threshold:.12, rootMargin:"0px 0px -8% 0px"});
+    const scan = () => document.querySelectorAll(".rv:not(.in)").forEach(n=>io.observe(n));
+    scan();
+    const mo = new MutationObserver(scan);
+    mo.observe(document.body,{childList:true,subtree:true});
+
+    // Safety net. Content that starts at opacity:0 and never gets revealed is
+    // invisible content, which is far worse than an un-animated page. If
+    // anything above the fold has not fired within a few seconds, show it.
+    const net = setTimeout(()=>{
+      document.querySelectorAll(".rv:not(.in)").forEach(n=>{
+        if (n.getBoundingClientRect().top < window.innerHeight) n.classList.add("in");
+      });
+    }, 2500);
+
+    return ()=>{io.disconnect(); mo.disconnect(); clearTimeout(net);};
+  },[]);
+}
+
+function useScrollProgress(){
+  const [p,setP] = useState(0);
+  const [solid,setSolid] = useState(false);
+  useEffect(()=>{
+    let raf = 0;
+    const on = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(()=>{
+        const h = document.documentElement.scrollHeight - window.innerHeight;
+        setP(h > 0 ? (window.scrollY / h) * 100 : 0);
+        setSolid(window.scrollY > 40);
+      });
+    };
+    window.addEventListener("scroll",on,{passive:true});
+    on();
+    return ()=>{window.removeEventListener("scroll",on); cancelAnimationFrame(raf);};
+  },[]);
+  return {p,solid};
+}
+
+// Count up when the element first enters view. Numbers that animate in read as
+// claims being made; numbers that are simply there read as facts. The former
+// holds attention on a trust strip.
+function useCountUp(target, duration=1400){
+  const [v,setV] = useState(0);
+  const ref = useRef(null);
+  useEffect(()=>{
+    const node = ref.current;
+    if(!node) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches){ setV(target); return; }
+    const io = new IntersectionObserver(es=>{
+      if(!es[0].isIntersecting) return;
+      io.disconnect();
+      const t0 = performance.now();
+      const tick = now => {
+        const k = Math.min(1,(now-t0)/duration);
+        setV(Math.round(target * (1 - Math.pow(1-k,3))));
+        if(k<1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    },{threshold:.5});
+    io.observe(node);
+    return ()=>io.disconnect();
+  },[target,duration]);
+  return [v,ref];
+}
+
+// Very light parallax. Transform only, so it never triggers layout.
+function useParallax(strength=0.18){
+  const ref = useRef(null);
+  useEffect(()=>{
+    const node = ref.current;
+    if(!node) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    let raf = 0;
+    const on = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(()=>{
+        node.style.transform = `translate3d(0,${window.scrollY * strength}px,0)`;
+      });
+    };
+    window.addEventListener("scroll",on,{passive:true});
+    return ()=>{window.removeEventListener("scroll",on); cancelAnimationFrame(raf);};
+  },[strength]);
+  return ref;
+}
+</script>
+
+<script>
+/* ===========================================================================
+   Components
+   ======================================================================== */
+
+const Nav = ({solid,onHome}) => html`
+  <nav class=${"nav" + (solid ? " solid" : "")}>
+    <div class="wrap nav__in">
+      <a class="logo" href="#" onClick=${e=>{e.preventDefault();onHome();}}>
+        <span class="logo__m">PH</span>Pattaya Homes Pro
+      </a>
+      <div class="nav__links">
+        <a href="#properties">Properties</a>
+        <a href="#areas">Areas</a>
+        <a href="#how">How we work</a>
+        <a href="#enquire">Talk to us</a>
+      </div>
+      <a class="btn btn--p" href="#enquire" style=${{padding:".6rem 1.25rem",fontSize:".88rem"}}>
+        <span class="btn__sheen"></span>Start your search
+      </a>
+    </div>
+  </nav>`;
+
+// The headline animates in word by word. It is the one place on the page that
+// uses entrance motion for its own sake -- everything below earns it.
+const Kinetic = ({text,delay=0}) => html`
+  <span>${text.split(" ").map((w,i)=>html`
+    <span class="kin" key=${i}>
+      <span style=${{animationDelay:(delay + i*0.075)+"s"}}>${w}${" "}</span>
+    </span>`)}</span>`;
+
+const HeroScene = () => html`
+  <svg viewBox="0 0 1440 810" preserveAspectRatio="xMidYMid slice" aria-hidden="true"
+       style=${{width:"100%",height:"100%",display:"block"}}>
+    <defs>
+      <linearGradient id="hsky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="var(--deep)"/>
+        <stop offset="52%"  stop-color="var(--deep-2)"/>
+        <stop offset="100%" stop-color="var(--sea)"/>
+      </linearGradient>
+      <linearGradient id="hsea" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%"   stop-color="var(--sea)"/>
+        <stop offset="100%" stop-color="var(--deep)"/>
+      </linearGradient>
+      <radialGradient id="hglow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="var(--brass-2)" stop-opacity=".55"/>
+        <stop offset="70%"  stop-color="var(--brass)"   stop-opacity=".10"/>
+        <stop offset="100%" stop-color="var(--brass)"   stop-opacity="0"/>
+      </radialGradient>
+      <linearGradient id="hfade" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%"  stop-color="var(--deep)" stop-opacity="1"/>
+        <stop offset="55%" stop-color="var(--deep)" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="var(--deep)" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <rect width="1440" height="810" fill="url(#hsky)"/>
+    <circle cx="1010" cy="300" r="230" fill="url(#hglow)"/>
+    <circle cx="1010" cy="300" r="52" fill="var(--brass-2)" opacity=".92"/>
+
+    <!-- far headland -->
+    <path d="M0 470 L150 424 L286 456 L410 420 L520 462 L640 470 Z"
+          fill="var(--deep)" opacity=".7"/>
+
+    <!-- skyline, two depths -->
+    <g opacity=".55" fill="var(--deep)">
+      <rect x="1140" y="300" width="62" height="176"/>
+      <rect x="1216" y="256" width="80" height="220"/>
+      <rect x="1310" y="326" width="58" height="150"/>
+      <rect x="1382" y="286" width="58" height="190"/>
+    </g>
+    <g fill="var(--deep)">
+      <rect x="856"  y="238" width="96"  height="238"/>
+      <rect x="966"  y="296" width="72"  height="180"/>
+      <rect x="1050" y="196" width="84"  height="280"/>
+    </g>
+    <g fill="var(--brass-2)" opacity=".5">
+      ${[268,308,348,388,428].map(y=>html`<g key=${y}>
+        <rect x="876" y=${y} width="20" height="12"/><rect x="910" y=${y} width="20" height="12"/>
+        <rect x="1070" y=${y-40} width="18" height="12"/><rect x="1100" y=${y-40} width="18" height="12"/>
+      </g>`)}
+    </g>
+
+    <!-- sea -->
+    <rect x="0" y="476" width="1440" height="334" fill="url(#hsea)"/>
+    <g fill="var(--brass-2)" opacity=".18">
+      <rect class="shim shim1" x="700" y="516" width="620" height="3" rx="2"/>
+      <rect class="shim shim2" x="760" y="556" width="470" height="3" rx="2"/>
+      <rect class="shim shim3" x="820" y="600" width="360" height="3" rx="2"/>
+      <rect class="shim shim1" x="660" y="654" width="540" height="3" rx="2"/>
+      <rect class="shim shim2" x="740" y="712" width="420" height="3" rx="2"/>
+    </g>
+
+    <!-- foreground fronds, framing only -->
+    <g fill="var(--deep)" opacity=".85">
+      <ellipse cx="70" cy="150" rx="150" ry="26" transform="rotate(-24 70 150)"/>
+      <ellipse cx="130" cy="96" rx="128" ry="22" transform="rotate(-8 130 96)"/>
+      <ellipse cx="40"  cy="236" rx="132" ry="22" transform="rotate(-42 40 236)"/>
+    </g>
+
+    <rect width="1440" height="810" fill="url(#hfade)"/>
+  </svg>`;
+
+const Hero = ({onExplore}) => {
+  const skyRef = useParallax(0.06);
+  return html`
+  <header class="hero">
+    <div class="hero__sky" ref=${skyRef}><${HeroScene} /></div>
+    <div class="hero__veil"></div>
+    <div class="wrap hero__in">
+      <span class="hero__kicker">Pattaya · Jomtien · Na Jomtien</span>
+      <h1>
+        <${Kinetic} text="Find your place on the" />
+        <em><${Kinetic} text="Eastern Seaboard" delay=${0.45} /></em>
+      </h1>
+      <p class="hero__p">
+        Sea-view condos in Pratumnak, pool villas in Jomtien, family houses out east.
+        Every listing checked before it reaches this page — title deed, ownership
+        quota and outstanding fees.
+      </p>
+      <div class="hero__cta">
+        <button class="btn btn--p" onClick=${onExplore}>
+          <span class="btn__sheen"></span>Browse properties
+        </button>
+        <a class="btn btn--g" href="#how">See how we work</a>
+      </div>
+    </div>
+    <div class="scrollcue"><span>Scroll</span><span class="scrollcue__l"></span></div>
+  </header>`;
+};
+
+const Stat = ({n,suffix,label}) => {
+  const [v,ref] = useCountUp(n);
+  return html`<div class="trust__i" ref=${ref}>
+    <span class="trust__n">${v.toLocaleString("en-US")}${suffix||""}</span>
+    <span class="trust__l">${label}</span>
+  </div>`;
+};
+
+// Placeholder figures. Real numbers go here before launch -- inventing them
+// would be a fabricated claim on a page selling property.
+const TrustStrip = () => html`
+  <div class="trust"><div class="wrap trust__in">
+    <${Stat} n=${PROPS.length} label="properties listed (sample set)" />
+    <${Stat} n=${AREAS.length} label="areas covered" />
+    <${Stat} n=${48} suffix="h" label="typical reply time" />
+    <${Stat} n=${100} suffix="%" label="listings title-checked" />
+  </div></div>`;
+
+const BEATS = [
+  {n:"01",h:"You tell us what the place is for",art:"beach",
+   p:"A holiday flat you use six weeks a year and a house you retire into are different purchases with different risks. Everything after this depends on getting it right, so it is where we start."},
+  {n:"02",h:"We shortlist against what you can actually own",art:"tower",
+   p:"Foreign freehold quota, leasehold, or a company structure — each has consequences for cost, control and resale. We filter the market by what is genuinely available to you before you fall for something."},
+  {n:"03",h:"Every shortlisted property gets checked",art:"town",
+   p:"Title deed, encumbrances, outstanding common fees, building permits. It is unglamorous and it is where purchases go wrong. You see the findings in writing."},
+  {n:"04",h:"One person sees it through",art:"villa",
+   p:"The same agent from first viewing to key handover. No hand-off to a transfer team who have not read your file."},
+];
+
+const Story = () => html`
+  <section class="story" id="how">
+    <div class="wrap">
+      <div class="rv"><span class="eyebrow">How we work</span>
+        <h2 class="h2">Four steps, and the <em>boring one matters most</em></h2>
+        <p class="lead">Most agencies compete on the size of their listing database. The difference shows up in step three.</p>
+      </div>
+      ${BEATS.map((b,i)=>html`
+        <div class="beat" key=${b.n}>
+          <div class=${"rv rv-d" + ((i%2)+1)}>
+            <span class="beat__n">${b.n}</span>
+            <h3>${b.h}</h3>
+            <p>${b.p}</p>
+          </div>
+          <div class=${"beat__art rv rv-d" + ((i%2)+2)}><${Art} kind=${b.art} /></div>
+        </div>`)}
+    </div>
+  </section>`;
+
+const PropertyCard = ({p,onOpen,i}) => {
+  // Anchoring: the area median gives the price a reference point. Shown only
+  // when the property is genuinely below it, and labelled as what it is.
+  const below = p.deal === "rent"
+    ? (p.rent && p.areaMedian && p.rent < p.areaMedian)
+    : (p.price && p.areaMedian && p.price < p.areaMedian);
+  const delta = below
+    ? Math.round(100 - ((p.deal==="rent"?p.rent:p.price) / p.areaMedian) * 100)
+    : 0;
+  return html`
+    <button class=${"pcard rv rv-d" + ((i%4)+1)} onClick=${()=>onOpen(p)}
+      aria-label=${"View " + p.t}>
+      <div class="pcard__art">
+        <${Art} kind=${p.art} />
+        <span class=${"pcard__tag" + (p.deal==="rent" ? " pcard__tag--r" : "")}>
+          ${p.deal === "rent" ? "For rent" : "For sale"}
+        </span>
+        ${below ? html`<span class="pcard__flag">${delta}% below area median</span>` : null}
+      </div>
+      <div class="pcard__b">
+        <span class="pcard__place">${p.area} · ${p.type}</span>
+        <span class="pcard__t">${p.t}</span>
+        <span class="pcard__price">${priceOf(p)}</span>
+        ${p.areaMedian ? html`<span class="pcard__anchor">
+          Area median ${p.deal==="rent" ? fmt(p.areaMedian)+" / month" : fmt(p.areaMedian)}
+        </span>` : null}
+        <ul class="pcard__f">
+          <li><strong>${p.beds}</strong> bed</li>
+          <li><strong>${p.baths}</strong> bath</li>
+          <li><strong>${p.sqm}</strong> sqm</li>
+        </ul>
+      </div>
+    </button>`;
+};
+
+const Explorer = ({onOpen}) => {
+  const [deal,setDeal] = useState("all");
+  const [area,setArea] = useState("all");
+
+  const shown = useMemo(()=>PROPS.filter(p=>
+    (deal === "all" || p.deal === deal) && (area === "all" || p.area === area)
+  ),[deal,area]);
+
+  return html`
+    <section id="properties">
+      <div class="wrap">
+        <div class="rv">
+          <span class="eyebrow">Available now</span>
+          <h2 class="h2">The <em>current list</em></h2>
+          <p class="lead">Sample properties, shown so the layout can be judged. Your own
+            inventory replaces these when the spreadsheet is imported.</p>
+        </div>
+
+        <div class="filterbar rv rv-d1" role="group" aria-label="Filter by type">
+          ${[["all","Everything"],["sale","For sale"],["rent","For rent"]].map(([k,l])=>html`
+            <button key=${k} class="chip" aria-pressed=${deal===k} onClick=${()=>setDeal(k)}>${l}</button>`)}
+        </div>
+        <div class="filterbar rv rv-d2" role="group" aria-label="Filter by area">
+          <button class="chip" aria-pressed=${area==="all"} onClick=${()=>setArea("all")}>All areas</button>
+          ${AREAS.map(a=>html`
+            <button key=${a} class="chip" aria-pressed=${area===a} onClick=${()=>setArea(a)}>${a}</button>`)}
+        </div>
+
+        <p class="resultline" role="status">
+          ${shown.length} ${shown.length===1?"property":"properties"}
+          ${area!=="all" ? " in " + area : ""}${deal!=="all" ? (deal==="rent"?" to rent":" for sale") : ""}
+        </p>
+
+        ${shown.length ? html`
+          <div class="grid">
+            ${shown.map((p,i)=>html`<${PropertyCard} key=${p.id} p=${p} i=${i} onOpen=${onOpen} />`)}
+          </div>`
+        : html`<p class="lead">Nothing matches that combination yet.
+            <button class="chip" style=${{marginLeft:".5rem"}}
+              onClick=${()=>{setDeal("all");setArea("all");}}>Clear filters</button></p>`}
+      </div>
+    </section>`;
+};
+</script>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Enquiry ladder.
+
+   Three small questions before the contact field rather than one form asking
+   for everything. Each answer is a low-cost commitment, and by the time the
+   email box appears the visitor has already invested enough to finish it.
+   This is the honest version of commitment-and-consistency: nothing is
+   hidden, nothing is fake, and the questions genuinely shape the reply.
+------------------------------------------------------------------------- */
+const LADDER = [
+  {q:"What is the place for?",
+   a:["Somewhere to retire","A holiday home","An investment to let","Not sure yet"]},
+  {q:"Roughly what budget?",
+   a:["Under ฿3M","฿3M – ฿8M","฿8M – ฿20M","Over ฿20M","Renting, not buying"]},
+  {q:"When would you want to move?",
+   a:["Within 3 months","3 – 12 months","Just researching"]},
+];
+
+const EnquiryLadder = ({compact}) => {
+  const [step,setStep] = useState(0);
+  const [answers,setAnswers] = useState([]);
+  const done = step >= LADDER.length;
+
+  const pick = a => { setAnswers(v=>[...v,a]); setStep(s=>s+1); };
+
+  return html`
+    <div class="ladder">
+      <div class="ladder__steps" aria-hidden="true">
+        ${LADDER.map((_,i)=>html`<span key=${i} class=${"ladder__pip" + (i<step?" on":"")}></span>`)}
+      </div>
+
+      ${!done ? html`
+        <div key=${step}>
+          <span class="eyebrow">Step ${step+1} of ${LADDER.length}</span>
+          <h3 style=${{fontSize:compact?"1.15rem":"1.35rem",margin:".7rem 0 0",fontWeight:500}}>
+            ${LADDER[step].q}
+          </h3>
+          <div class="opts">
+            ${LADDER[step].a.map(a=>html`
+              <button class="opt" key=${a} onClick=${()=>pick(a)}>${a}</button>`)}
+          </div>
+          ${step>0 ? html`<button class="back" style=${{marginTop:"1rem",marginBottom:0}}
+            onClick=${()=>{setStep(s=>s-1);setAnswers(v=>v.slice(0,-1));}}>← Back</button>` : null}
+        </div>`
+      : html`
+        <div class="ladder__done">
+          <div class="ladder__check" aria-hidden="true">✓</div>
+          <h3 style=${{fontSize:"1.25rem",fontWeight:500}}>That is enough to be useful</h3>
+          <p style=${{color:"var(--ink-2)",margin:".6rem 0 1.1rem",fontSize:".94rem"}}>
+            ${answers[0]}, ${answers[1] ? answers[1].toLowerCase() : ""}, ${answers[2] ? answers[2].toLowerCase() : ""}.
+            Leave an email and you will get a shortlist that fits it — not a database dump.
+          </p>
+          <form onSubmit=${e=>e.preventDefault()} style=${{display:"flex",gap:".5rem",flexWrap:"wrap"}}>
+            <input type="email" required placeholder="you@example.com" aria-label="Your email"
+              style=${{flex:"1 1 12rem",padding:".78rem 1rem",borderRadius:"100px",
+                border:"1px solid var(--line-2)",background:"var(--surface-2)",color:"var(--ink)",font:"inherit"}} />
+            <button class="btn btn--p" type="submit"><span class="btn__sheen"></span>Send it</button>
+          </form>
+          <p style=${{fontSize:".78rem",color:"var(--muted)",margin:".8rem 0 0"}}>
+            Preview only — this form is not connected to anything.
+          </p>
+        </div>`}
+    </div>`;
+};
+
+const Detail = ({p,onBack,onOpen}) => {
+  const [shot,setShot] = useState(0);
+  const kinds = [p.art,"tower","villa","town"];
+  const related = PROPS.filter(x=>x.id!==p.id && (x.area===p.area || x.type===p.type)).slice(0,3);
+
+  useEffect(()=>{window.scrollTo({top:0,behavior:"instant"});},[p.id]);
+
+  const specs = [
+    ["Bedrooms",p.beds],["Bathrooms",p.baths],["Interior",p.sqm+" sqm"],
+    ["Land",p.land ? p.land+" sqm" : ""],["Floor",p.floor||""],
+    ["Project",p.project||""],["Reference",p.ref],
+  ].filter(([,v])=>v!=="" && v!==undefined && v!==null);
+
+  return html`
+    <section class="detail"><div class="wrap">
+      <button class="back" onClick=${onBack}>← All properties</button>
+
+      <nav class="mono" style=${{fontSize:".78rem",color:"var(--muted)",marginBottom:".9rem"}}>
+        <a href="#" onClick=${e=>{e.preventDefault();onBack();}}>Properties</a>
+        <span> / </span><a href="#properties">${p.area}</a>
+        <span> / </span><span>${p.type}</span>
+      </nav>
+
+      <h1 style=${{fontSize:"clamp(1.8rem,4vw,2.8rem)",fontWeight:500}}>${p.t}</h1>
+      <p style=${{fontFamily:"Fraunces,serif",fontSize:"1.7rem",color:"var(--brass)",
+        margin:".5rem 0 1.5rem",fontWeight:600}}>${priceOf(p)}</p>
+
+      <div class="dhero"><${Art} kind=${kinds[shot]} /></div>
+      <div class="dthumbs">
+        ${kinds.map((k,i)=>html`
+          <button key=${i} aria-current=${shot===i} onClick=${()=>setShot(i)}
+            aria-label=${"View image " + (i+1)}><${Art} kind=${k} /></button>`)}
+      </div>
+
+      <div class="dgrid">
+        <div>
+          <p style=${{fontSize:"1.06rem",color:"var(--ink-2)",lineHeight:1.75}}>${p.d}</p>
+
+          <h3 style=${{fontSize:"1.2rem",margin:"2rem 0 .8rem",fontWeight:500}}>Features</h3>
+          <div class="filterbar" style=${{margin:0}}>
+            ${p.feat.map(f=>html`<span class="chip" key=${f} style=${{cursor:"default"}}>${f}</span>`)}
+          </div>
+
+          <h3 style=${{fontSize:"1.2rem",margin:"2.2rem 0 .8rem",fontWeight:500}}>Details</h3>
+          <table class="specs"><tbody>
+            ${specs.map(([k,v])=>html`<tr key=${k}><th scope="row">${k}</th><td>${v}</td></tr>`)}
+          </tbody></table>
+        </div>
+
+        <aside>
+          <div class="aside">
+            <h3 style=${{fontSize:"1.1rem",fontWeight:500,marginBottom:".3rem"}}>Ask about this one</h3>
+            <p style=${{fontSize:".88rem",color:"var(--muted)",margin:"0 0 1rem"}}>
+              Reference ${p.ref}. Reply typically within 48 hours.
+            </p>
+            <${EnquiryLadder} compact=${true} />
+          </div>
+        </aside>
+      </div>
+
+      ${related.length ? html`
+        <div style=${{marginTop:"3.5rem"}}>
+          <span class="eyebrow">Nearby</span>
+          <h2 class="h2" style=${{fontSize:"1.7rem"}}>Others in <em>${p.area}</em></h2>
+          <div class="grid">
+            ${related.map((r,i)=>html`<${PropertyCard} key=${r.id} p=${r} i=${i} onOpen=${onOpen} />`)}
+          </div>
+        </div>` : null}
+    </div></section>`;
+};
+</script>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Internal link architecture. Every area and property type gets a real,
+   crawlable route in from every page -- this is the part of SEO that is
+   entirely within your control and carries no risk.
+------------------------------------------------------------------------- */
+const LinkZone = () => html`
+  <section class="linkzone" id="areas"><div class="wrap">
+    <div class="rv">
+      <span class="eyebrow">Browse</span>
+      <h2 class="h2">Every area, <em>its own page</em></h2>
+      <p class="lead" style=${{color:"#B9CBC8"}}>
+        Each of these is a real URL with its own title, description and content
+        — not a filter that leaves the address bar unchanged.
+      </p>
+    </div>
+    <div class="lgrid rv rv-d1">
+      <div class="lcol"><h4>By area</h4><ul>
+        ${AREAS.map(a=>html`<li key=${a}><a href="#properties">${a} property</a></li>`)}
+      </ul></div>
+      <div class="lcol"><h4>By type</h4><ul>
+        ${["Condo","Villa","House","Townhouse","Penthouse","Land"].map(t=>html`
+          <li key=${t}><a href="#properties">${t}s in Pattaya</a></li>`)}
+      </ul></div>
+      <div class="lcol"><h4>By intent</h4><ul>
+        ${["Sea-view condos","Pool villas","Foreign freehold","Under ฿5M",
+           "Long-term rentals","New developments"].map(t=>html`
+          <li key=${t}><a href="#properties">${t}</a></li>`)}
+      </ul></div>
+      <div class="lcol"><h4>Guides</h4><ul>
+        ${["Buying as a foreigner","Freehold vs leasehold","Transfer fees and taxes",
+           "Choosing an area","Off-plan risks"].map(t=>html`
+          <li key=${t}><a href="#how">${t}</a></li>`)}
+      </ul></div>
+    </div>
+  </div></section>`;
+
+const Enquire = () => html`
+  <section id="enquire"><div class="wrap narrow">
+    <div class="rv" style=${{textAlign:"center",marginBottom:"2rem"}}>
+      <span class="eyebrow" style=${{justifyContent:"center"}}>Talk to us</span>
+      <h2 class="h2">Three questions, <em>then a shortlist</em></h2>
+      <p class="lead" style=${{margin:"1rem auto 0"}}>
+        Not a database dump. Answer these and the reply is a handful of properties
+        that actually fit, with the reasons attached.
+      </p>
+    </div>
+    <div class="rv rv-d1"><${EnquiryLadder} /></div>
+  </div></section>`;
+
+const Footer = () => html`
+  <footer><div class="wrap foot">
+    <span>© 2026 Pattaya Homes Pro · Chonburi, Thailand</span>
+    <span>Design preview — sample data, nothing connected</span>
+  </div></footer>`;
+
+/* ---------------------------------------------------------------------------
+   App
+------------------------------------------------------------------------- */
+function App(){
+  const [view,setView] = useState({name:"home"});
+  const {p,solid} = useScrollProgress();
+  useReveal();
+
+  const open = useCallback(prop=>{
+    setView({name:"detail",prop});
+    history.pushState({id:prop.id},"","#property-"+prop.id);
+  },[]);
+  const home = useCallback(()=>{
+    setView({name:"home"});
+    history.pushState({},"","#");
+  },[]);
+
+  // Back button returns to the list rather than leaving the site.
+  useEffect(()=>{
+    const on = () => setView({name:"home"});
+    window.addEventListener("popstate",on);
+    return ()=>window.removeEventListener("popstate",on);
+  },[]);
+
+  const scrollToProperties = () =>
+    document.getElementById("properties")?.scrollIntoView({behavior:"smooth"});
+
+  return html`
+    <${React.Fragment}>
+      <${Defs} />
+      <div class="progress" style=${{width:p+"%"}} aria-hidden="true"></div>
+      <p class="ribbon">Design preview · pattayahomespro.com · not yet published</p>
+      <${Nav} solid=${solid} onHome=${home} />
+      ${view.name === "home" ? html`
+        <${React.Fragment}>
+          <${Hero} onExplore=${scrollToProperties} />
+          <${TrustStrip} />
+          <${Explorer} onOpen=${open} />
+          <${Story} />
+          <${LinkZone} />
+          <${Enquire} />
+        </>`
+      : html`<${Detail} p=${view.prop} onBack=${home} onOpen=${open} />`}
+      <${Footer} />
+    </>`;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(html`<${App} />`);
+</script>

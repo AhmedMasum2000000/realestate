@@ -1,0 +1,33 @@
+name: Move In Thailand original assets
+
+on:
+  push:
+    branches: [codex/move-in-thailand-rebuild]
+    paths: ['tools/mit_collect_assets.py', '.github/workflows/mit-assets.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Collect public branding from cPanel
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+        run: python tools/mit_collect_assets.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: move-in-thailand-original-assets
+          path: .cache/mit-source/
+          include-hidden-files: true
+          retention-days: 7

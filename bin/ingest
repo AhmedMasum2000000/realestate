@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Normalize a listings CSV export into data/catalog.json.
+
+    bin/ingest data/listings-all.csv
+
+The CSV itself is gitignored; the JSON it produces is committed so CI can
+rebuild the site without the export or network access.
+"""
+
+import sys
+from collections import Counter
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.catalog.loader import load_csv, write_catalog  # noqa: E402
+
+
+def main() -> int:
+    if len(sys.argv) < 2:
+        print(__doc__)
+        return 1
+
+    source = Path(sys.argv[1])
+    if not source.exists():
+        print(f"error: {source} not found", file=sys.stderr)
+        return 1
+
+    out = ROOT / "data" / "catalog.json"
+    listings = load_csv(source)
+    write_catalog(listings, out)
+
+    deals = Counter(l.deal for l in listings)
+    types = Counter(l.type for l in listings)
+    locations = Counter(l.location for l in listings)
+
+    print(f"{len(listings)} listings -> {out.relative_to(ROOT)}")
+    print("  deals    :", ", ".join(f"{k} {v}" for k, v in sorted(deals.items())))
+    print("  types    :", ", ".join(f"{k} {v}" for k, v in types.most_common()))
+    print("  locations:", len(locations), "distinct")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

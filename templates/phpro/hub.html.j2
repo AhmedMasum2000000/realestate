@@ -1,0 +1,82 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+
+{% block content %}
+<div class="wrap">{{ m.crumbs(hub.crumbs, hub.h1) }}</div>
+
+<section class="sec" style="padding-top:1rem">
+  <div class="wrap">
+    <div style="max-width:48rem">
+      <span class="kick">{{ kicker }}</span>
+      <h1 class="d2" style="color:var(--navy)">{{ hub.h1 }}</h1>
+      {%- if hub.intro %}
+      <p class="lead" style="margin-top:1.4rem">{{ hub.intro }}</p>
+      {%- endif %}
+      <p class="lead tnum" style="margin-top:1rem;font-size:.95rem">{{ summary.freshness.line }}</p>
+    </div>
+
+    {{ m.stats_block(summary) }}
+
+    {%- if summary.by_bedrooms %}
+    <div style="margin-top:3rem;max-width:54rem">
+      <h2 class="d3" style="color:var(--navy)">What it costs, by layout</h2>
+      <p class="lead" style="margin-top:.9rem;font-size:.95rem">
+        Median asking {{ 'rent' if summary.dominant_deal == 'rent' else 'price' }} across the
+        {{ summary.count }} listings on this page. Layouts with fewer than three
+        comparable listings are left out rather than quoted from a single example.
+      </p>
+      {{ m.bedroom_table(summary.by_bedrooms, summary.dominant_deal) }}
+    </div>
+    {%- endif %}
+
+    {%- if page == 1 and summary.projects %}
+    <div style="margin-top:2.6rem">
+      <h3 class="d4" style="color:var(--navy);margin-bottom:1rem">Buildings and projects here</h3>
+      <div class="chips">
+        {%- for p in summary.projects %}
+        <span class="chip">{{ p.name }} <span style="color:var(--muted);margin-left:.4rem">{{ p.count }}</span></span>
+        {%- endfor %}
+      </div>
+    </div>
+    {%- endif %}
+  </div>
+</section>
+
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <h2 class="d3" style="color:var(--navy)">
+      {%- if pages > 1 %}Listings &mdash; page {{ page }} of {{ pages }}{% else %}Listings{% endif %}
+    </h2>
+    {{ m.card_grid(page_listings) }}
+    {{ m.pager(hub.path, page, pages) }}
+  </div>
+</section>
+
+{%- if page == 1 %}
+<section class="sec" style="background:var(--paper-2);padding-block:clamp(2.6rem,5vw,4rem)">
+  <div class="wrap">
+    {{ m.sibling_links(sibling_title, hub.siblings) }}
+    {{ m.sibling_links('Nearby areas', adjacent) }}
+    {%- if related_hubs %}
+    {{ m.sibling_links('Also worth a look', related_hubs) }}
+    {%- endif %}
+  </div>
+</section>
+{%- endif %}
+
+<section class="block sec" style="padding-block:clamp(3rem,6vw,4.5rem)">
+  <div class="wrap split">
+    <div>
+      <span class="kick">Not seeing it?</span>
+      <h2 class="d2">A good portion of our stock never reaches this page</h2>
+    </div>
+    <div>
+      <p class="lead">
+        Owners who would rather not advertise, pre-launch allocations and quiet sales
+        come out in a phone call. Tell us the area, the budget and the timing.
+      </p>
+      <a class="btn btn--gold" href="tel:{{ brand.phone_href }}" style="margin-top:1.6rem">Call {{ brand.phone_display }}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

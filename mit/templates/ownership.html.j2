@@ -1,0 +1,7 @@
+{% extends 'base.html.j2' %}
+{% from 'components.html.j2' import eyebrow, sources with context %}
+{% block content %}
+<section class="tool-intro wrap">{{ eyebrow('BEFORE YOU COMMIT TO A PROPERTY') }}<h1>A home you love.<br>Questions worth <em>asking.</em></h1><p>Choose what you are considering. Get a practical starting checklist<br>for an independent legal review.</p></section>
+<section class="wrap ownership-layout"><div class="ownership-card"><h2>What are you considering?</h2><div class="ownership-options" role="group" aria-label="Type of property transaction">{% for key,label,ico in [('condo','A condominium','home'),('lease','A lease or leasehold','receipt'),('land','Land or a villa','sun'),('company','A company holding property','briefcase')] %}<button type="button" data-ownership="{{ key }}" aria-pressed="{{ 'true' if loop.first else 'false' }}">{{ icon(ico) }}{{ label }}</button>{% endfor %}</div><div id="ownership-result" aria-live="polite"></div></div><aside class="tool-explainer"><h2>Good documents.<br>Clearer decisions.</h2><p>This checklist cannot confirm ownership eligibility or the legality of a specific transaction. A qualified Thai lawyer should review the actual title, structure and contract.</p>{{ sources(['condo','dbd']) }}</aside></section>
+{% endblock %}
+

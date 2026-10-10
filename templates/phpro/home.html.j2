@@ -1,0 +1,156 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+
+{% block content %}
+
+<section class="hero" data-hero>
+  <div class="hero__media" data-hero-media>
+    {%- if hero_image %}
+    <img src="{{ hero_image }}" alt="Pattaya coastline and condominium towers" width="1600" height="900" fetchpriority="high">
+    {%- endif %}
+  </div>
+  <div class="wrap hero__in" data-hero-in>
+    <div class="hero__meta">
+      <p class="hero__kick">{{ hero.kicker }}</p>
+      <p class="hero__say">{{ hero.sub }}</p>
+    </div>
+
+    <h1 class="hero__h d1">
+      <span class="hero__row" data-hero-l>{{ hero.line_1 }}</span>
+      <span class="hero__row hero__row--r" data-hero-r>{{ hero.line_2 }}</span>
+    </h1>
+
+    <div class="hero__cta">
+      <a class="btn btn--gold" href="tel:{{ brand.phone_href }}">Call {{ brand.phone_display }}</a>
+      <a class="btn btn--ghost" href="/properties/" style="color:#fff">See all {{ total }} properties</a>
+    </div>
+
+    <div class="hero__facts">
+      <div class="hero__fact"><b class="tnum">{{ total }}</b><span>Properties on our books</span></div>
+      <div class="hero__fact"><b class="tnum">{{ area_count }}</b><span>Areas covered</span></div>
+      <div class="hero__fact"><b class="tnum">{{ sale_count }}</b><span>For sale</span></div>
+      <div class="hero__fact"><b class="tnum">{{ rent_count }}</b><span>For rent</span></div>
+    </div>
+  </div>
+  <span class="hero__scroll" aria-hidden="true">Scroll</span>
+</section>
+
+<section class="strip">
+  <div class="wrap">
+    <p class="strip__t">{{ trust.title }}</p>
+    <div class="strip__row">
+      {%- for area in areas %}
+      <a href="/areas/{{ area.slug }}/"><span>{{ area.name }}</span></a>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap split">
+    <div class="rv">
+      <span class="kick">{{ positioning.kicker }}</span>
+      <h2 class="d2" style="color:var(--navy)">
+        {%- for line in positioning.headline_lines %}
+        <span class="mask"><span>{{ line }}</span></span>
+        {%- endfor %}
+      </h2>
+    </div>
+    <div class="rv rv-1">
+      <p class="lead">{{ positioning.body }}</p>
+      <p class="lead" style="margin-top:1.2rem">{{ positioning.body_2 }}</p>
+      <a class="btn btn--navy" href="/properties/" style="margin-top:1.8rem">Browse the catalogue</a>
+    </div>
+  </div>
+</section>
+
+<hr class="bar">
+
+<section class="sec">
+  <div class="wrap">
+    <div class="rv" style="max-width:48rem">
+      <span class="kick">Who you are changes what matters</span>
+      <h2 class="d2" style="color:var(--navy)">
+        <span class="mask"><span>What you need from us</span></span>
+        <span class="mask"><span>depends on which side</span></span>
+        <span class="mask"><span>of the deal you're on</span></span>
+      </h2>
+    </div>
+    <div class="seg">
+      {%- for s in segments %}
+      <div class="seg__c rv rv-{{ loop.index }}">
+        <h3>{{ s.title }}</h3>
+        <p>{{ s.text }}</p>
+        <a href="{{ s.href }}">{{ s.cta }} &rarr;</a>
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec" style="background:var(--paper-2)">
+  <div class="wrap">
+    <div class="rv" style="max-width:46rem">
+      <span class="kick">{{ deals_intro.kicker }}</span>
+      <h2 class="d2" style="color:var(--navy)">
+        {%- for line in deals_intro.headline_lines %}
+        <span class="mask"><span>{{ line }}</span></span>
+        {%- endfor %}
+      </h2>
+    </div>
+    {{ m.card_grid(featured) }}
+    <div style="margin-top:2.6rem">
+      <a class="btn btn--navy" href="/properties/">See all {{ total }} properties</a>
+    </div>
+  </div>
+</section>
+
+{%- if band_image %}
+<section class="band" aria-hidden="true">
+  <img src="{{ band_image }}" alt="" loading="lazy" width="1600" height="900">
+</section>
+{%- endif %}
+
+<section class="rules sec">
+  <div class="wrap">
+    <div class="rv" style="max-width:48rem">
+      <span class="kick">{{ rules_intro.kicker }}</span>
+      <h2 class="d2" style="color:var(--navy)">
+        {%- for line in rules_intro.headline_lines %}
+        <span class="mask"><span>{{ line }}</span></span>
+        {%- endfor %}
+      </h2>
+    </div>
+    <div class="rules__list">
+      {%- for r in rules %}
+      <div class="rules__i rv rv-{{ (loop.index0 % 3) + 1 }}">
+        <span class="rules__n">{{ "%02d"|format(loop.index) }}</span>
+        <b>{{ r.law }}</b>
+        <p>{{ r.note }}</p>
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap split">
+    <div class="rv">
+      <span class="kick">{{ off_market.kicker }}</span>
+      <h2 class="d2" style="color:var(--navy)">
+        {%- for line in off_market.headline_lines %}
+        <span class="mask"><span>{{ line }}</span></span>
+        {%- endfor %}
+      </h2>
+    </div>
+    <div class="rv rv-1">
+      <p class="lead">{{ off_market.body }}</p>
+      <p class="lead" style="margin-top:1.2rem">{{ off_market.body_2 }}</p>
+      <a class="btn btn--gold" href="tel:{{ brand.phone_href }}" style="margin-top:1.8rem">Call {{ brand.phone_display }}</a>
+    </div>
+  </div>
+</section>
+
+{% include "contact.html.j2" %}
+
+{% endblock %}

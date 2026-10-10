@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+"""Derive the brand asset set from the supplied logo files.
+
+    bin/make-brand-assets <horizontal.webp> <stacked.webp|jpg>
+
+The supplied lockups are navy-and-gold, which disappears on the site's dark
+surfaces (the menu overlay and the footer). Rather than ask for more files, the
+knockout variants are derived here: dark pixels become white, the gold is left
+alone, so the mark keeps its two-colour identity on any background.
+
+Outputs land in assets/brand/ and are committed. Re-running is idempotent.
+"""
+
+import sys
+from pathlib import Path
+
+from PIL import Image
+
+ROOT = Path(__file__).resolve().parent.parent
+OUT = ROOT / "assets" / "brand"
+
+# Anything darker than this is logo navy; the gold sits well above it.
+DARK_MAX = 120
+# Near-white pixels in a source that has no alpha channel are background.
+WHITE_MIN = 242
+
+
+def luminance(r: int, g: int, b: int) -> float:
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def with_alpha(image: Image.Image) -> Image.Image:
+    """Drop a white background if the source has none of its own."""
+    image = image.convert("RGBA")
+    if image.getextrema()[3][0] < 255:
+        return image  # already has real transparency
+
+    pixels = image.load()
+    width, height = image.size
+    for y in range(height):
+        for x in range(width):
+            r, g, b, _ = pixels[x, y]
+            if r >= WHITE_MIN and g >= WHITE_MIN and b >= WHITE_MIN:
+                pixels[x, y] = (r, g, b, 0)
+    return image
+
+
+def knockout(image: Image.Image) -> Image.Image:
+    """Navy -> white, gold untouched."""
+    image = image.copy()
+    pixels = image.load()
+    width, height = image.size
+    for y in range(height):
+        for x in range(width):
+            r, g, b, a = pixels[x, y]
+            if a and luminance(r, g, b) < DARK_MAX:
+                pixels[x, y] = (255, 255, 255, a)
+    return image
+
+
+def trim(image: Image.Image) -> Image.Image:
+    box = image.getbbox()
+    return image.crop(box) if box else image
+
+
+def shield(image: Image.Image) -> Image.Image:
+    """The shield mark alone — the left square of the horizontal lockup."""
+    image = trim(image)
+    width, height = image.size
+    return trim(image.crop((0, 0, min(height, width), height)))
+
+
+def save(image: Image.Image, name: str, width: int | None = None) -> None:
+    if width:
+        ratio = width / image.width
+        image = image.resize((width, max(1, round(image.height * ratio))), Image.LANCZOS)
+    target = OUT / name
+    image.save(target, lossless=True) if target.suffix == ".webp" else image.save(target)
+    print(f"  {name:28s} {image.width}x{image.height}  {target.stat().st_size // 1024}KB")
+
+
+def main() -> int:
+    if len(sys.argv) < 3:
+        print(__doc__)
+        return 1
+
+    OUT.mkdir(parents=True, exist_ok=True)
+    horizontal = trim(with_alpha(Image.open(sys.argv[1])))
+    stacked = trim(with_alpha(Image.open(sys.argv[2])))
+
+    print("brand assets:")
+    save(horizontal, "logo.webp", 720)
+    save(knockout(horizontal), "logo-light.webp", 720)
+    save(stacked, "logo-stacked.webp", 720)
+    save(knockout(stacked), "logo-stacked-light.webp", 720)
+
+    mark = shield(horizontal)
+    save(mark, "mark.webp", 256)
+    save(mark, "icon-180.png", 180)
+    save(mark, "favicon-32.png", 32)
+
+    # Open Graph card: the stacked lockup centred on brand navy.
+    card = Image.new("RGBA", (1200, 630), (22, 36, 76, 255))
+    light = knockout(stacked)
+    scale = 820 / light.width
+    light = light.resize((820, max(1, round(light.height * scale))), Image.LANCZOS)
+    card.alpha_composite(light, ((1200 - light.width) // 2, (630 - light.height) // 2))
+    save(card.convert("RGB"), "og-default.jpg")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

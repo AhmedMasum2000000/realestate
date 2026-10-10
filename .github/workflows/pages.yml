@@ -1,0 +1,84 @@
+name: Publish pattayahomepro preview
+
+# Rebuilds the site from the committed data/catalog.json and publishes it to
+# GitHub Pages. The source CSV is gitignored and never needed here — the whole
+# point of committing the normalized snapshot is that CI can reproduce the
+# build without it and without network access.
+#
+# One-time setup: repository Settings -> Pages -> Source: "GitHub Actions".
+#
+# This publishes a PREVIEW: links are prefixed with the repository name
+# (project Pages serve at /<repo>/) and robots.txt disallows everything so the
+# preview cannot compete with the production domain in search.
+# To cut over to production once DNS points at Pages, drop both flags from the
+# build step — that restores root-relative links and writes the CNAME.
+
+on:
+  push:
+    branches:
+      - main
+      - claude/domain-setup-automation-9inamq
+    paths:
+      - 'data/catalog.json'
+      - 'data/enrichment.json'
+      - 'src/rep/catalog/**'
+      - 'templates/phpro/**'
+      - 'assets/properties/**'
+      - 'bin/build-site'
+      - 'bin/check-site'
+      - 'bin/check-layout'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never let two deployments race; let an in-flight one finish rather than
+# cancelling it, so Pages is not left half-published.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build site
+        run: bin/build-site public --base "${{ github.event.repository.name }}" --preview
+
+      - name: Verify the built site
+        run: bin/check-site public --base "${{ github.event.repository.name }}"
+
+      - name: Install a browser for the layout check
+        run: pip install playwright && python -m playwright install --with-deps chromium
+
+      - name: Verify the rendered layout
+        env:
+          CHROMIUM_PATH: ""
+        run: bin/check-layout public
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

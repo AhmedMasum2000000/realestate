@@ -1,0 +1,45 @@
+name: Move In Thailand website
+
+on:
+  push:
+    branches: [codex/move-in-thailand-rebuild]
+    paths: ['mit/**', 'tools/mit_deploy.py', '.github/workflows/mit-website.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: move-in-thailand-website
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install site build dependencies
+        run: pip install -r mit/requirements.txt
+      - name: Compile the website
+        run: |
+          python mit/build.py
+          node --check mit/assets/site.js
+          php -l mit/wordpress/mit-experience.php
+      - name: Publish to the existing cPanel WordPress site
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+        run: python tools/mit_deploy.py --release "${GITHUB_SHA::12}-${GITHUB_RUN_ATTEMPT}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: move-in-thailand-release
+          path: |
+            .cache/mit-build/
+            .cache/mit-deploy-report.json
+          include-hidden-files: true
+          retention-days: 14
