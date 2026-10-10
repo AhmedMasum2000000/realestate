@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""Build moveinthailand.com into a static folder.
+
+    bin/build-mit [out-dir] [--preview] [--base /sub-path]
+
+--preview  adds noindex and a Disallow robots.txt, for a public preview
+--base     prefixes root-relative links, for hosting under a sub-path
+"""
+
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.mit.build import ContentError, build  # noqa: E402
+
+
+def main() -> int:
+    args = sys.argv[1:]
+    preview = "--preview" in args
+    base = ""
+    if "--base" in args:
+        base = "/" + args[args.index("--base") + 1].strip("/")
+    positional = [a for a in args if not a.startswith("--") and "/" + a.strip("/") != base]
+    out = Path(positional[0]) if positional else ROOT / "site-mit"
+    try:
+        stats = build(ROOT, out, preview=preview, base=base)
+    except ContentError as exc:
+        print(f"content problems:\n{exc}", file=sys.stderr)
+        return 1
+    print(f"built {stats['pages']} pages, {stats['redirects']} redirects, "
+          f"{stats['homes']} featured homes; {stats['legacy']} old URLs accounted for -> {out}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

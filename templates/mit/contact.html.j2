@@ -1,0 +1,50 @@
+{% extends "base.html.j2" %}
+{%- from "macros.html.j2" import crumbs_nav, section_body, faq_block, wa %}
+{% block content %}
+{{ crumbs_nav(crumbs, page) }}
+<header class="phead">
+  <div class="wrap">
+    <span class="kick">{{ page.kicker }}</span>
+    <h1 class="rv">{{ page.h1 }}</h1>
+    <p class="lead rv rv-1">{{ page.lead|md }}</p>
+  </div>
+</header>
+
+<div class="wrap guide">
+  <div>
+    <form class="lform tool" data-wa-form data-wa="{{ brand.whatsapp }}" style="margin-top:0">
+      <div class="form__row">
+        <div><label for="f-name">Your name</label><input id="f-name" name="name" autocomplete="name" required></div>
+        <div><label for="f-from">Where you live now</label><input id="f-from" name="from" placeholder="Country" autocomplete="country-name"></div>
+      </div>
+      <div class="form__row">
+        <div><label for="f-topic">What you need first</label>
+          <select id="f-topic" name="topic">
+            {%- for t in page.topics %}<option>{{ t }}</option>{% endfor %}
+          </select></div>
+        <div><label for="f-when">When you plan to move</label>
+          <select id="f-when" name="when"><option>Within 3 months</option><option>3 to 6 months</option><option>6 to 12 months</option><option>Just exploring</option></select></div>
+      </div>
+      <div><label for="f-msg">Anything we should know</label><textarea id="f-msg" name="msg" placeholder="Age band, who is moving with you, budget, questions..."></textarea></div>
+      <button class="btn btn--teal" type="submit">Send on WhatsApp</button>
+      <p class="note">This opens WhatsApp with your message ready to send. Nothing is stored on this website. See our <a href="/privacy/">privacy note</a>.</p>
+    </form>
+    <div class="prose" style="margin-top:2.6rem">
+      {%- for s in page.sections %}<section id="{{ s._id }}">{% if s.h2 %}<h2>{{ s.h2 }}</h2>{% endif %}{{ section_body(s) }}</section>{% endfor %}
+      {%- if page.faq %}<section id="faq"><h2>Questions people ask</h2>{{ faq_block(page.faq) }}</section>{% endif %}
+    </div>
+  </div>
+  <aside class="side">
+    <div class="ask">
+      <b>Prefer to talk now?</b>
+      <p>WhatsApp or call {{ brand.phone_display }}. Office hours Monday to Saturday, 9:00 to 18:00 Thailand time (GMT+7).</p>
+      <a class="btn btn--coral" href="{{ wa(brand, 'Hi, I would like a free 15-minute call about moving to Thailand.') }}" rel="noopener">WhatsApp us</a>
+      <a class="btn btn--ghost" href="tel:{{ brand.phone_href }}" style="color:#fff">Call {{ brand.phone_display }}</a>
+    </div>
+    <div class="toc"><b>Our office</b>
+      <p style="margin:0;font-size:.92rem">{{ brand.address_street }}<br>{{ brand.address_locality }}, {{ brand.address_region }} {{ brand.address_postal }}<br>Thailand</p>
+      <p style="margin:.8rem 0 0;font-size:.85rem"><a href="https://www.google.com/maps/search/?api=1&amp;query={{ (brand.address_street ~ ', ' ~ brand.address_locality ~ ', ' ~ brand.address_region)|urlencode }}" rel="noopener" target="_blank" style="color:var(--teal);text-decoration:underline">Open in Google Maps</a></p>
+    </div>
+  </aside>
+</div>
+{% endblock %}

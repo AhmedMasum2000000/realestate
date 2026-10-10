@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Render a sample of pages and assert the layout holds.
 
-    bin/check-layout [site-dir]
+    bin/check-layout [site-dir] [--all]
+
+--all checks every page instead of one per template (used for
+moveinthailand.com, whose pages are fewer and all hand-written).
 
 bin/check-site reads the built files as text, which cannot see a grid track
 blowing past the viewport or an element rendering invisibly. Both have shipped
@@ -103,6 +106,14 @@ def main() -> int:
         return 0
     executable = CHROMIUM if Path(CHROMIUM).exists() else None
 
+    if "--all" in sys.argv:
+        targets = [("/" + str(f.parent.relative_to(out)).strip(".") + "/").replace("//", "/")
+                   for f in sorted(out.rglob("index.html"))]
+        targets = [(t, t.strip("/")[:28] or "home") for t in targets]
+    else:
+        targets = [(path, name) for path, name in PATHS
+                   if path is None or (out / path.strip("/")).is_dir() or path == "/"]
+
     httpd = serve(out)
     port = httpd.server_address[1]
     problems: list[str] = []
@@ -114,8 +125,10 @@ def main() -> int:
                 page = browser.new_page(viewport={"width": width, "height": height})
                 errors: list[str] = []
                 page.on("pageerror", lambda e: errors.append(str(e)))
-                for path, name in PATHS:
+                for path, name in targets:
                     if path is None:
+                        if not (out / "properties").is_dir():
+                            continue
                         page.goto(f"http://127.0.0.1:{port}/properties/", wait_until="load")
                         path = page.eval_on_selector(".pc", "a => a.getAttribute('href')")
                         if not path:

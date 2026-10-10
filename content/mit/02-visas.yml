@@ -1,0 +1,482 @@
+pages:
+
+- path: /visas/
+  template: hub
+  kicker: "Step 1 of 5: choose your visa"
+  title: "Thailand Visa Options for Long Stays (2026): Compare Every Route"
+  description: "Compare every Thailand long-stay visa: DTV, LTR, Thailand Privilege, retirement, marriage, family, business, education, work permits and permanent residence."
+  h1: Every way to live in Thailand, compared
+  short: Visas
+  verified: 2026-10-10
+  lead: "Pick the route you clearly qualify for, not the one a friend used. Each guide below covers who it fits, the money you must show, what it costs, how long it lasts and how to keep it."
+  groups:
+    - title: The four most common long-stay routes
+      intro: "Nine in ten of our clients use one of these."
+      items: [/visas/dtv/, /visas/retirement/, /visas/marriage/, /visas/thailand-privilege/]
+    - title: For higher earners and investors
+      items: [/visas/ltr/, /visas/permanent-residence/]
+    - title: Family, work and study
+      items: [/visas/family/, /visas/business/, /visas/work-permit/, /visas/education/]
+    - title: Short stays and scouting trips
+      items: [/visas/tourist-and-visa-exemption/]
+  faq:
+    - q: Which visa is easiest to get?
+      a: "For under-50s who earn online, usually the DTV. For over-50s with savings, the retirement visa. If paperwork is the problem and budget isn't, Thailand Privilege needs no income or savings proof at all."
+    - q: Can I work on any of these visas?
+      a: "Only with a work permit, which needs a Thai employer or your own properly structured company. The DTV lets you work remotely for clients and employers outside Thailand, but not for Thai businesses."
+    - q: Can my partner and children come too?
+      a: "Yes, on almost every route, usually as dependants on a Non-O visa or the dependant version of your visa. See [family visas](/visas/family/)."
+  next: /tools/visa-finder/
+
+- path: /visas/dtv/
+  kicker: Visa guide
+  title: "DTV Visa Thailand 2026: Requirements, Cost & How to Apply"
+  description: "The Destination Thailand Visa: 5 years, 180 days per entry, for remote workers and soft-power students. Requirements, 500,000 THB savings, fees and steps."
+  h1: "DTV: Thailand's five-year remote-work visa"
+  short: DTV visa
+  card: "5 years, 180 days per entry, for remote workers and Muay Thai, cooking or culture students."
+  verified: 2026-10-10
+  for: Remote workers, freelancers, digital nomads, and students of Thai culture
+  lead: "The Destination Thailand Visa lets you live here for up to 180 days at a time, for five years, while you work for clients or an employer outside Thailand. It is also open to people coming for Muay Thai, Thai cooking, courses or medical treatment."
+  facts:
+    - {v: "10,000 THB", k: Government fee}
+    - {v: 5 years, k: Validity, multiple entry}
+    - {v: 180 days, k: "Per entry, +180 once"}
+    - {v: "500,000 THB", k: Savings to show}
+  sections:
+    - h2: Who the DTV is for
+      list:
+        - "**Remote workers and freelancers** paid by companies or clients outside Thailand. You'll show an employment contract, client contracts or a business registration abroad, plus a portfolio or profile."
+        - "**Soft-power participants**: Muay Thai, Thai cooking, Thai language, seminars, sports events, music and medical treatment. You'll need a letter from the gym, school or hospital."
+        - "**Spouses and children under 20** of a main DTV holder can apply as dependants."
+      note: "The DTV does not allow you to work for a Thai company or serve Thai customers. If that is your plan, you need a [business visa and work permit](/visas/business/)."
+    - h2: The requirements
+      table:
+        head: [What, Detail]
+        rows:
+          - [Age, "20 or over"]
+          - [Money, "500,000 THB or equivalent in your own name, usually shown by 3 to 6 months of bank statements"]
+          - [Purpose evidence, "Remote work: contracts, payslips, company or client details. Soft power: an enrolment or confirmation letter from a Thai provider"]
+          - [Passport, "At least 6 months validity; more is better, since your stays are capped by it"]
+          - [Where to apply, "Thailand's e-Visa system, from outside Thailand, through the embassy covering where you live"]
+      after:
+        - "Embassies apply the rules differently. Some ask for longer statement histories, proof of address in the country you apply from, or a letter explaining your work. We check your file against the specific embassy before you submit."
+    - h2: How long you can stay
+      p:
+        - "Each entry gives you 180 days. You can extend once per entry by another 180 days at a Thai immigration office for 1,900 THB, so a single entry can last up to a year. Leave and come back, and the clock restarts."
+        - "On longer stays you'll still do a [90-day report](/stay-legal/90-day-report/) and your landlord files a [TM30](/stay-legal/tm30/). Keep an eye on tax: since 2024, foreign income brought into Thailand in a year when you are tax-resident (180+ days) can be taxable. Ask a tax adviser about your case."
+    - h2: How to apply, step by step
+      steps:
+        - "Confirm you qualify: income source abroad, or a soft-power letter, plus 500,000 THB in your own account."
+        - "Gather documents: passport scan, photo, 3 to 6 months of statements, contracts or the provider letter, proof of address where you'll apply."
+        - "Apply on Thailand's official e-Visa website and pay the 10,000 THB fee (charged in local currency)."
+        - "Wait for the decision, typically 1 to 3 weeks. Print the approval."
+        - "Fly in, then plan your 90-day reports and the optional 180-day extension."
+    - h2: Common reasons DTV applications fail
+      list:
+        - "Savings topped up just before applying, with no history."
+        - "Contracts that don't show who pays you or that the client is outside Thailand."
+        - "A soft-power letter from a provider that doesn't match the course you describe."
+        - "Applying through an embassy in a country where you are only visiting."
+  faq:
+    - q: Can I apply for a DTV from inside Thailand?
+      a: "Not as a standard route. Applications go through the e-Visa system to an embassy outside Thailand. Many people make a short trip to a nearby country to apply; check that embassy's current rules first."
+    - q: Does the money have to stay in my account?
+      a: "You must show it when you apply. Keep a healthy balance afterwards too: re-entry and extension officers can ask about your means of support."
+    - q: Can I bring my family?
+      a: "Yes. A spouse and children under 20 can apply as dependants. Each dependant needs their own application and fee."
+  sources:
+    - {label: Thai e-Visa official website, url: "https://www.thaievisa.go.th/"}
+    - {label: Royal Thai Embassy information on the DTV, url: "https://budapest.thaiembassy.org/en/publicservice/destination-thailand-visa-dtv"}
+  related: [/visas/ltr/, /visas/education/, /stay-legal/90-day-report/]
+  next: /living/cost-of-living/
+
+- path: /visas/ltr/
+  kicker: Visa guide
+  title: "LTR Visa Thailand 2026: 10-Year Long-Term Resident Visa Guide"
+  description: "Thailand's 10-year LTR visa for wealthy pensioners, global citizens, remote professionals and skilled experts: income rules, benefits, the 50,000 THB fee."
+  h1: "LTR: the 10-year long-term resident visa"
+  short: LTR visa
+  card: "10 years, a digital work permit and one yearly report, for higher earners and wealthy retirees."
+  verified: 2026-10-10
+  for: High earners, wealthy pensioners, investors and specialists
+  lead: "The LTR, run by Thailand's Board of Investment, gives 10 years of residence with perks no other visa has: one address report a year instead of every 90 days, a digital work permit and, for some, a flat 17% income tax."
+  facts:
+    - {v: "50,000 THB", k: Fee for 10 years}
+    - {v: 10 years, k: "Granted 5 + 5"}
+    - {v: 1 a year, k: Address report}
+    - {v: "4", k: Applicant types}
+  sections:
+    - h2: The four ways to qualify
+      table:
+        head: [Type, Who it fits, The core test]
+        rows:
+          - [Wealthy Global Citizen, People with significant wealth, "At least US$1 million in assets and US$500,000 invested in Thailand (bonds, property or a business), plus income of around US$80,000 a year"]
+          - [Wealthy Pensioner, "Retirees aged 50+", "Pension or passive income of US$80,000 a year, or US$40,000 plus US$250,000 invested in Thailand"]
+          - [Work-from-Thailand Professional, Remote employees of established foreign companies, "Income of around US$80,000 a year (lower with a master's degree or other qualifications), from a sizeable overseas employer"]
+          - [Highly-Skilled Professional, Specialists in targeted industries, "Income of around US$80,000 a year, or less with a master's degree or for some research and government roles"]
+      after:
+        - "Every applicant also needs health insurance (or a deposit) at the level the BOI sets. The criteria were eased in January 2025, so thresholds differ from many older articles; we check your figures against the BOI's current list."
+    - h2: What you get
+      list:
+        - "10 years of residence, renewed after the first 5 if you still qualify."
+        - "An annual address report instead of [90-day reports](/stay-legal/90-day-report/)."
+        - "A digital work permit for the job the visa is based on."
+        - "Fast-track lanes at major airports."
+        - "A flat 17% personal income tax rate for Highly-Skilled Professionals."
+        - "Visas for a spouse and children under 20."
+    - h2: How the application works
+      steps:
+        - "Pick your category and gather income, asset and insurance evidence."
+        - "Apply online through the BOI's LTR system, which pre-screens eligibility."
+        - "After BOI endorsement, collect the visa at a Thai embassy or at the One Stop Service Center in Thailand."
+        - "Pay the 50,000 THB fee and register your digital work permit if you will work."
+  faq:
+    - q: Is the LTR better than Thailand Privilege?
+      a: "If you qualify, usually yes: it's cheaper and you can work. Privilege suits people who don't meet the income tests or just want the simplest route. See [Thailand Privilege](/visas/thailand-privilege/)."
+    - q: How long does approval take?
+      a: "The BOI aims for about 20 working days after a complete file, but missing documents add weeks. Allow two months."
+  sources:
+    - {label: "BOI Long-Term Resident Visa portal", url: "https://ltr.boi.go.th/"}
+  related: [/visas/thailand-privilege/, /visas/dtv/, /visas/permanent-residence/]
+  next: /living/cost-of-living/
+
+- path: /visas/thailand-privilege/
+  kicker: Visa guide
+  title: "Thailand Privilege (Elite) Visa 2026: Tiers, Prices & Benefits"
+  description: "Thailand Privilege membership in 2026: Gold, Platinum, Diamond and Reserve tiers, prices from 900,000 THB, what's included, and who it suits best."
+  h1: "Thailand Privilege: pay once, stay for years"
+  short: Thailand Privilege
+  card: "5 to 20 years with no income test and VIP airport help. From 900,000 THB."
+  verified: 2026-10-10
+  for: People who want a long stay without income or savings tests
+  lead: "Thailand Privilege, formerly Thailand Elite, is a government-owned membership. You pay a one-off fee and get a long-stay visa plus airport and concierge services. It needs no income or savings proof, which is why busy people and higher-net-worth families choose it."
+  facts:
+    - {v: "From 900,000 THB", k: Gold, 5 years}
+    - {v: 20 years, k: Longest tier}
+    - {v: None, k: Income test}
+    - {v: Not allowed, k: Working}
+  sections:
+    - h2: The tiers in 2026
+      table:
+        head: [Tier, Fee (THB), Length, Good to know]
+        rows:
+          - [Gold, "900,000", 5 years, The entry tier now that Bronze is closed]
+          - [Platinum, "1,500,000", 10 years, "Family members can be added at a lower price"]
+          - [Diamond, "2,500,000", 15 years, More service points each year]
+          - [Reserve, "5,000,000", 20 years, By invitation]
+      after:
+        - "The cheaper Bronze tier (650,000 THB) was withdrawn at the end of 2025. Prices and promotions change; Thailand Privilege sometimes runs family offers."
+    - h2: What membership includes
+      list:
+        - "A Privilege visa stamped for the length of your membership, with multiple entries."
+        - "Airport assistance and fast track on arrival and departure at major airports."
+        - "Help with [90-day reports](/stay-legal/90-day-report/) and some government paperwork."
+        - "Yearly service points for lounges, limousine transfers, spa or health checks, depending on tier."
+    - h2: Who it suits, and who it doesn't
+      p:
+        - "**It suits** people who travel in and out often, can't easily document income, or value time over money. It's also popular with families who want every member on the same long visa."
+        - "**It doesn't suit** anyone who needs to work in Thailand: membership gives no work rights. If you have high income, compare the [LTR](/visas/ltr/), which is far cheaper for 10 years."
+    - h2: How to apply
+      steps:
+        - "Choose the tier and apply with a passport copy and photo. A background check follows."
+        - "On approval, pay the membership fee."
+        - "Receive your e-visa or have it stamped on arrival, depending on where you are."
+  faq:
+    - q: Does Thailand Privilege let me buy property?
+      a: "It doesn't change ownership law. As a foreigner you can own a condo unit; land rules are the same for everyone. See [what foreigners can own](/homes/foreign-ownership/)."
+    - q: Is the fee refundable?
+      a: "No. Treat it as a cost, not an investment, and compare it with the alternatives first."
+  sources:
+    - {label: Thailand Privilege Card Co. (official), url: "https://www.thailandprivilege.co.th/"}
+  related: [/visas/ltr/, /visas/retirement/, /stay-legal/re-entry-permit/]
+  next: /living/cost-of-living/
+
+- path: /visas/retirement/
+  kicker: Visa guide
+  title: "Thailand Retirement Visa 2026: 800,000 THB Rule, Renewal & Steps"
+  description: "Retire in Thailand at 50+: the Non-O retirement visa and yearly extension, the 800,000 THB or 65,000 THB a month rule, O-A insurance, and how renewals work."
+  h1: The Thailand retirement visa
+  short: Retirement visa
+  card: "Age 50+? 800,000 THB in a Thai bank, or 65,000 THB a month, renewed every year."
+  verified: 2026-10-10
+  for: People aged 50 and over
+  lead: "Thailand's retirement route is a non-immigrant visa followed by yearly extensions at your local immigration office. Thousands of retirees renew every year in Pattaya alone. It's simple once you understand the money rule, and the dates."
+  facts:
+    - {v: "50+", k: Minimum age}
+    - {v: "800,000 THB", k: "Or 65,000 THB/month"}
+    - {v: "1,900 THB", k: Yearly extension fee}
+    - {v: 1 year, k: Each extension}
+  sections:
+    - h2: The money rule
+      p:
+        - "You must show one of these, every year:"
+      list:
+        - "**800,000 THB in a Thai bank account** in your name. It must be there at least 2 months before you apply, and stay at that level for 3 months after; for the rest of the year it must not drop below 400,000 THB."
+        - "**Monthly income of at least 65,000 THB**, shown with an embassy letter or by transfers from abroad into your Thai account."
+        - "**A combination** of income and savings adding up to 800,000 THB a year."
+      warn: "Immigration checks the bank book page by page. Money parked for a weekend, or a balance that dips at the wrong time, is the most common reason we see retirement extensions refused."
+    - h2: Non-O or O-A?
+      table:
+        head: ["", Non-O (retirement), Non-O-A]
+        rows:
+          - [Where you start, "Often converted inside Thailand at immigration, or issued abroad", "Applied for at a Thai embassy in your home country"]
+          - [Health insurance, Not required for the visa itself, "Required, at the level the embassy sets (commonly around US$100,000 cover)"]
+          - [Extensions, "Yearly, with the money rule", "Yearly, money rule plus continuing insurance"]
+      after:
+        - "Most of our Pattaya clients enter, then convert to a Non-O at immigration once their Thai account is in place. Whether you can convert depends on how you entered, so check before you fly."
+    - h2: Renewing every year
+      steps:
+        - "Two to three months before expiry: make sure the bank balance (or income transfers) meets the rule."
+        - "Up to 45 days before expiry: get a bank letter dated the same day you apply, and update your bank book."
+        - "Apply at immigration with passport, TM.7 form, photo, bank letter and book, your [TM30](/stay-legal/tm30/) receipt and a map to your home."
+        - "Pay 1,900 THB. You'll usually get a 'under consideration' stamp, then the full year about a month later."
+        - "Leaving Thailand? Get a [re-entry permit](/stay-legal/re-entry-permit/) first, or the extension is cancelled."
+  faq:
+    - q: Can I work on a retirement visa?
+      a: "No. Volunteering is grey too. If you want to work, look at the [business visa and work permit](/visas/business/)."
+    - q: Can my younger partner join me?
+      a: "Yes, as a dependant on a Non-O, provided you're married. Unmarried partners need their own visa."
+    - q: Is there a 10-year retirement visa?
+      a: "Citizens of a few countries can apply for the Non-O-X, which has higher money requirements. For most people, the [LTR Wealthy Pensioner](/visas/ltr/) is the long option."
+  sources:
+    - {label: Thai Immigration Bureau, url: "https://www.immigration.go.th/"}
+    - {label: Thai e-Visa official website, url: "https://www.thaievisa.go.th/"}
+  related: [/stay-legal/extension-of-stay/, /living/bank-account/, /living/health-insurance/]
+  next: /living/pattaya/
+
+- path: /visas/marriage/
+  kicker: Visa guide
+  title: "Thai Marriage Visa 2026: 400,000 THB Rule, Renewal & Documents"
+  description: "Married to a Thai national? The Non-O marriage visa and yearly extension: the 400,000 THB or 40,000 THB a month rule, documents, the home visit and renewals."
+  h1: The Thai marriage visa
+  short: Marriage visa
+  card: "Married to a Thai? 400,000 THB in the bank or 40,000 THB a month, renewed yearly."
+  verified: 2026-10-10
+  for: Spouses of Thai nationals
+  lead: "If you're legally married to a Thai national, you can live here on a Non-O visa renewed every year. The money test is half the retirement figure, and with a work permit you can also work."
+  facts:
+    - {v: "400,000 THB", k: "Or 40,000 THB/month"}
+    - {v: "1,900 THB", k: Yearly extension fee}
+    - {v: Yes, k: "Work, with a permit"}
+    - {v: 1 year, k: Each extension}
+  sections:
+    - h2: What you need
+      list:
+        - "A marriage registered at a Thai district office (amphur), or a foreign marriage registered in Thailand. The certificate is called Kor Ror 2 or 3 (and Kor Ror 22 for foreign marriages)."
+        - "**400,000 THB** in a Thai bank account in your name for at least 2 months, or **40,000 THB a month** in income."
+        - "Your spouse's ID card and house registration book (tabien baan)."
+        - "Photos of you together at home, and sometimes a simple map."
+    - h2: The yearly extension
+      steps:
+        - "Apply at your immigration office with your spouse. Both of you usually need to attend."
+        - "Bring the bank letter and book, marriage certificate, your spouse's ID and house book, photos and the TM.7 form."
+        - "Expect a 30-day 'under consideration' stamp and a home visit by an officer during that period."
+        - "Return to collect the full year's extension."
+      note: "Officers want to see a genuine shared life: clothes in the wardrobe, wedding photos, neighbours who know you. Paper marriages are prosecuted."
+  faq:
+    - q: Do we need to live together?
+      a: "Yes. The extension is based on supporting your family in Thailand, and the home visit checks it."
+    - q: What if we separate?
+      a: "The extension ends with the marriage. Talk to us early; you may qualify for another route such as [retirement](/visas/retirement/)."
+  sources:
+    - {label: Thai Immigration Bureau, url: "https://www.immigration.go.th/"}
+  related: [/visas/family/, /living/wills-and-documents/, /stay-legal/extension-of-stay/]
+  next: /living/pattaya/
+
+- path: /visas/family/
+  kicker: Visa guide
+  title: "Thailand Family Visas: Thai Child, Dependent & Guardian Visa Guide"
+  description: "Non-O visas for parents of Thai children, dependants of work permit or LTR holders, and guardians of students in Thailand. Who qualifies, money rules and renewals."
+  h1: "Family visas: Thai children, dependants and guardians"
+  short: Family visas
+  card: "For parents of Thai children, dependants of visa holders and parents of students."
+  verified: 2026-10-10
+  for: Parents, spouses and children joining someone in Thailand
+  lead: "Thailand has a family visa for almost every situation. Each one is a Non-O, renewed yearly at immigration, and each one is tied to the person you are joining."
+  sections:
+    - h2: The three family routes
+      table:
+        head: [Route, Who it's for, Money rule (usual)]
+        rows:
+          - ["Thai child visa", "Parent of a child with Thai nationality, who supports the child in Thailand", "400,000 THB in a Thai bank, or 40,000 THB a month"]
+          - ["Dependant visa", "Spouse or child under 20 of someone working here on a work permit, or of an LTR or DTV holder", "Usually covered by the main holder's status; proof of the relationship is the key document"]
+          - ["Guardian visa", "Parent of a child studying at a Thai school on an education visa", "Commonly 500,000 THB per child in a Thai bank"]
+    - h2: Documents you'll be asked for
+      list:
+        - "Birth certificate showing the parent, translated and legalised if issued abroad."
+        - "Marriage certificate for spouses, registered in Thailand if possible."
+        - "The main holder's passport, visa and work permit or school letter."
+        - "Bank letter and book for the money rule, and photos of family life."
+      note: "Foreign certificates usually need translation and legalisation before immigration accepts them. See [documents and legal help](/living/wills-and-documents/)."
+    - h2: Renewal and travel
+      p:
+        - "Family extensions run for one year and are renewed at your local immigration office, like the [marriage visa](/visas/marriage/). The dependant's extension usually can't run longer than the main holder's. Get a [re-entry permit](/stay-legal/re-entry-permit/) before any trip abroad."
+  faq:
+    - q: Can a dependant work?
+      a: "Only with their own work permit. Some LTR dependants can apply for one more easily; ask us about your case."
+    - q: My child is Thai but I'm not married to their mother. Can I still get a visa?
+      a: "Often yes, if you're named on the birth certificate and you support the child. Expect closer questioning and a home visit."
+  related: [/visas/marriage/, /visas/education/, /stay-legal/extension-of-stay/]
+  next: /living/pattaya/
+
+- path: /visas/education/
+  kicker: Visa guide
+  title: "Thailand Education Visa (ED) 2026: Language, Muay Thai & University"
+  description: "The Thai education visa for language schools, universities and licensed training: who qualifies, attendance rules, renewals, and when the DTV is the better choice."
+  h1: "Education visa: study, language and training"
+  short: Education visa
+  card: "For enrolled students. Often the DTV is better for Muay Thai and cooking courses."
+  verified: 2026-10-10
+  for: Students at universities, licensed language schools and training centres
+  lead: "The Non-ED visa covers study at a licensed Thai institution. It's issued for the school term and extended in steps, as long as you attend. It is not a cheap long stay: immigration tests students, and schools must report attendance."
+  sections:
+    - h2: Who qualifies
+      list:
+        - "Students enrolled full time at a Thai university or international school."
+        - "Students at a Ministry of Education licensed Thai language school, for courses of a set number of hours."
+        - "Trainees at some licensed Muay Thai and vocational schools."
+    - h2: How it works
+      steps:
+        - "Enrol and pay the school. They send you an acceptance letter and the documents for the embassy."
+        - "Apply for the Non-ED through the e-Visa system. It is usually issued for 90 days."
+        - "Extend at immigration with a school letter, normally every 90 days or yearly depending on the course."
+        - "Attend. Officers may ask you to speak or read Thai at the extension."
+    - h2: DTV or education visa?
+      p:
+        - "For Muay Thai, Thai cooking and short courses, the [DTV](/visas/dtv/) is usually better if you have 500,000 THB in savings: five years and 180 days per entry instead of 90-day steps. The education visa makes sense for full-time degrees, children at school, and people without the DTV savings."
+  faq:
+    - q: Can I work part time on an education visa?
+      a: "No, not without a work permit."
+    - q: Can my parent stay with me?
+      a: "A parent of a school-age student can apply for a [guardian visa](/visas/family/)."
+  related: [/visas/dtv/, /visas/family/, /stay-legal/90-day-report/]
+  next: /living/pattaya/
+
+- path: /visas/business/
+  kicker: Visa guide
+  title: "Thailand Business Visa (Non-B) 2026: Requirements & Renewal"
+  description: "The Non-B business visa for employees and company owners: what your Thai company needs (capital, Thai staff, salary), the work permit link and yearly renewals."
+  h1: "Business visa (Non-B): working in Thailand"
+  short: Business visa
+  card: "For employees and company owners. Comes with a work permit and yearly renewals."
+  verified: 2026-10-10
+  for: People employed by, or running, a Thai company
+  lead: "If you will work in Thailand, for a Thai employer or your own company, you need a Non-B visa and a [work permit](/visas/work-permit/). The visa is about you; most of the requirements are about the company."
+  facts:
+    - {v: "2M THB", k: "Paid-up capital per foreigner (usual)"}
+    - {v: "4 Thai staff", k: "Per foreign employee (usual)"}
+    - {v: "1,900 THB", k: Yearly extension}
+  sections:
+    - h2: What the company must have
+      list:
+        - "**Registered capital of 2 million THB** for each foreign employee, fully paid up (some BOI-promoted and other companies have lower thresholds)."
+        - "**Four Thai employees** on the social security system for each work permit."
+        - "**A salary** for you at or above the minimum immigration expects for your nationality (often 50,000 THB a month for Western nationals)."
+        - "Tax filings up to date, and an office the company actually uses."
+    - h2: Getting the visa and permit
+      steps:
+        - "The company prepares its documents: registration, shareholder list, tax and social security filings, financial statements."
+        - "Apply for the Non-B through the e-Visa system or a Thai embassy, usually issued for 90 days."
+        - "Once in Thailand, apply for the work permit at the Department of Employment."
+        - "Extend your stay for a year at immigration, with the work permit and the company's documents."
+    - h2: Renewing each year
+      p:
+        - "Renewals repeat the company checks: capital, Thai staff, salary and tax. If the company falls short, the extension is refused, so we review the company's numbers a month before your date. See [extension of stay](/stay-legal/extension-of-stay/)."
+  faq:
+    - q: Can I set up my own company and give myself a work permit?
+      a: "Yes, if the company is properly structured and meets the capital and Thai staff rules. Read [company setup](/business/company-setup/) and [foreign ownership rules](/business/foreign-ownership/) first."
+    - q: Is there an investment visa?
+      a: "Investment can support certain routes, such as the [LTR Wealthy Global Citizen](/visas/ltr/) or [Thailand Privilege](/visas/thailand-privilege/). Older condo-investment visas exist on paper but are rarely the best option now."
+  related: [/visas/work-permit/, /business/company-setup/, /business/boi/]
+  next: /business/
+
+- path: /visas/work-permit/
+  kicker: Work guide
+  title: "Thailand Work Permit 2026: Requirements, Renewal & Digital Permit"
+  description: "How Thai work permits work in 2026: company rules, documents, the digital work permit, renewals, job changes and what happens if you work without one."
+  h1: Thai work permits explained
+  short: Work permit
+  card: "Required for any work in Thailand. How to get one, renew it and change jobs."
+  verified: 2026-10-10
+  for: Employees, company directors and anyone doing paid work in Thailand
+  lead: "Any work in Thailand needs a work permit, including running your own company. The permit is issued by the Department of Employment and names your employer, your job and where you do it."
+  sections:
+    - h2: What counts as work
+      p:
+        - "Thai law defines work broadly: any physical or mental effort, paid or not. Remote work for clients abroad on a [DTV](/visas/dtv/) is allowed by that visa. Working for a Thai business, or serving Thai customers, needs a permit."
+      warn: "Working without a permit can mean a fine, deportation and a ban, for you and a fine for the employer. Some jobs are reserved for Thai nationals altogether."
+    - h2: How to get a work permit
+      steps:
+        - "Enter on a [Non-B visa](/visas/business/) (or another visa that allows a permit, such as some LTR and family visas)."
+        - "The employer files the application with company documents: registration, shareholder list, VAT and social security records, financial statements, an office map and photos."
+        - "You supply your passport, degree certificates, CV, a medical certificate and photos."
+        - "The permit is issued, increasingly as a digital work permit you can show on your phone."
+    - h2: Renewals and changes
+      list:
+        - "Renew before expiry; the permit and your extension of stay usually run on the same yearly cycle."
+        - "Changing employer means a new permit and usually a new visa process. Cancel the old permit when you leave."
+        - "Adding a new job title or work location needs the permit amended first."
+  related: [/visas/business/, /business/company-setup/, /business/foreign-ownership/]
+  next: /business/
+
+- path: /visas/tourist-and-visa-exemption/
+  kicker: Short stays
+  title: "Thailand Visa Exemption & Tourist Visa 2026: Stays, Extensions, Border Runs"
+  description: "Short stays in Thailand: visa-exempt entry, the tourist visa, 30-day extensions, why border runs are now risky, and when to switch to a long-stay visa."
+  h1: "Visa exemption, tourist visas and border runs"
+  short: Short stays
+  card: "Scouting trip? How long you can stay, how to extend once, and why border runs are risky."
+  verified: 2026-10-10
+  for: Scouting trips before a move, and short stays
+  lead: "Most visitors arrive visa-free. That's perfect for a scouting trip to view areas and homes. It is not a way to live here: repeated entries get noticed, and from 2026 officers are refusing people who look like they're living on tourist stays."
+  sections:
+    - h2: Visa-exempt entry
+      p:
+        - "Citizens of many countries can enter without a visa. Since July 2024 the standard exempt stay for most Western nationalities has been 60 days, and the government has discussed shortening it. Check the current figure for your passport before you book."
+        - "You can usually extend a visa-exempt stay once, by 30 days, at an immigration office for 1,900 THB."
+    - h2: Tourist visa
+      p:
+        - "A single-entry tourist visa (TR) gives 60 days, plus one 30-day extension. It's useful if your nationality gets a short exempt stay, or if you want certainty before flying."
+    - h2: Border runs and visa runs
+      p:
+        - "A border run means leaving Thailand briefly to get a new entry stamp. Land-border entries for visa-exempt travellers are limited each year, and airport officers can refuse entry to people who have spent most of the past year here on exempt stays. They may ask for onward tickets, accommodation and money."
+      warn: "If you're living here, a border run is a gamble with your plans. A long-stay visa such as the [DTV](/visas/dtv/) costs less than a few runs and removes the risk."
+    - h2: Turning a scouting trip into a move
+      steps:
+        - "Use the trip to choose an area and view homes. See [living in Pattaya](/living/pattaya/)."
+        - "Check whether your target visa can be converted in Thailand or must be applied for abroad."
+        - "Leave before your stay ends. Even one day over is an [overstay](/stay-legal/overstay/)."
+  related: [/visas/dtv/, /stay-legal/overstay/, /stay-legal/extension-of-stay/]
+  next: /visas/
+
+- path: /visas/permanent-residence/
+  kicker: Visa guide
+  title: "Thailand Permanent Residence 2026: Eligibility, Quota & Fees"
+  description: "Permanent residence in Thailand: who can apply after 3 years of extensions, the yearly quota, application window, fees, and what PR changes for you."
+  h1: Permanent residence in Thailand
+  short: Permanent residence
+  card: "After 3 years of yearly extensions. A small yearly quota, a long process, real benefits."
+  verified: 2026-10-10
+  for: Long-term residents with at least 3 years of yearly extensions
+  lead: "Permanent residence ends visa renewals for good. It's harder to get than most visas: a small quota per nationality, a once-a-year application window, and a process that can take a year or more."
+  sections:
+    - h2: Who can apply
+      list:
+        - "You've held a non-immigrant visa with yearly extensions for at least 3 consecutive years."
+        - "You fit a category: employment (with a qualifying salary and tax history), investment in Thailand, family (married to a Thai, or parent of a Thai child), or expert."
+        - "Retirement extensions do not count towards permanent residence."
+    - h2: The process and costs
+      steps:
+        - "Apply in the yearly window, usually at the end of the year, at Immigration Bureau headquarters in Bangkok."
+        - "Pay the application fee (7,600 THB at the last published rate)."
+        - "Attend an interview, which includes basic Thai."
+        - "On approval, pay the approval fee (191,400 THB, or about half for spouses and children of Thai nationals, at the last published rate)."
+      note: "Fees and the application window are set each year. We confirm the current figures before you file."
+    - h2: What PR changes
+      list:
+        - "No more yearly extensions or 90-day reports."
+        - "You still need a re-entry permit for travel, and an endorsement of your residence book."
+        - "It can lead to Thai citizenship after several more years."
+  related: [/visas/ltr/, /stay-legal/extension-of-stay/, /visas/marriage/]
+  next: /stay-legal/

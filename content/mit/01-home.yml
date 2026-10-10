@@ -1,0 +1,114 @@
+pages:
+
+- path: /
+  template: home
+  title: "Move to Thailand | Visas, Homes & Business, One Desk | Move In Thailand"
+  description: "Move to Thailand with one team: the right visa, a home in Pattaya or beyond, a business set up the legal way, and the paperwork after you land. Fixed fees."
+  h1: Move to Thailand with one desk
+  short: Home
+  hero:
+    kicker: "Visa · Home · Business · Life after landing"
+    say: One team in Pattaya for the whole move. You get a fixed fee in writing before you pay, and a reply within 15 minutes in office hours.
+    line1: Move to Thailand
+    line2: with one desk
+    alt: A pool villa near Pattaya on a sunny day
+    facts:
+      - {v: "8", k: Visa routes explained}
+      - {v: "1", k: Case manager, start to finish}
+      - {v: "15 min", k: Typical reply time}
+      - {v: Fixed, k: Fees, quoted in writing}
+  segments_intro: Different lives need different routes. Start with the one closest to yours and we'll show you the visa, the area and the costs that go with it.
+  segments:
+    - {title: Retire in the sun, text: "Age 50 or over? A yearly retirement visa, or a 10-year LTR if your pension is high.", href: /visas/retirement/, cta: Retirement routes}
+    - {title: Work from Thailand, text: "Earn from clients or a company abroad. The DTV gives you 5 years, 180 days at a time.", href: /visas/dtv/, cta: Remote-work visas}
+    - {title: Join your family, text: "Married to a Thai, or parent of a Thai child? There's a visa built for you.", href: /visas/marriage/, cta: Family visas}
+    - {title: Build a business, text: "Start a company, buy a business or invest, using structures that hold up in 2026.", href: /business/, cta: Business and investment}
+  journey_intro: Most people get stuck because they try the steps out of order. Here is the order that works, and a guide for every step.
+  visa_table:
+    - {name: DTV, href: /visas/dtv/, who: Remote workers and soft-power students, stay: "5 years, 180 days per entry", need: "500,000 THB in savings"}
+    - {name: LTR, href: /visas/ltr/, who: "High earners, wealthy pensioners, investors", stay: "10 years", need: "Around US$80,000 a year in income, or substantial assets"}
+    - {name: Thailand Privilege, href: /visas/thailand-privilege/, who: Anyone happy to pay a membership, stay: "5 to 20 years", need: "From 900,000 THB, paid once"}
+    - {name: Retirement, href: /visas/retirement/, who: Age 50 and over, stay: "1 year, renewable", need: "800,000 THB in a Thai bank, or 65,000 THB a month"}
+    - {name: Marriage, href: /visas/marriage/, who: Spouses of Thai nationals, stay: "1 year, renewable", need: "400,000 THB, or 40,000 THB a month"}
+    - {name: Business and work permit, href: /visas/business/, who: Employees and company owners, stay: "1 year, renewable", need: "A Thai employer that meets capital and staff rules"}
+    - {name: Education, href: /visas/education/, who: Students at a licensed school, stay: "Course length", need: "Enrolment and attendance"}
+    - {name: Visa exemption, href: /visas/tourist-and-visa-exemption/, who: Scouting trips, stay: "Depends on nationality", need: "A return or onward ticket"}
+  promises:
+    - {title: One desk, text: "One named case manager from the first question to the keys, the company or the extension stamp."}
+    - {title: Fixed fees, text: "Government fees and our fee on separate lines, quoted in writing before you pay anything."}
+    - {title: Safe by design, text: "No nominee shareholders, no promised approvals. Licensed lawyers handle every legal step."}
+    - {title: On the ground, text: "An office in Pattaya, real listings and people who answer WhatsApp in your time zone's evening."}
+  after_landing: [/stay-legal/90-day-report/, /stay-legal/extension-of-stay/, /stay-legal/tm30/, /living/driving-licence/, /living/bank-account/, /stay-legal/re-entry-permit/]
+  faq:
+    - q: Can you guarantee my visa?
+      a: "No one honestly can. Embassies and immigration offices decide. What we do is pick the route you clearly qualify for, check every document against the current rules, and tell you upfront if something is weak."
+    - q: How much does your help cost?
+      a: "The first 15-minute call is free. After it you get a written quote with the government fee and our fee on separate lines. See [fees](/fees/) for how quotes are built."
+    - q: I don't live in Pattaya. Can you still help?
+      a: "Yes. Visa applications are filed online or at an embassy wherever you are, and we work by WhatsApp and video. Our property listings and on-the-ground help are strongest in Pattaya and the Eastern Seaboard."
+    - q: Where should I start?
+      a: "Take the [Visa Finder](/tools/visa-finder/). It takes two minutes and gives you a shortlist. Then read [Start here](/start-here/) for the whole move in order."
+
+- path: /start-here/
+  template: guide
+  kicker: The whole move, in order
+  title: "How to Move to Thailand: Step-by-Step Guide (2026) | Move In Thailand"
+  description: "The complete order for moving to Thailand: choose a visa, budget, pick an area, find a home, land and set up, then stay legal. Timelines and checklists."
+  h1: How to move to Thailand, step by step
+  short: Start here
+  verified: 2026-10-10
+  for: Anyone planning a move in the next 3 to 12 months
+  lead: "Moving here is easier than it looks, as long as you do things in the right order. The visa decides everything else, so it comes first. Here is the sequence, with a guide for every step."
+  facts:
+    - {v: 3-6 months, k: Typical planning time}
+    - {v: "5", k: Steps, in order}
+    - {v: 1st, k: "Decision: your visa"}
+  sections:
+    - h2: "Step 1: choose your visa (3 to 6 months before)"
+      toc: Choose your visa
+      p:
+        - "Your visa sets how long you can stay, whether you can work, how much money you need to show, and what reporting you face. Settle it before you sign a lease or ship anything."
+        - "Most people fit one of four routes: the [DTV](/visas/dtv/) for remote workers, the [retirement visa](/visas/retirement/) for people 50 and over, the [marriage visa](/visas/marriage/) for spouses of Thai nationals, or [Thailand Privilege](/visas/thailand-privilege/) if you'd rather pay to skip the paperwork. Higher earners should also check the [LTR](/visas/ltr/)."
+      note: "Not sure? The [Visa Finder](/tools/visa-finder/) gives you a shortlist in two minutes."
+    - h2: "Step 2: budget and pick your area (2 to 4 months before)"
+      toc: Budget and area
+      p:
+        - "Thailand is affordable, but Bangkok, Phuket and Pattaya cost very different amounts. Use the [cost calculator](/tools/cost-calculator/) to see a monthly figure for your household, then read the [cost of living guide](/living/cost-of-living/)."
+        - "Choose the area for daily life, not holidays. Think about hospitals, schools, noise, flooding and how you'll get around. Our [Pattaya neighbourhood guide](/living/pattaya/) compares the main areas side by side."
+    - h2: "Step 3: arrange a home (1 to 2 months before)"
+      toc: Arrange a home
+      p:
+        - "Rent first, for 6 to 12 months. You'll learn the area, the building and the neighbours before committing. Our [renting guide](/homes/rent-in-pattaya/) explains deposits, contracts and what is normal."
+        - "If you plan to buy, learn [what foreigners can own](/homes/foreign-ownership/) now, so you don't fall for a structure that isn't legal."
+    - h2: "Step 4: pack the paperwork (1 month before)"
+      toc: Pack the paperwork
+      list:
+        - "Passport with at least 18 months left and several blank pages."
+        - "Your visa approval, printed, plus the documents used to get it."
+        - "Bank statements for the last 3 to 6 months, and pension or salary proof."
+        - "Marriage and birth certificates, translated and legalised if family members are joining you. See [documents and legal help](/living/wills-and-documents/)."
+        - "Your driving licence and an International Driving Permit, if you plan to convert to a Thai licence."
+        - "Health records and prescriptions, plus [health insurance](/living/health-insurance/) that starts the day you land."
+    - h2: "Step 5: land and set up (first 30 days)"
+      toc: Land and set up
+      steps:
+        - "Day 1: get a Thai SIM at the airport. Bring your passport."
+        - "Within 24 hours: your landlord files your [TM30 address report](/stay-legal/tm30/). Ask for the receipt."
+        - "Week 1 to 2: open a [Thai bank account](/living/bank-account/). Most retirement and marriage visas need one."
+        - "Week 2 to 4: get a [residence certificate](/stay-legal/residence-certificate/), then convert your [driving licence](/living/driving-licence/)."
+      after:
+        - "The [first-month checklist](/living/moving-checklist/) lists every task, with the office and the documents for each one."
+    - h2: "Step 6: stay legal, then build your life"
+      toc: Stay legal
+      p:
+        - "Long stays come with routine paperwork: a [90-day report](/stay-legal/90-day-report/), a yearly [extension of stay](/stay-legal/extension-of-stay/), and a [re-entry permit](/stay-legal/re-entry-permit/) whenever you travel. Miss one and the fines start; miss an extension and you are [overstaying](/stay-legal/overstay/)."
+        - "Once you're settled, you might [buy a condo](/homes/buy-condo-thailand/), [set up a company](/business/company-setup/) or [invest](/invest/). We'll handle the reminders for you through [Residency Care](/residency-care/) if you'd rather not track the dates."
+  faq:
+    - q: How long does the whole move take?
+      a: "Three to six months is comfortable. Visa approvals typically take 1 to 6 weeks depending on the route and the embassy, and good rentals are usually booked 4 to 8 weeks ahead."
+    - q: Can I come on a visa exemption and sort things out later?
+      a: "Sometimes. Several long-stay visas can be applied for from inside Thailand, but not all, and the rules depend on your nationality. Check first in the [visa exemption guide](/visas/tourist-and-visa-exemption/)."
+    - q: Do I need to speak Thai?
+      a: "No. Pattaya, Bangkok, Phuket and Chiang Mai run comfortably in English for daily life. Government offices are easier with a Thai speaker, which is part of what we do."
+  related: [/tools/visa-finder/, /living/cost-of-living/, /living/moving-checklist/]
+  next: /visas/

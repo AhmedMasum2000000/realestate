@@ -1,0 +1,91 @@
+# moveinthailand.com: brand, navigation and the redirects that keep old URLs alive.
+
+brand:
+  name: Move In Thailand
+  tagline: One desk for your visa, your home and your business in Thailand
+  phone_display: "+66 95 348 3725"
+  phone_href: "+66953483725"
+  whatsapp: "66953483725"
+  address_street: "21/78 Moo.5 Nongprue"
+  address_locality: Banglamung
+  address_region: Chonburi
+  address_postal: "20180"
+
+palette:
+  teal: "#0F4C5C"
+  teal_2: "#13637A"
+  teal_3: "#0A3540"
+  coral: "#EE7B61"
+  coral_2: "#F39A85"
+  coral_3: "#B94A33"
+  ink: "#10222A"
+  ink_2: "#3B5058"
+  muted: "#64777E"
+  paper: "#FFFFFF"
+  paper_2: "#F6F1E8"
+  paper_3: "#EDE4D3"
+  rule: "#DDD3C2"
+
+fonts:
+  display_stack: "'Archivo', 'Helvetica Neue', Arial, sans-serif"
+  body_stack: "'Rubik', system-ui, -apple-system, sans-serif"
+
+hero_image: assets/properties/CP3253/hero.webp
+og_image: hero.webp
+
+menu:
+  - {label: Start here, href: /start-here/}
+  - {label: Visas, href: /visas/}
+  - {label: Stay legal, href: /stay-legal/}
+  - {label: Homes, href: /homes/}
+  - {label: Business & invest, href: /business/}
+  - {label: Living here, href: /living/}
+  - {label: Tools, href: /tools/}
+  - {label: Fees & services, href: /services/}
+  - {label: Contact, href: /contact/}
+
+journey:
+  - title: Choose your visa
+    text: Match your age, income and reason for moving to the route that fits, before you book a flight.
+    href: /visas/
+    cta: Compare routes
+  - title: Pick your area
+    text: Beach, city or quiet village. Know the real monthly cost of each before you choose.
+    href: /living/
+    cta: Explore areas
+  - title: Find your home
+    text: Rent first, buy when you're sure. See what foreigners can legally own.
+    href: /homes/
+    cta: Homes and rules
+  - title: Land and set up
+    text: Bank account, SIM, driving licence and insurance in your first weeks.
+    href: /living/moving-checklist/
+    cta: First-month checklist
+  - title: Stay legal and grow
+    text: 90-day reports, yearly extensions, and a business or investment when you're ready.
+    href: /stay-legal/
+    cta: Stay legal
+
+footer:
+  - title: Visas
+    links: [/visas/dtv/, /visas/ltr/, /visas/thailand-privilege/, /visas/retirement/, /visas/marriage/, /visas/business/]
+  - title: After you arrive
+    links: [/stay-legal/90-day-report/, /stay-legal/extension-of-stay/, /stay-legal/tm30/, /living/driving-licence/, /living/bank-account/, /residency-care/]
+  - title: Homes & business
+    links: [/homes/rent-in-pattaya/, /homes/buy-condo-thailand/, /homes/foreign-ownership/, /business/company-setup/, /business/buy-a-business/, /invest/]
+  - title: Company
+    links: [/start-here/, /services/, /fees/, /about/, /faq/, /contact/]
+
+# Old WordPress pages that are not carried over, and where their visitors go.
+# The template's placeholder pages (made-up reviews, invented success rates,
+# old price list) are retired, not migrated.
+redirects:
+  /home/: /
+  /sample-page/: /
+  /gallery/: /
+  /reviews/: /about/
+  /our-mission/: /about/
+  /pricing/: /fees/
+  /contact-2/: /contact/
+  /services-2/: /services/
+  /about-2/: /about/

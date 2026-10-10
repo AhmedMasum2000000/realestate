@@ -1,0 +1,187 @@
+pages:
+
+- path: /business/
+  template: hub
+  kicker: Business and investment
+  title: "Start or Buy a Business in Thailand as a Foreigner (2026 Guide)"
+  description: "Start, buy or invest in a Thai business as a foreigner: company setup, ownership limits, BOI promotion, the Treaty of Amity, work permits and due diligence."
+  h1: "Business in Thailand, built to last"
+  short: Business & invest
+  verified: 2026-10-10
+  lead: "Thailand welcomes foreign business, within clear limits. The companies that last are set up honestly from day one. Since January 2026 the shortcuts, Thai nominee shareholders above all, are being actively hunted down."
+  groups:
+    - title: Setting up
+      items: [/business/foreign-ownership/, /business/company-setup/, /business/boi/, /visas/work-permit/]
+    - title: Buying and investing
+      items: [/business/buy-a-business/, /invest/]
+  sections:
+    - h2: Where to start
+      steps:
+        - "Describe the business in one sentence: what you sell, to whom, and whether customers are in Thailand."
+        - "Check whether that activity is restricted for foreigners: [foreign ownership rules](/business/foreign-ownership/)."
+        - "Choose the structure: Thai-majority company with real Thai partners, BOI promotion, a Foreign Business Licence, or the US Treaty of Amity."
+        - "Register, open the bank account, and get your [work permit](/visas/work-permit/)."
+  next: /business/foreign-ownership/
+
+- path: /business/foreign-ownership/
+  kicker: Business guide
+  title: "Foreign Business Ownership in Thailand 2026: 49% Rule, BOI, Treaty of Amity"
+  description: "How much of a Thai company a foreigner can own: Foreign Business Act lists, the 49% rule, BOI promotion, business licences, the Treaty of Amity and nominee risks."
+  h1: How much of a Thai business can you own?
+  short: Foreign ownership rules
+  card: "The 49% rule, the four lawful ways past it, and why nominees are now a serious risk."
+  verified: 2026-10-10
+  for: Founders, investors and buyers of Thai businesses
+  lead: "The Foreign Business Act reserves many activities for Thai-majority companies. For those, foreigners may own up to 49%. There are four lawful ways to own more, and one unlawful way that is now being prosecuted."
+  sections:
+    - h2: The three lists
+      table:
+        head: [List, Covers, "Foreign majority?"]
+        rows:
+          - [List 1, "Land trading, farming, media and other protected sectors", Never]
+          - [List 2, "Activities touching national security, culture or natural resources", "Only with Cabinet approval; rare"]
+          - [List 3, "Most services, including tourism, restaurants, real estate brokerage and many retail activities", "Only with a Foreign Business Licence, BOI promotion or a treaty"]
+      after:
+        - "Activities not on any list, such as manufacturing for export, are open to foreign majority ownership."
+    - h2: The lawful routes to majority ownership
+      list:
+        - "**BOI promotion:** promoted activities (technology, manufacturing, some services) can be 100% foreign-owned, with tax holidays. See [BOI](/business/boi/)."
+        - "**Foreign Business Licence:** a licence for a List 3 activity, granted case by case, with minimum capital of 3 million THB."
+        - "**US Treaty of Amity:** US citizens and US-controlled companies can own a majority in most List 3 activities."
+        - "**Free trade agreements:** some agreements give limited rights to companies from certain countries."
+    - h2: The nominee problem
+      warn: "Putting Thai friends or staff on the share register to reach 51%, with your money behind them, is illegal. The Department of Business Development is investigating tens of thousands of companies in tourism, property, hotels and e-commerce, and new registration checks took effect on 1 January 2026. Penalties include fines, prison and loss of the business."
+      after:
+        - "A genuine Thai partner who invests their own money and shares the risk is lawful. If your structure only works because a partner never invested, change it now. We work with licensed lawyers who restructure companies the legal way."
+  sources:
+    - {label: Department of Business Development, url: "https://www.dbd.go.th/en"}
+    - {label: Thailand Board of Investment, url: "https://www.boi.go.th/"}
+  related: [/business/company-setup/, /business/boi/, /business/buy-a-business/]
+  next: /business/company-setup/
+
+- path: /business/company-setup/
+  kicker: Business guide
+  title: "Thai Company Registration 2026: How to Set Up a Limited Company"
+  description: "Registering a Thai private limited company step by step: shareholders, capital, name reservation, DBD filing, tax ID, VAT, bank account and the ongoing obligations."
+  h1: Setting up a Thai limited company
+  short: Company setup
+  card: "Name, shareholders, capital, registration, tax and bank, in the order it happens."
+  verified: 2026-10-10
+  for: Founders opening a business in Thailand
+  lead: "Most foreigners trade through a Thai private limited company. Registration itself is quick, about one to two weeks. The real decisions come first: what the company does, who owns it and how much capital it needs."
+  sections:
+    - h2: Decide the basics
+      table:
+        head: [Decision, What to know]
+        rows:
+          - [Shareholders, "At least two. Foreign shareholding is limited by the [Foreign Business Act](/business/foreign-ownership/)"]
+          - [Capital, "No legal minimum for Thai-majority companies, but 2 million THB paid-up per foreign work permit is the usual rule"]
+          - [Directors, "One or more; foreigners can be directors"]
+          - [Office, "A real address, with the owner's consent; virtual offices cause problems at work-permit time"]
+    - h2: The registration steps
+      steps:
+        - "Reserve the company name online with the Department of Business Development."
+        - "File the memorandum of association and hold the statutory meeting."
+        - "Register the company, with the articles, shareholder list and directors' details."
+        - "Get the corporate tax ID, and register for VAT if turnover will exceed 1.8 million THB a year."
+        - "Open the company bank account and deposit the capital."
+        - "Register with social security and hire your Thai staff."
+    - h2: Every year after
+      list:
+        - "Monthly withholding tax and VAT returns, and social security payments."
+        - "Audited accounts and an annual shareholder meeting."
+        - "Corporate income tax returns twice a year."
+      note: "Keep an accountant from the first month. Missed filings make work-permit renewals fail."
+  related: [/business/foreign-ownership/, /visas/business/, /visas/work-permit/]
+  next: /visas/business/
+
+- path: /business/boi/
+  kicker: Business guide
+  title: "Thailand BOI Promotion 2026: 100% Foreign Ownership & Tax Holidays"
+  description: "Board of Investment promotion for foreign-owned businesses: eligible activities, 100% ownership, corporate tax holidays, land ownership and easier visas and work permits."
+  h1: "BOI promotion: Thailand's front door for investors"
+  short: BOI promotion
+  card: "100% foreign ownership, tax holidays and easier work permits for promoted activities."
+  verified: 2026-10-10
+  for: Investors in technology, manufacturing and targeted services
+  lead: "The Board of Investment promotes activities Thailand wants more of. A promoted company can be fully foreign-owned, may get years of corporate tax exemption, and gets faster visas and work permits for its foreign staff."
+  sections:
+    - h2: What BOI promotion can give you
+      list:
+        - "100% foreign ownership in the promoted activity."
+        - "Corporate income tax holidays, often 3 to 8 years, depending on the activity and location."
+        - "Duty exemptions on machinery and some raw materials."
+        - "Permission to own land for the promoted business."
+        - "Smart visas and work permits through the One Stop Service Center."
+    - h2: Who usually qualifies
+      p:
+        - "Manufacturing, software and digital services, research, medical and green industries, and regional headquarters. Ordinary local services such as restaurants, bars and small trading usually do not."
+    - h2: The process
+      steps:
+        - "Check that your activity is on the BOI's list, and the conditions attached (minimum investment, location, technology)."
+        - "Apply with a business plan and projections."
+        - "Attend the BOI interview."
+        - "On approval, set up the company and meet the conditions within the deadlines."
+  sources:
+    - {label: Thailand Board of Investment, url: "https://www.boi.go.th/"}
+  related: [/business/foreign-ownership/, /visas/ltr/, /business/company-setup/]
+  next: /business/company-setup/
+
+- path: /business/buy-a-business/
+  kicker: Business guide
+  title: "Buying a Business in Thailand as a Foreigner (2026): Due Diligence Guide"
+  description: "How to buy a bar, restaurant, guesthouse or company in Thailand safely: shares versus assets, leases and key money, licences, debts, staff and the nominee trap."
+  h1: Buying an existing business in Thailand
+  short: Buying a business
+  card: "Shares or assets, the lease, licences and debts. What to check before you pay."
+  verified: 2026-10-10
+  for: Buyers of bars, restaurants, guesthouses, shops and companies
+  lead: "Buying a running business can be the fastest way into Thai commerce, and in Pattaya the riskiest. Some bars and restaurants are sold again and again because the lease, the licences or the numbers don't hold up. The checks below prevent most of it."
+  sections:
+    - h2: Shares or assets?
+      table:
+        head: ["", Buy the company's shares, Buy the business assets]
+        rows:
+          - [What you get, "The company, with its history, contracts, debts and licences", "Equipment, stock, the name, and a new lease in your own company"]
+          - [Risk, "Hidden debts and tax come with it", "Cleaner, but licences and the lease must be re-done"]
+          - [Ownership limits, "The company's foreign shareholding must already be lawful", "Your company must be lawfully structured"]
+    - h2: The checks that matter
+      steps:
+        - "**The lease.** How many years are left, is it registered, can it be transferred, and what will the landlord charge? 'Key money' paid to the seller buys nothing if the landlord won't renew."
+        - "**The licences.** Alcohol, food, entertainment and hotel licences are personal or tied to the premises. Confirm they transfer."
+        - "**The shareholding.** If the company relies on nominee Thai shareholders, you'd be buying a crime. See [foreign ownership](/business/foreign-ownership/)."
+        - "**The numbers.** Ask for bank statements and tax filings, not just a spreadsheet. Sit in the business on a slow weekday."
+        - "**Staff and debts.** Social security, unpaid wages, supplier debts and severance owed to staff."
+      warn: "Never pay key money or a deposit before the lease and licences are confirmed in writing by the landlord and the authorities."
+  related: [/business/foreign-ownership/, /invest/, /business/company-setup/]
+  next: /invest/
+
+- path: /invest/
+  kicker: Investment guide
+  title: "Investing in Thailand as a Foreigner (2026): Property, Business & Due Diligence"
+  description: "How foreigners invest in Thailand: rental property in Pattaya, business stakes, real yields and costs, lawful structures, and the promises to walk away from."
+  h1: Investing in Thailand, with your eyes open
+  short: Invest
+  card: "Rental property and business stakes: real yields, real costs, lawful structures."
+  verified: 2026-10-10
+  for: Investors who may or may not live in Thailand
+  lead: "Foreigners invest in Thailand mainly through condos and through stakes in businesses. Both can work well. Both are sold with promises that don't survive due diligence."
+  sections:
+    - h2: Rental property
+      p:
+        - "Condos in Pattaya and Jomtien let well to long-stay foreigners and Thai professionals. Net yields of 4 to 6% a year are realistic for well-chosen units after fees, vacancies and management; gross figures in brochures are higher. Buy near what renters want (beach, transport, shops) and in buildings with healthy sinking funds."
+      list:
+        - "Running costs: common fees, sinking fund, insurance, management (often 10 to 15% of rent), repairs and furnishing."
+        - "Foreign buyers bring funds from abroad: see [buying a condo](/homes/buy-condo-thailand/)."
+        - "Rental income is taxable in Thailand; keep records."
+    - h2: Business stakes
+      p:
+        - "You can invest in a Thai company as a minority shareholder in restricted sectors, or as a majority owner through [lawful routes](/business/foreign-ownership/). The test is simple: would the structure survive an official check? If it relies on nominees, the answer in 2026 is no."
+    - h2: Promises to walk away from
+      list:
+        - "Guaranteed rental returns for years, paid by the developer. Price the unit without them."
+        - "Buy-back promises from companies you can't check."
+        - "Land ownership 'through our company' for a fee."
+        - "Off-plan projects without a construction permit and an environmental approval."
+  related: [/homes/buy-condo-thailand/, /business/buy-a-business/, /visas/ltr/]
+  next: /contact/

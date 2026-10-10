@@ -1,0 +1,174 @@
+pages:
+
+- path: /services/
+  template: guide
+  kicker: What we do
+  title: "Thailand Relocation Services: Visa, Home, Business & Residency Care"
+  description: "Move In Thailand services: visa applications, the Landing Package, home search, company setup, business purchase checks and yearly Residency Care, at fixed fees."
+  h1: The whole move, handled by one desk
+  short: Services
+  lead: "Pick one service or the whole move. Either way you get a named case manager, a written scope and a fixed fee before anything starts."
+  sections:
+    - h2: Our services
+      table:
+        head: [Service, What's included]
+        rows:
+          - ["Visa Desk", "Route check, document review against your embassy's current rules, application filing, and the first extension. DTV, retirement, marriage, family, education, business, LTR and Privilege."]
+          - ["Landing Package", "Visa, first rental, airport pickup, SIM, bank account, TM30 and residence certificate. Your first month, done."]
+          - ["Home search", "Rentals and purchases with our partner Pattaya Home Pro, plus lawyer-led due diligence when you buy."]
+          - ["Business Entry", "Structure advice with licensed lawyers, company registration, BOI applications, work permits and an accountant from day one."]
+          - ["Business purchase check", "Lease, licences, shareholding, accounts and staff reviewed before you pay key money or a deposit."]
+          - ["[Residency Care](/residency-care/)", "Yearly plan: 90-day reports, extension preparation and reminders, re-entry permits and licence renewals."]
+    - h2: How it works
+      steps:
+        - "A free 15-minute call. You leave with your best route and a realistic budget."
+        - "A written quote: government fees and our fee on separate lines."
+        - "Your case manager runs the work and updates you on WhatsApp."
+        - "We stay on for the yearly tasks if you want us to."
+  related: [/fees/, /residency-care/, /contact/]
+  next: /fees/
+
+- path: /residency-care/
+  template: guide
+  kicker: After you arrive
+  title: "Residency Care: 90-Day Reports, Extensions & Reminders, Handled"
+  description: "A yearly Residency Care plan for foreign residents in Thailand: 90-day reports filed for you, extension preparation, re-entry permits, TM30 checks and licence renewals."
+  h1: "Residency Care: never miss a date"
+  short: Residency Care
+  card: "Your 90-day reports, extensions and renewals tracked and prepared for you."
+  lead: "Living here legally means a handful of deadlines every year. Residency Care tracks them, prepares the paperwork and files what can be filed for you, so a missed date never costs you a fine or a visa."
+  sections:
+    - h2: What's included
+      list:
+        - "Every [90-day report](/stay-legal/90-day-report/) filed for you."
+        - "Your [extension of stay](/stay-legal/extension-of-stay/) prepared: bank letter timing, forms, copies and photos, with a case manager at immigration."
+        - "[Re-entry permits](/stay-legal/re-entry-permit/) before you travel."
+        - "[TM30](/stay-legal/tm30/) checks when you move or return."
+        - "Reminders for your [driving licence](/living/driving-licence/), insurance and vehicle tax."
+    - h2: Who it's for
+      p:
+        - "Retirees, families and busy professionals who would rather spend the morning somewhere other than the immigration queue. Ask for a quote; the price depends on your visa type and family size."
+  related: [/stay-legal/, /services/, /fees/]
+  next: /contact/
+
+- path: /fees/
+  template: guide
+  kicker: Fees
+  title: "Thailand Relocation Fees Explained: Government vs Service Costs"
+  description: "How Move In Thailand prices its work: government fees shown separately, a fixed service fee quoted in writing, third-party costs named upfront, and no hidden mark-ups."
+  h1: Clear fees, before you commit
+  short: Fees
+  lead: "Every quote we send has three separate lines, so you always know who receives each payment and why."
+  sections:
+    - h2: The three lines on every quote
+      table:
+        head: [Line, What it is, Example]
+        rows:
+          - [Government fees, "Paid to the authority, at the official rate, with the receipt", "DTV 10,000 THB; extension 1,900 THB; re-entry 1,000 or 3,800 THB"]
+          - [Our service fee, "Fixed for the scope we agree, paid in stages", "Quoted after your free call"]
+          - [Third parties, "Translators, lawyers, insurers and couriers, named with their own terms", "Certified translation, legalisation, due diligence"]
+    - h2: What's free
+      list:
+        - "The first 15-minute call."
+        - "The [Visa Finder](/tools/visa-finder/), [cost calculator](/tools/cost-calculator/) and [ownership checker](/tools/ownership-checker/)."
+        - "Every guide on this site."
+    - h2: Our promises on money
+      list:
+        - "No mark-up on government fees."
+        - "No payment before you have the written scope."
+        - "If the scope changes, a revised quote before any extra work."
+      note: "Older pages on this site showed fixed package prices. They were retired with the redesign; every quote is now built on your situation."
+  related: [/services/, /contact/, /visas/]
+  next: /contact/
+
+- path: /about/
+  template: guide
+  kicker: About us
+  title: "About Move In Thailand: One Desk for Your Whole Move, Based in Pattaya"
+  description: "Move In Thailand is a relocation desk in Pattaya bringing visas, homes, business setup and yearly residency tasks together, with fixed fees and licensed partners."
+  h1: A calm, expert friend for your move
+  short: About us
+  lead: "We started Move In Thailand because moving here meant juggling a visa agent, a property agent, a lawyer and an accountant who never talked to each other. We put them on one desk."
+  sections:
+    - h2: What we believe
+      list:
+        - "**One person who knows your whole situation** beats four specialists who each know a piece."
+        - "**Honest beats easy.** If a route is weak or a structure is illegal, we say so."
+        - "**Fees belong in writing,** before the work starts."
+    - h2: How we work with specialists
+      p:
+        - "Visa and immigration decisions belong to the authorities. Legal structures, contracts and court work belong to licensed Thai lawyers, whom we bring in and name on your quote. Our job is to make sure every step happens in the right order, on time, with nothing missing."
+    - h2: Where we are
+      p:
+        - "Our office is in Nongprue, Banglamung, in greater Pattaya, and we work with clients anywhere in Thailand and abroad by WhatsApp and video. Our property partner is [Pattaya Home Pro](https://pattayahomepro.com/)."
+  related: [/services/, /fees/, /contact/]
+  next: /contact/
+
+- path: /contact/
+  template: contact
+  kicker: Talk to us
+  title: "Contact Move In Thailand: Free 15-Minute Call About Your Move"
+  description: "Talk to Move In Thailand on WhatsApp or by phone. Tell us your situation and get your best visa route, a realistic budget and a fixed written quote. First call free."
+  h1: You bring the story. We'll bring the plan.
+  short: Contact
+  lead: "Tell us a little about your move. We reply on WhatsApp, usually within 15 minutes in office hours, to book your free call."
+  topics: [Choosing a visa, A visa application, Renting a home, Buying property, Setting up a business, Buying a business, 90-day reports and extensions, Something else]
+  sections:
+    - h2: What happens next
+      steps:
+        - "We read your message and reply on WhatsApp to set a time."
+        - "A 15-minute call: your best route, the documents and a realistic budget."
+        - "If you want our help, a written quote with every fee on its own line."
+  next: /start-here/
+
+- path: /faq/
+  template: guide
+  kicker: Questions
+  title: "Moving to Thailand FAQ: Visas, Homes, Money, Work & Daily Life"
+  description: "Straight answers to the questions people ask before moving to Thailand: visas, working, buying property, money, healthcare, driving, family and staying legal."
+  h1: Questions people ask before moving
+  short: FAQ
+  lead: "Short answers, with a link to the full guide for each."
+  faq:
+    - q: What is the easiest long-stay visa?
+      a: "Under 50 and earning online: usually the [DTV](/visas/dtv/). Over 50 with savings: the [retirement visa](/visas/retirement/). Prefer to pay to skip paperwork: [Thailand Privilege](/visas/thailand-privilege/)."
+    - q: Can I work in Thailand?
+      a: "Only with a [work permit](/visas/work-permit/). The DTV covers remote work for clients and employers outside Thailand."
+    - q: Can foreigners buy property?
+      a: "A condo, yes, in your own name. Land, no. Read [what foreigners can own](/homes/foreign-ownership/)."
+    - q: How much money do I need?
+      a: "A couple lives comfortably in Pattaya on about 80,000 THB a month. Try the [cost calculator](/tools/cost-calculator/)."
+    - q: Do I need health insurance?
+      a: "Some visas require it, and everyone should have it. See [health insurance](/living/health-insurance/)."
+    - q: What are 90-day reports?
+      a: "A free address confirmation every 90 days of continuous stay. See [the 90-day report](/stay-legal/90-day-report/)."
+    - q: Can I drive on my home licence?
+      a: "Briefly, with an International Driving Permit. Residents should get a [Thai licence](/living/driving-licence/)."
+    - q: What happens if I overstay?
+      a: "500 THB a day, and bans for longer overstays. Read [overstay](/stay-legal/overstay/) and act early."
+    - q: Can my family come with me?
+      a: "Yes, on most routes. See [family visas](/visas/family/)."
+    - q: Do you guarantee visas?
+      a: "No. Nobody honest can. We choose a route you clearly qualify for and make the application as strong as it can be."
+  related: [/start-here/, /tools/visa-finder/, /contact/]
+  next: /start-here/
+
+- path: /privacy/
+  template: guide
+  kicker: Privacy
+  title: "Privacy at Move In Thailand: What We Collect and Why"
+  description: "How Move In Thailand handles your information: no tracking forms on this site, WhatsApp conversations, how long we keep case files, and your rights under Thailand's PDPA."
+  h1: Your privacy
+  short: Privacy
+  noindex: false
+  lead: "This website doesn't collect your personal details. Our forms and tools run in your browser; when you contact us, you choose to send your message on WhatsApp."
+  sections:
+    - h2: What we collect
+      list:
+        - "On this website: nothing that identifies you. The tools work in your browser and store nothing on our servers."
+        - "When you message us: your name, contact details and what you tell us about your move."
+        - "When you become a client: the documents needed for your applications, kept only for as long as the work and the law require."
+    - h2: Your rights
+      p:
+        - "Under Thailand's Personal Data Protection Act you can ask to see, correct or delete the information we hold about you. Message us and we'll respond within 30 days."
+  next: /contact/
