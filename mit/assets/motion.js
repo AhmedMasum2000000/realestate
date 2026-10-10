@@ -70,6 +70,11 @@
   marquee();
   wordmark();
   readingProgress();
+  highlights();
+  rotators();
+  ticks();
+  journey();
+  pressFeedback();
   if (finePointer) { cursor(); magnetic(); tilt(); }
 
   /* ---------- Home hero: a pinned frame sequence driven by one master timeline. ---------- */
@@ -189,7 +194,11 @@
       .to(hero.querySelector('.story-dim'), {opacity: 0.3, duration: 1.2}, 7.6)
       .fromTo(hero.querySelector('.story-end-left'), {autoAlpha: 0, x: -80}, {autoAlpha: 1, x: 0, duration: 1.3, ease: 'power3.out'}, 8.0)
       .fromTo(hero.querySelector('.story-end-right'), {autoAlpha: 0, x: 80}, {autoAlpha: 1, x: 0, duration: 1.3, ease: 'power3.out'}, 8.25)
-      .to({}, {duration: 1.4});
+      .to({}, {duration: 1.4})
+      // The key line of each beat is painted once it is on screen.
+      .fromTo(taglines[0], {'--hl': 0}, {'--hl': 1, duration: 0.8, ease: 'power2.inOut'}, 2.95)
+      .fromTo(taglines[1], {'--hl': 0}, {'--hl': 1, duration: 0.8, ease: 'power2.inOut'}, 5.55)
+      .fromTo(hero.querySelector('.story-end-left h2'), {'--hl': 0}, {'--hl': 1, duration: 0.8, ease: 'power2.inOut'}, 8.9);
 
     // Depth: the headline drifts with the pointer while the scene shifts the other way.
     if (finePointer) {
@@ -204,6 +213,9 @@
       });
       hero.addEventListener('pointerleave', () => { introX(0); introY(0); sceneX(0); sceneY(0); });
     }
+
+    // The scene breathes very slowly, so the opening is never quite still.
+    gsap.fromTo(canvas, {scale: finePointer ? 1.05 : 1}, {scale: finePointer ? 1.09 : 1.04, duration: 9, ease: 'sine.inOut', yoyo: true, repeat: -1});
 
     fit();
     let resizeTimer;
@@ -222,15 +234,24 @@
     const targets = gsap.utils.toArray(selector).filter(el => !el.closest('[data-story-hero]') && el.getBoundingClientRect().top > innerHeight * 0.92);
     if (!targets.length) return;
     gsap.set(targets, {opacity: 0, y: 30});
+    targets.forEach(el => { if (el.classList.contains('eyebrow')) el.classList.add('draw-line'); });
     targets.forEach(el => { const bar = el.matches('.route-spec') && el.querySelector('.spec-bar i'); if (bar) gsap.set(bar, {scaleX: 0}); });
     ScrollTrigger.batch(targets, {
       start: 'top 90%',
       once: true,
       onEnter: batch => {
-        gsap.to(batch, {opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: 0.08, overwrite: 'auto'});
-        batch.forEach((el, index) => {
+        // After a jump (a chapter link, an anchor), whatever was skipped past appears at once, and what is
+        // on screen staggers in within 0.6s, so the section you jumped to never waits behind the others.
+        const passed = batch.filter(el => el.getBoundingClientRect().bottom < 0);
+        const shown = batch.filter(el => !passed.includes(el));
+        if (passed.length) gsap.set(passed, {opacity: 1, y: 0});
+        const each = Math.min(0.08, 0.6 / Math.max(1, shown.length - 1));
+        gsap.to(shown, {opacity: 1, y: 0, duration: 1, ease: 'expo.out', stagger: each, overwrite: 'auto'});
+        batch.forEach(el => el.classList.add('is-in'));
+        batch.forEach(el => {
           const bar = el.matches('.route-spec') && el.querySelector('.spec-bar i');
-          if (bar) gsap.to(bar, {scaleX: 1, duration: 1.4, delay: 0.35 + index * 0.09, ease: 'power2.out'});
+          const index = shown.indexOf(el);
+          if (bar) gsap.to(bar, {scaleX: 1, duration: index < 0 ? 0 : 1.4, delay: index < 0 ? 0 : 0.35 + index * each, ease: 'power2.out'});
         });
       }
     });
@@ -401,6 +422,108 @@
         turnX(-((event.clientY - box.top) / box.height - 0.5) * 7);
       });
       card.addEventListener('pointerleave', () => { turnX(0); turnY(0); });
+    });
+  }
+
+  /* ---------- Highlights: the core message is painted on arrival; every key line is painted as you scroll to it,
+     and unpainted if you scroll back, so the eye is always led to the next promise. ---------- */
+  function highlights() {
+    const marks = gsap.utils.toArray('mark.hl');
+    marks.filter(mark => mark.hasAttribute('data-hl-load'))
+      .forEach(mark => gsap.fromTo(mark, {'--hl': 0}, {'--hl': 1, duration: 1.3, ease: 'power2.inOut', delay: 1.35}));
+    const scopes = new Set();
+    marks.forEach(mark => {
+      if (mark.hasAttribute('data-hl-load') || mark.closest('[data-story-hero]')) return;
+      scopes.add(mark.closest('h1, h2, h3, p, li, dd') || mark.parentElement);
+    });
+    scopes.forEach(scope => {
+      if (scope.getBoundingClientRect().top < innerHeight * 0.8) {
+        gsap.fromTo(scope, {'--hl': 0}, {'--hl': 1, duration: 1.2, ease: 'power2.inOut', delay: 0.9});
+      } else {
+        gsap.fromTo(scope, {'--hl': 0}, {'--hl': 1, ease: 'none', scrollTrigger: {trigger: scope, start: 'top 82%', end: 'top 48%', scrub: 0.4}});
+      }
+    });
+  }
+
+  /* ---------- Rotating words: one reason at a time, with the box easing to each word's width. ---------- */
+  function rotators() {
+    const ready = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+    ready.then(() => document.querySelectorAll('[data-rotator]').forEach(rotator));
+  }
+  function rotator(box) {
+    const words = [...box.children];
+    if (words.length < 2) return;
+    const first = {height: words[0].offsetHeight, width: words[0].offsetWidth};
+    gsap.set(box, {display: 'inline-block', position: 'relative', ...first});
+    words.forEach((word, index) => gsap.set(word, {display: 'block', position: 'absolute', left: 0, top: 0, yPercent: index ? 110 : 0, opacity: index ? 0 : 1}));
+    let current = 0;
+    addEventListener('resize', () => gsap.set(box, {height: words[current].offsetHeight, width: words[current].offsetWidth}));
+    setInterval(() => {
+      if (document.hidden) return;
+      const seen = box.getBoundingClientRect();
+      if (seen.bottom < 0 || seen.top > innerHeight) return;   // only change what someone can see
+      const next = (current + 1) % words.length;
+      gsap.to(words[current], {yPercent: -110, opacity: 0, duration: 0.55, ease: 'power3.in'});
+      gsap.fromTo(words[next], {yPercent: 110, opacity: 0}, {yPercent: 0, opacity: 1, duration: 0.7, ease: 'power3.out', delay: 0.35});
+      gsap.to(box, {width: words[next].offsetWidth, duration: 0.6, ease: 'power3.inOut', delay: 0.2});
+      current = next;
+    }, 2600);
+  }
+
+  /* ---------- Hero numbers tick into place: 4 questions, 2 minutes, and sign-ups counting down to 0. ---------- */
+  function ticks() {
+    document.querySelectorAll('[data-tick]').forEach((el, index) => {
+      const target = Number(el.dataset.tick), value = {n: Number(el.dataset.from || 0)};
+      el.textContent = String(value.n);
+      gsap.to(value, {n: target, duration: 1.2, delay: 1.1 + index * 0.15, ease: 'power2.out', onUpdate: () => { el.textContent = String(Math.round(value.n)); }});
+    });
+  }
+
+  /* ---------- Journey rail (home, wide screens): the page as chapters, the current one lit. ---------- */
+  function journey() {
+    if (!document.querySelector('[data-story-hero]') || !matchMedia('(min-width: 1280px)').matches) return;
+    const chapters = [['.routes-section', 'Your why'], ['.routes-compare', 'Compare'], ['.story-section', 'One plan'],
+      ['.finder-feature', 'First step'], ['.process-section', 'The steps'], ['.tools-section', 'Free tools']]
+      .map(([selector, label]) => [document.querySelector(selector), label]).filter(([section]) => section);
+    const rail = document.createElement('nav');
+    rail.className = 'journey';
+    rail.setAttribute('aria-label', 'Page chapters');
+    const links = chapters.map(([section, label], index) => {
+      if (!section.id) section.id = 'chapter-' + (index + 1);
+      const link = document.createElement('a');
+      link.href = '#' + section.id;
+      link.innerHTML = '<span>' + String(index + 1).padStart(2, '0') + ' ' + label + '</span><i></i>';
+      rail.appendChild(link);
+      return link;
+    });
+    document.body.appendChild(rail);
+    const activate = active => links.forEach((link, index) => {
+      link.classList.toggle('is-active', index === active);
+      link.classList.toggle('is-done', index < active);
+    });
+    chapters.forEach(([section], index) => ScrollTrigger.create({
+      trigger: section, start: 'top 55%', end: 'bottom 55%',
+      onToggle: self => { if (self.isActive) activate(index); }
+    }));
+    ScrollTrigger.create({
+      trigger: chapters[0][0], start: 'top 70%', endTrigger: chapters[chapters.length - 1][0], end: 'bottom 40%',
+      onToggle: self => rail.classList.toggle('is-on', self.isActive)
+    });
+  }
+
+  /* ---------- Press feedback: a ripple from the click point and a small spring. ---------- */
+  function pressFeedback() {
+    document.addEventListener('pointerdown', event => {
+      const button = event.target.closest('.button');
+      if (!button) return;
+      const box = button.getBoundingClientRect();
+      const size = Math.max(box.width, box.height) * 2.4;
+      const ripple = document.createElement('span');
+      ripple.className = 'ripple';
+      ripple.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + (event.clientX - box.left - size / 2) + 'px;top:' + (event.clientY - box.top - size / 2) + 'px';
+      button.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+      gsap.fromTo(button, {scale: 0.95}, {scale: 1, duration: 0.7, ease: 'elastic.out(1, 0.45)'});
     });
   }
 

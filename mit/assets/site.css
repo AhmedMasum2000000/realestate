@@ -235,5 +235,86 @@ html.lenis,html.lenis body{height:auto}
 @keyframes page-in{from{opacity:0;transform:translateY(18px)}}
 
 @media(max-width:700px){.marquee{padding:20px 0}.marquee-group span{padding:0 20px}.footer-wordmark{font-size:calc((100vw - 40px) / 6.65);padding-bottom:18px}}
+/* ---------- Story layer: highlighted key messages, rotating words, journey rail and micro-interactions. ---------- */
+@property --hl{syntax:'<number>';inherits:true;initial-value:1}
+mark.hl{background-color:transparent;color:inherit;background-image:linear-gradient(100deg,#efd6db,#e7c4cc);background-repeat:no-repeat;background-position:0 88%;background-size:calc(var(--hl) * 100%) .44em;padding:0 .05em;margin:0 -.05em;-webkit-box-decoration-break:clone;box-decoration-break:clone;border-radius:.1em}
+mark.hl-dark{background-image:linear-gradient(100deg,#862638e8,#9c3247e0);background-position:0 72%;background-size:calc(var(--hl) * 100%) .95em;color:#fff}
+.gradient-headline mark.hl{-webkit-text-fill-color:#fff;color:#fff}
+@keyframes hl-failsafe{to{--hl:1}}
+.motion-ok [data-hl-load]{--hl:0;animation:hl-failsafe 0s 4s forwards}
+
+/* Hero: the question, the rotating reason, and three ease numbers. */
+.story-ask{font-size:clamp(17px,1.45vw,21px);font-weight:500;color:#fff;margin-bottom:10px;text-shadow:0 1px 18px #0e172f99}
+.rotator{display:inline-grid;vertical-align:bottom;overflow:hidden;color:var(--burgundy)}
+.rotator>span{grid-area:1/1;white-space:nowrap}
+.rotator>span:not(:first-child){display:none}
+.story-ask .rotator{color:#ead2d6;border-bottom:1px solid #ead2d673}
+.closing .rotator{color:#fff;font-weight:500}
+.ease-chips{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:18px 0 0;padding:0}
+.ease-chips li{display:inline-flex;align-items:baseline;gap:6px;padding:6px 13px;border:1px solid #ffffff3d;border-radius:99px;background:#0e172f59;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font-size:11px;color:#dfe3ec}
+.ease-chips b{font-family:Georgia,'Times New Roman',serif;font-weight:400;font-size:16px;color:#fff;font-variant-numeric:tabular-nums}
+.story-end-right h3 em{color:var(--burgundy)}
+
+/* Trust chips float over the story photograph. */
+.trust-chips{position:absolute;top:24px;right:24px;z-index:2;display:flex;flex-direction:column;align-items:flex-end;gap:10px;list-style:none;margin:0;padding:0}
+.trust-chips li{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;background:#faf8f5eb;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--navy);font-size:11px;font-weight:500;box-shadow:0 10px 26px #0e172f29}
+.trust-chips .icon{width:14px;height:14px;color:var(--burgundy)}
+@keyframes chip-float{50%{transform:translateY(-6px)}}
+.motion-ok .trust-chips li{animation:chip-float 5s ease-in-out infinite}
+.motion-ok .trust-chips li:nth-child(2){animation-delay:-1.7s}.motion-ok .trust-chips li:nth-child(3){animation-delay:-3.4s}
+
+/* Journey rail: the home page as chapters, with the current one lit. */
+.journey{position:fixed;right:24px;top:50%;z-index:90;display:flex;flex-direction:column;align-items:flex-end;gap:13px;transform:translateY(-50%);opacity:0;visibility:hidden;transition:opacity .45s,visibility .45s}
+.journey.is-on{opacity:1;visibility:visible}
+.journey a{display:flex;align-items:center;gap:11px;font-size:9px;font-weight:500;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+.journey a span{opacity:0;transform:translateX(8px);transition:opacity .35s,transform .35s;white-space:nowrap;background:#faf8f5d9;padding:2px 6px;border-radius:4px}
+.journey a i{width:8px;height:8px;border-radius:50%;border:1px solid var(--navy);transition:transform .35s,background .35s,border-color .35s}
+.journey a.is-done i{background:var(--navy)}
+.journey a.is-active{color:var(--burgundy)}
+.journey a.is-active i{background:var(--burgundy);border-color:var(--burgundy);transform:scale(1.5)}
+.journey a.is-active span,.journey:hover a span{opacity:1;transform:none}
+@media(max-width:1279px){.journey{display:none}}
+
+/* Menu button: three lines fold into a close mark, and back. */
+.burger{display:block;position:relative;width:22px;height:14px}
+.burger i{position:absolute;left:0;right:0;height:1.5px;border-radius:2px;background:currentColor;transition:transform .45s cubic-bezier(.7,0,.2,1),opacity .3s,top .45s cubic-bezier(.7,0,.2,1)}
+.burger i:nth-child(1){top:0}.burger i:nth-child(2){top:6.25px}.burger i:nth-child(3){top:12.5px}
+.menu-toggle[aria-expanded=true] .burger i:nth-child(1){top:6.25px;transform:rotate(45deg)}
+.menu-toggle[aria-expanded=true] .burger i:nth-child(2){opacity:0;transform:scaleX(.2)}
+.menu-toggle[aria-expanded=true] .burger i:nth-child(3){top:6.25px;transform:rotate(-45deg)}
+@keyframes menu-drop{from{clip-path:inset(0 0 100% 0);opacity:.4}}
+@media(max-width:900px){.motion-ok .navigation.is-open{animation:menu-drop .45s cubic-bezier(.2,.7,.2,1)}}
+
+/* Questions: the plus turns into a close mark and the answer slides in. */
+.faq-list summary span{display:inline-block;transition:transform .4s cubic-bezier(.2,.7,.2,1),color .3s}
+.faq-list details[open] summary span{transform:rotate(45deg);color:var(--burgundy)}
+.faq-list summary:hover{color:var(--burgundy)}
+@keyframes answer-in{from{opacity:0;transform:translateY(-8px)}}
+.motion-ok .faq-list details[open]>p{animation:answer-in .45s cubic-bezier(.2,.7,.2,1)}
+
+/* Press: a soft ripple from the exact point you click. */
+.ripple{position:absolute;border-radius:50%;background:#ffffff80;transform:scale(0);pointer-events:none;animation:ripple .65s cubic-bezier(.2,.7,.2,1) forwards;z-index:-1}
+.button-light .ripple,.button-outline .ripple{background:#1a2b5626}
+@keyframes ripple{to{transform:scale(1);opacity:0}}
+.button:active{transform:scale(.97)}
+
+/* Small signs of life. */
+.eyebrow.draw-line>span:empty{width:0;transition:width .8s .15s cubic-bezier(.2,.7,.2,1)}
+.eyebrow.draw-line.is-in>span:empty{width:19px}
+.story-label-tr b:before{content:'';display:inline-block;width:6px;height:6px;margin-right:7px;border-radius:50%;background:#ead2d6;vertical-align:1px}
+@keyframes live{0%{box-shadow:0 0 0 0 #ead2d6b3}70%,100%{box-shadow:0 0 0 7px #ead2d600}}
+.motion-ok .story-label-tr b:before{animation:live 2.2s ease-out infinite}
+@keyframes float-soft{50%{transform:translateY(-4px)}}
+.motion-ok .promise-strip .icon{animation:float-soft 4s ease-in-out infinite}
+.motion-ok .promise-strip p:nth-child(2) .icon{animation-delay:-1s}.motion-ok .promise-strip p:nth-child(3) .icon{animation-delay:-2s}.motion-ok .promise-strip p:nth-child(4) .icon{animation-delay:-3s}
+.statement-section{position:relative}
+.statement-section:before{content:'';position:absolute;width:min(560px,90vw);aspect-ratio:1;left:50%;top:44%;margin-left:max(-280px,-45vw);margin-top:max(-280px,-45vw);border:1px dashed #d9cfc3;border-radius:50%;pointer-events:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.motion-ok .statement-section:before{animation:spin 90s linear infinite}
+.statement-section>.wrap{position:relative}
+.intent-card:hover .intent-icon .icon{animation:float-soft .9s ease-in-out}
+
+@media(max-width:700px){.story-ask{font-size:15px;margin-bottom:6px}.ease-chips{margin-top:14px;gap:6px}.ease-chips li{font-size:10px;padding:5px 10px}.ease-chips b{font-size:14px}
+.trust-chips{top:14px;right:14px;gap:7px}.trust-chips li{font-size:10px;padding:7px 11px}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.finder-preview{transform:none}}
 @media print{.topline,.header,.footer,.closing,.mobile-cta,.button-row,.article-sidebar,.faq-section{display:none!important}body{background:#fff;color:#111;font:11pt/1.5 Georgia,serif}.wrap{width:100%;margin:0}.section,.page-hero{padding:20px 0}.page-hero{display:block}.editorial-photo{display:none}.article-layout{display:block}.article-body section{break-inside:avoid}.article-body p{color:#111}.sources a:after{content:' (' attr(href) ')';font-size:8pt}.eyebrow{color:#333}.download-block{display:none}}

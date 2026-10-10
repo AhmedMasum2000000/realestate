@@ -113,10 +113,10 @@ FAQ = [
 ]
 
 SERVICES = [
-    dict(title="Your visa, understood.", label="01 / VISA DESK", icon="passport", href="visas/", text="DTV, LTR, Thailand Privilege, retirement, business and family routes. Start with your circumstances and a clear document plan.", link="Explore visa routes"),
-    dict(title="A place to feel at home.", label="02 / HOMES", icon="home", href="homes/", text="Pattaya rentals, condo buying and neighbourhood choices. Match the home to your everyday life and your move timeline.", link="Find your home"),
-    dict(title="Room for your ambition.", label="03 / BUSINESS & INVEST", icon="briefcase", href="business/", text="Company setup, BOI questions and property due diligence. Review the structure and costs before making a commitment.", link="Explore the possibilities"),
-    dict(title="Support beyond arrival.", label="04 / RESIDENCY CARE", icon="heart", href="residency-care/", text="A calendar for the renewals and reports that apply to you, with practical coordination as your life here takes shape.", link="See ongoing support"),
+    dict(title="Your visa, understood.", label="01 / VISA DESK", icon="passport", href="visas/", text="DTV, LTR, Thailand Privilege, retirement, business and family. Know your route and your document list before you spend a baht.", link="Explore visa routes"),
+    dict(title="A place to feel at home.", label="02 / HOMES", icon="home", href="homes/", text="Pattaya rentals, condo buying and the right neighbourhood. A home that fits your life and your move date, without the legwork.", link="Find your home"),
+    dict(title="Room for your ambition.", label="03 / BUSINESS & INVEST", icon="briefcase", href="business/", text="Company setup, BOI questions and property due diligence. See the structure and the full cost before you commit.", link="Explore the possibilities"),
+    dict(title="Support beyond arrival.", label="04 / RESIDENCY CARE", icon="heart", href="residency-care/", text="Your renewals and reports on one calendar, so the deadlines stop living in your head. Practical help as life here takes shape.", link="See ongoing support"),
 ]
 
 

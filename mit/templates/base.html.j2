@@ -28,7 +28,7 @@
 <header class="header">
   <div class="wrap header-inner">
     <a class="brand" href="{{ url('') }}" aria-label="Move In Thailand home"><span class="brand-mark"><img src="{{ asset('logo.png') }}" alt="" width="120" height="120"></span><span>Move In Thailand<small>VISA & RELOCATION</small></span></a>
-    <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation">{{ icon('menu') }}</button>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span class="burger" aria-hidden="true"><i></i><i></i><i></i></span></button>
     <nav id="navigation" class="navigation" aria-label="Main navigation">
       {% for label, path, also in [('Start here','start-here/',''),('Visa Desk','visas/','stay-legal'),('Homes','homes/',''),('Business','business/','invest'),('Living','living/',''),('Tools','tools/','')] %}<a href="{{ url(path) }}" {% if page.slug.startswith(path.rstrip('/')) or (also and page.slug.startswith(also)) %}aria-current="page"{% endif %}><span class="roll"><span data-text="{{ label }}">{{ label }}</span></span></a>{% endfor %}
     </nav>
