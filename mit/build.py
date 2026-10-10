@@ -18,7 +18,7 @@ from markupsafe import Markup, escape
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parent
 sys.path.insert(0, str(HERE))
-from content import CALCULATOR_DEFAULTS, CHECKED, FAQ as FAQS, PAGES, SERVICES, SOURCES, VISAS
+from content import CALCULATOR_DEFAULTS, CHECKED, FAQ as FAQS, PAGES, ROUTE_SPECS, SERVICES, SOURCES, VISAS
 
 ICONS = {
     'arrow':'<path d="M4 12h15m-6-6 6 6-6 6"/>',
@@ -64,13 +64,13 @@ def structured_data(page):
 def build(output: Path, preview: bool):
     output.mkdir(parents=True,exist_ok=True)
     asset_source = HERE/'assets'
-    required = ['logo.png','coast.webp','home.webp','fonts/rubik-400.woff2','fonts/rubik-500.woff2','moving-checklist.pdf','site.css','site.js']
+    required = ['logo.png','coast.webp','home.webp','fonts/rubik-400.woff2','fonts/rubik-500.woff2','moving-checklist.pdf','site.css','site.js','motion.js','vendor/gsap.min.js','vendor/ScrollTrigger.min.js']
     missing = [name for name in required if not (asset_source/name).is_file()]
     if missing:
         raise SystemExit('Missing prepared assets: ' + ', '.join(missing))
     shutil.copytree(asset_source, output/'assets', dirs_exist_ok=True)
     asset_prefix = '/assets/' if preview else '/wp-content/mit-site/assets/'
-    version = hashlib.sha256((asset_source/'site.css').read_bytes() + (asset_source/'site.js').read_bytes()).hexdigest()[:10]
+    version = hashlib.sha256(b''.join((asset_source/name).read_bytes() for name in ('site.css','site.js','motion.js'))).hexdigest()[:10]
     def asset(path):
         return asset_prefix + path + ('?v='+version if path.endswith(('.css','.js')) else '')
     def url(path):
@@ -89,7 +89,13 @@ def build(output: Path, preview: bool):
             return hub_labels[page['slug']]
         label=page.get('short') or page.get('visa',{}).get('short') or (page.get('eyebrow') or '').title()
         return label or re.sub(r'<[^>]+>',' ',page['heading']).strip()
-    env.globals.update(icon=icon,url=url,asset=asset,crumb_label=crumb_label,pages_by_slug={page['slug']:page for page in PAGES})
+    # Home page story frames (tools/mit_story.py) and stats counted from the content itself, so they stay true.
+    frames_file=asset_source/'frames'/'frames.json'
+    frames=json.loads(frames_file.read_text())['sets'] if frames_file.is_file() else {}
+    guide_count=sum(1 for page in PAGES if page['template']=='editorial' and page['slug'] not in ('about','privacy','services','residency-care'))
+    stats=[(guide_count,'practical guides, free to read'),(len(VISAS)+sum(1 for page in PAGES if page['slug'].startswith('visas/') and page['template']=='editorial'),'visa routes compared'),
+           (len(SOURCES),'official sources linked'),(sum(1 for page in PAGES if page['slug'].startswith('tools/')),'free planning tools')]
+    env.globals.update(icon=icon,url=url,asset=asset,crumb_label=crumb_label,frames=frames,stats=stats,route_specs=ROUTE_SPECS,pages_by_slug={page['slug']:page for page in PAGES})
     routes=[]
     config={'basePath':'/','apiBase':'/wp-json/mit/v1/','preview':preview,'checked':CHECKED,'visas':{visa['slug']:{'name':visa['name']} for visa in VISAS},'fees':{},'whatsapp':''}
     for page in PAGES:

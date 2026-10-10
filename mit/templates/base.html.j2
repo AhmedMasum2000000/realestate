@@ -17,7 +17,8 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="{{ asset('logo.png') }}" type="image/png">
   <link rel="preload" href="{{ asset('fonts/rubik-400.woff2') }}" as="font" type="font/woff2" crossorigin>
-  {% if not page.slug %}<link rel="preload" href="{{ asset('coast.webp') }}" as="image">{% endif %}
+  {% if not page.slug %}<link rel="preload" href="{{ asset('frames/desktop/001.webp') }}" as="image" media="(min-width: 701px)"><link rel="preload" href="{{ asset('frames/mobile/001.webp') }}" as="image" media="(max-width: 700px)">{% endif %}
+  <script>(function(d){if(!window.matchMedia||matchMedia('(prefers-reduced-motion: reduce)').matches)return;d.classList.add('motion-ok');addEventListener('load',function(){if(!window.gsap||!window.ScrollTrigger)d.classList.remove('motion-ok')})})(document.documentElement)</script>
   <link rel="stylesheet" href="{{ asset('site.css') }}">
   <script type="application/ld+json">{{ schema|tojson }}</script>
 </head>
@@ -50,7 +51,10 @@
 </footer>
 <a class="mobile-cta" href="{{ url('contact/') }}">Plan my move {{ icon('arrow') }}</a>
 <script id="mit-config" type="application/json">{{ config|tojson }}</script>
+<script defer src="{{ asset('vendor/gsap.min.js') }}"></script>
+<script defer src="{{ asset('vendor/ScrollTrigger.min.js') }}"></script>
 <script defer src="{{ asset('site.js') }}"></script>
+<script defer src="{{ asset('motion.js') }}"></script>
 </body>
 </html>
 

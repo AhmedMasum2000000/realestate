@@ -24,6 +24,16 @@ In **Settings → Move In Thailand**, an administrator can enter a verified publ
 
 `mit/asset-provenance.json` records the media URLs and original file hashes. Branding and the beach photograph came from the Move In Thailand cPanel installation. Property photographs were verified in the same cPanel account's existing property partner installation before downloading their public bytes. Local fonts came from the existing repository. No new stock people are used as clients or staff.
 
+## Motion and the home story
+
+The home page opens with a pinned, scroll-scrubbed story (coast, temple, city, home) drawn on a canvas from WebP frames, with one GSAP master timeline driving the frames, headline exits, taglines and the closing visa/home panels. Other motion: the glass header hides on scroll down and returns on scroll up; sections enter as they scroll into view; the route comparison bars fill; the statement resolves letter by letter; the stats count up; the closing call to action has a slow ambient glow.
+
+- `tools/mit_story.py` renders `mit/media/move-in-thailand-story.mp4` (and a vertical cut) from four repository photographs and extracts 24 fps WebP frames at quality 85 into `mit/assets/frames/`. With a filmed brand video: `python tools/mit_story.py --video brand.mp4`. Needs ffmpeg.
+- GSAP 3.15.0 and ScrollTrigger are self-hosted in `mit/assets/vendor/` (GSAP standard licence, free for commercial use); `mit/assets/motion.js` holds all motion code.
+- Phones load every second frame and slow or data-saving connections every fourth; the player blends between loaded frames. Frame 1 doubles as the poster, so the first paint does not wait for the sequence.
+- With reduced motion, or if the scripts fail, the hero is a static photograph with the same copy and the closing panels sit below it. Nothing starts hidden that the script has not taken responsibility for showing.
+- Another agency's watermark on the villa photograph (CP3302) is cropped out in `tools/mit_story.py`; do not reuse the uncropped image.
+
 ## Local build
 
 ```powershell

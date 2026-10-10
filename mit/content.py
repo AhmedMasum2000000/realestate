@@ -229,3 +229,16 @@ CALCULATOR_DEFAULTS = {
     "health": 5000, "utilities": 3000, "personal": 4500,
     "deposit": 44000, "setup": 20000, "buffer": 15,
 }
+
+# Home page route comparison. Figures match the visa guides; "years" drives the bar
+# (permission per approval, on a 20-year scale) and is shown next to it in words.
+ROUTE_SPECS = [
+    dict(slug='dtv', short='DTV', name='Destination Thailand Visa', years=5, length='5-year visa, up to 180 days per entry',
+         suits='Remote workers, and Muay Thai, cooking or culture students', money='500,000 THB in savings', work='Only for employers or clients abroad'),
+    dict(slug='ltr', short='LTR', name='Long-Term Resident', years=10, length='Up to 10 years',
+         suits='High earners, pensioners, investors and skilled professionals', money='Income, assets or employer criteria by category', work='Depends on the category'),
+    dict(slug='thailand-privilege', short='Privilege', name='Thailand Privilege', years=20, length='5 to 20 years, by membership tier',
+         suits='People who would rather pay than prove an income', money='A one-off membership fee', work='Not from membership alone'),
+    dict(slug='retirement', short='Retirement', name='Retirement visa', years=1, length='1 year at a time, renewed yearly',
+         suits='Anyone aged 50 or over', money='800,000 THB in a Thai bank, or 65,000 THB a month', work='No'),
+]
