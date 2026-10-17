@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, display, faq, cta, button, form with context %}
+{% from 'parts.html.j2' import mono, display, faq, cta, button, form with context %}{% from 'listing-parts.html.j2' import card with context %}
 {% block content %}
 <section class="cine" data-cine aria-labelledby="hero-title">
   <div class="cine-media" data-cine-media aria-hidden="true">
@@ -87,6 +87,14 @@
 
 <section class="pills" aria-label="Who we work with">
   <div class="pill-track" data-marquee>{% for _ in range(2) %}<div class="pill-set"{% if not loop.first %} aria-hidden="true"{% endif %}>{% for name in ['Retiring at 50+', 'Remote work', 'Moving with family', 'Buying a condo', 'Long-term rental', 'Thai spouse', 'Business owner', 'Investor', 'Already in Thailand', 'Still exploring'] %}<span class="pill">{{ name }}</span>{% endfor %}</div>{% endfor %}</div>
+</section>
+
+<section class="section home-listings" aria-labelledby="listings-title">
+  <div class="frame">
+    <div class="section-head section-head-row">{{ mono(home_count ~ ' homes for sale and rent · updated ' ~ updated_label) }}<h2 id="listings-title" class="display" data-reveal-words>Find the <em>home.</em></h2>{{ button('See all homes', url('properties/'), 'button-ghost') }}</div>
+    <div class="home-grid">{% for h in featured_homes %}{{ card(h) }}{% endfor %}</div>
+    <nav class="hub-links" aria-label="Popular searches">{% for key in ['properties/condos-for-sale', 'properties/pool-villas-for-sale', 'properties/houses-for-sale', 'properties/condos-for-rent', 'properties/jomtien', 'properties/pratumnak', 'properties/north-pattaya', 'properties/east-pattaya'] if key in home_hubs %}<a href="{{ url(key ~ '/') }}">{{ home_hubs[key].heading }} <span>{{ home_hubs[key].homes|length }}</span></a>{% endfor %}</nav>
+  </div>
 </section>
 
 <section class="section gallery" aria-labelledby="gallery-title">

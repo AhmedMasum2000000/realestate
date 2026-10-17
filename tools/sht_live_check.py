@@ -16,7 +16,7 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 OUT = Path('.cache/live-check')
-INNER = ['visas/', 'visas/ltr/', 'stay-legal/90-day-report/', 'concierge/', 'contact/', 'library/', 'tools/visa-finder/']
+INNER = ['properties/', 'properties/jomtien/', 'properties/condos-for-sale/', 'visas/', 'visas/ltr/', 'stay-legal/90-day-report/', 'concierge/', 'contact/', 'library/', 'tools/visa-finder/']
 GONE = ['author/bw9jc/']
 
 

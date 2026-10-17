@@ -95,6 +95,8 @@ def build(output: Path, preview: bool):
     guide_count=sum(1 for page in PAGES if page['template']=='editorial' and page['slug'] not in ('about','privacy','services','residency-care'))
     stats=[(guide_count,'practical guides, free to read'),(len(VISAS)+sum(1 for page in PAGES if page['slug'].startswith('visas/') and page['template']=='editorial'),'visa routes compared'),
            (len(SOURCES),'official sources linked'),(sum(1 for page in PAGES if page['slug'].startswith('tools/')),'free planning tools')]
+    gsc_state=ROOT/'data'/'gsc-moveinthailand.com.json'
+    env.globals['gsc_meta']=json.loads(gsc_state.read_text()).get('meta','') if gsc_state.is_file() else ''
     env.globals.update(icon=icon,url=url,asset=asset,crumb_label=crumb_label,frames=frames,stats=stats,route_specs=ROUTE_SPECS,pages_by_slug={page['slug']:page for page in PAGES})
     routes=[]
     config={'basePath':'/','apiBase':'/wp-json/mit/v1/','preview':preview,'checked':CHECKED,'visas':{visa['slug']:{'name':visa['name']} for visa in VISAS},'fees':{},'whatsapp':''}

@@ -151,3 +151,70 @@
     if (saved) { input.value = saved; show(saved); }
   });
 })();
+
+/* Homes: a shortlist kept in this browser, and filters on the main listings page. */
+(() => {
+  'use strict';
+  const KEY = 'sht-shortlist';
+  const read = () => { try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (error) { return []; } };
+  const write = list => { try { localStorage.setItem(KEY, JSON.stringify(list)); } catch (error) { /* private mode */ } };
+  const bar = document.querySelector('[data-shortlist-bar]');
+  const sync = () => {
+    const list = read();
+    document.querySelectorAll('[data-save]').forEach(button => {
+      const saved = list.includes(button.dataset.save);
+      button.setAttribute('aria-pressed', String(saved));
+      if (!button.classList.contains('home-save')) button.textContent = saved ? 'Saved to shortlist' : 'Save to shortlist';
+    });
+    if (bar) {
+      bar.hidden = !list.length;
+      bar.querySelector('[data-shortlist-count]').textContent = list.length;
+      const plan = 'My shortlist: ' + list.join(', ') + '. Please check availability and arrange viewings.';
+      bar.querySelector('[data-shortlist-send]').href = '/contact/?interest=homes&plan=' + encodeURIComponent(plan);
+    }
+  };
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-save]');
+    if (!button) return;
+    const list = read();
+    const ref = button.dataset.save;
+    write(list.includes(ref) ? list.filter(item => item !== ref) : list.concat(ref).slice(-30));
+    sync();
+    if (filterForm) apply();
+  });
+  const filterForm = document.querySelector('[data-home-filter]');
+  const grid = document.querySelector('[data-home-grid]');
+  function apply() {
+    if (!filterForm || !grid) return;
+    const f = new FormData(filterForm);
+    const list = read();
+    const cards = [...grid.querySelectorAll('[data-home]')];
+    let shown = 0;
+    cards.forEach(card => {
+      const d = card.dataset;
+      const ok = (!f.get('deal') || d.deal === f.get('deal')) && (!f.get('type') || d.type === f.get('type')) && (!f.get('area') || d.area === f.get('area')) &&
+        (!f.get('beds') || (d.beds !== '' && Number(d.beds) >= Number(f.get('beds')))) && (!f.get('saved') || list.includes(d.ref));
+      card.hidden = !ok;
+      if (ok) shown++;
+    });
+    const sort = f.get('sort');
+    if (sort !== 'new' || grid.dataset.sorted) {
+      const order = cards.slice().sort((a, b) => sort === 'low' ? a.dataset.price - b.dataset.price : sort === 'high' ? b.dataset.price - a.dataset.price : Number(a.dataset.index) - Number(b.dataset.index));
+      order.forEach(card => grid.appendChild(card));
+      grid.dataset.sorted = '1';
+    }
+    filterForm.querySelector('[data-home-count]').textContent = shown + (shown === 1 ? ' home' : ' homes');
+    const params = new URLSearchParams();
+    for (const [key, value] of f) if (value && !(key === 'sort' && value === 'new')) params.set(key, value);
+    history.replaceState(null, '', params.toString() ? '?' + params : location.pathname);
+  }
+  if (filterForm && grid) {
+    grid.querySelectorAll('[data-home]').forEach((card, index) => { card.dataset.index = index; });
+    const params = new URLSearchParams(location.search);
+    for (const [key, value] of params) { const field = filterForm.elements[key]; if (field) { if (field.type === 'checkbox') field.checked = true; else field.value = value; } }
+    filterForm.addEventListener('change', apply);
+    filterForm.addEventListener('submit', event => event.preventDefault());
+    apply();
+  }
+  sync();
+})();

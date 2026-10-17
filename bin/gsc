@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""Google Search Console for pattayahomepro.com.
+"""Google Search Console for pattayahomepro.com, moveinthailand.com and secondhomethailand.com.
+
+    bin/gsc --domain secondhomethailand.com setup   pick the site (default pattayahomepro.com)
 
     bin/gsc setup --owner you@gmail.com   prove ownership, add the property,
                                           make you an owner, submit the sitemap
@@ -32,10 +34,26 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from rep.gsc import GscError, SearchConsole, domain_property, url_property  # noqa: E402
 
+# Each site: its state file, the sitemaps it publishes and a few pages to sample for index status.
+SITES = {
+    "pattayahomepro.com": {"state": "gsc.json", "sitemaps": ["/sitemap.xml"],
+                           "samples": ["/", "/properties/", "/for-sale/", "/for-sale/condos/jomtien/", "/areas/jomtien/"]},
+    "secondhomethailand.com": {"state": "gsc-secondhomethailand.com.json", "sitemaps": ["/sht-sitemap.xml"],
+                               "samples": ["/", "/properties/", "/properties/jomtien/condos-for-sale/", "/properties/condos-for-sale/", "/visas/", "/concierge/"]},
+    "moveinthailand.com": {"state": "gsc-moveinthailand.com.json", "sitemaps": ["/mit-sitemap.xml"],
+                           "samples": ["/", "/visas/", "/visas/dtv/", "/start-here/", "/tools/visa-finder/"]},
+}
 DOMAIN = "pattayahomepro.com"
 STATE = ROOT / "data" / "gsc.json"
-SITEMAP = f"https://{DOMAIN}/sitemap.xml"
+SITEMAPS = [f"https://{DOMAIN}/sitemap.xml"]
 NEEDS_DEPLOY = 3
+
+
+def use(domain: str) -> None:
+    global DOMAIN, STATE, SITEMAPS
+    DOMAIN = domain
+    STATE = ROOT / "data" / SITES[domain]["state"]
+    SITEMAPS = [f"https://{domain}{path}" for path in SITES[domain]["sitemaps"]]
 
 
 def load_state() -> dict:
@@ -171,8 +189,9 @@ def setup(owner: str) -> int:
     if owner:
         owners = gsc.add_owner(resource["id"], owner)
         print(f"owners: {', '.join(owners)}")
-    gsc.submit_sitemap(site, SITEMAP)
-    print(f"sitemap submitted: {SITEMAP}")
+    for sitemap in SITEMAPS:
+        gsc.submit_sitemap(site, sitemap)
+        print(f"sitemap submitted: {sitemap}")
     return 0
 
 
@@ -186,8 +205,10 @@ def submit() -> int:
     if not site:
         print("not set up yet — run: bin/gsc setup", file=sys.stderr)
         return 1
-    client().submit_sitemap(site, SITEMAP)
-    print(f"sitemap resubmitted to {site}")
+    gsc = client()
+    for sitemap in SITEMAPS:
+        gsc.submit_sitemap(site, sitemap)
+        print(f"sitemap resubmitted to {site}: {sitemap}")
     return 0
 
 
@@ -226,7 +247,7 @@ def report() -> int:
     out.append("")
 
     out += ["**Index status — sample**", "", "| Page | Verdict | Coverage |", "|---|---|---|"]
-    for path in ("/", "/properties/", "/for-sale/", "/for-sale/condos/jomtien/", "/areas/jomtien/"):
+    for path in SITES[DOMAIN]["samples"]:
         try:
             r = gsc.inspect(site, f"https://{DOMAIN}{path}")
             out.append(f"| {path} | {r.get('verdict', '?')} | {r.get('coverageState', '?')} |")
@@ -239,6 +260,7 @@ def report() -> int:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--domain", choices=sorted(SITES), default="pattayahomepro.com")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("setup")
     s.add_argument("--owner", default="", help="Google account to add as an owner")
@@ -246,6 +268,7 @@ def main() -> int:
     sub.add_parser("report")
     sub.add_parser("status", help="exit 0 when connected, 1 when not")
     args = ap.parse_args()
+    use(args.domain)
     status = lambda: 0 if connected_property() else 1  # noqa: E731
     try:
         return {"setup": lambda: setup(args.owner), "submit": submit, "report": report,

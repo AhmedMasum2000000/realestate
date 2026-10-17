@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#1a2b56">
   <meta name="robots" content="{{ 'noindex,nofollow' if preview else 'index,follow' }}">
   <link rel="canonical" href="https://moveinthailand.com/{{ page.slug }}{{ '/' if page.slug else '' }}">
+  {% if gsc_meta and not page.slug %}<meta name="google-site-verification" content="{{ gsc_meta }}">{% endif %}
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Move In Thailand">
   <meta property="og:title" content="{{ page.title }}">

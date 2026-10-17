@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#e7e2d8">
   <meta name="robots" content="{{ 'noindex,nofollow' if preview or page.template == '404' else 'index,follow' }}">
   <link rel="canonical" href="{{ canonical }}">
+  {% if gsc_meta and not page.slug %}<meta name="google-site-verification" content="{{ gsc_meta }}">{% endif %}
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Second Home Thailand">
   <meta property="og:title" content="{{ page.title }}">
@@ -20,12 +21,21 @@
   <link rel="preload" href="{{ asset('fonts/anton-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ asset('fonts/inter-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
   {% if page.template == 'home' %}<link rel="preload" as="image" href="{{ asset('photos/summit-800.webp') }}" imagesrcset="{{ asset('photos/summit-800.webp') }} 800w, {{ asset('photos/summit-1600.webp') }} 1600w, {{ asset('photos/summit-2000.webp') }} 2000w" imagesizes="100vw" fetchpriority="high">{% endif %}
-  <script>(function(d){d.classList.add(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches?'motion-lite':'motion-ok')})(document.documentElement)</script>
+  <script>(function(d){var lite=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;d.classList.add(lite?'motion-lite':'motion-ok');try{if(!lite&&!sessionStorage.getItem('sht-loader')){sessionStorage.setItem('sht-loader','1');d.classList.add('is-loading')}}catch(e){}})(document.documentElement)</script>
   <link rel="stylesheet" href="{{ asset('site.css') }}">
   {% if schema %}<script type="application/ld+json">{{ schema|tojson }}</script>{% endif %}
 </head>
 <body data-page="{{ page.template }}">
 <a class="skip-link" href="#main">Skip to content</a>
+<div class="boon-loader" id="boon-loader" aria-hidden="true">
+  <div class="boon-loader-inner"><div class="boon-figure" data-loader-figure>{{ boon('puzzled', 'boon-pose is-on') }}{{ boon('success', 'boon-pose') }}</div>
+  <p class="boon-loader-say"><span class="boon-loader-404" data-loader-a>404?</span><span class="boon-loader-joke" data-loader-b>Just kidding! Welcome home.</span></p>
+  <div class="boon-loader-bar"><span></span></div></div>
+</div>
+<script>(function(){var d=document.documentElement,l=document.getElementById('boon-loader');if(!d.classList.contains('is-loading')){l.remove();return}
+var done=false,t1,t2;function end(){if(done)return;done=true;clearTimeout(t1);clearTimeout(t2);l.classList.add('is-out');d.classList.remove('is-loading');setTimeout(function(){l.remove()},600)}
+t1=setTimeout(function(){l.classList.add('is-joke');var f=l.querySelectorAll('.boon-pose');f[0].classList.remove('is-on');f[1].classList.add('is-on')},950);
+t2=setTimeout(end,2100);l.addEventListener('click',end);addEventListener('keydown',end,{once:true})})()</script>
 <div class="progress" aria-hidden="true"><span data-page-progress></span></div>
 <header class="header">
   <div class="frame header-inner">
@@ -35,7 +45,7 @@
     </a>
     <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button>
     <nav id="navigation" class="navigation" aria-label="Main navigation">
-      {% for name, path in [('Concierge','concierge'),('Routes','visas'),('Approach','approach'),('Library','library')] %}<a href="{{ url(path ~ '/') }}"{% if page.slug == path or (path == 'visas' and page.slug.startswith('visas/')) or (path == 'library' and page.shared and not page.slug.startswith('visas')) %} aria-current="page"{% endif %}>{{ name }}</a>{% endfor %}
+      {% for name, path in [('Concierge','concierge'),('Routes','visas'),('Homes','properties'),('Approach','approach'),('Library','library')] %}<a href="{{ url(path ~ '/') }}"{% if page.slug == path or (path == 'visas' and page.slug.startswith('visas/')) or (path == 'library' and page.shared and not page.slug.startswith('visas')) or (path == 'properties' and page.slug.startswith('properties')) %} aria-current="page"{% endif %}>{{ name }}</a>{% endfor %}
       <a class="nav-cta" href="{{ url('contact/') }}">Consultation</a>
     </nav>
   </div>
@@ -53,7 +63,7 @@
     </div>
     <div class="footer-grid">
       <div><p class="footer-lede">A private residency desk for people making Thailand their second home. Route, home, paperwork and arrival, planned once and agreed in writing.</p></div>
-      <div>{{ mono('Concierge') }}<a href="{{ url('concierge/') }}">Engagements</a><a href="{{ url('approach/') }}">Our approach</a><a href="{{ url('contact/') }}">Consultation</a><a data-whatsapp hidden href="#">WhatsApp</a></div>
+      <div>{{ mono('Concierge') }}<a href="{{ url('concierge/') }}">Engagements</a><a href="{{ url('approach/') }}">Our approach</a><a href="{{ url('contact/') }}">Consultation</a><a href="{{ url('properties/') }}">Homes for sale &amp; rent</a>{% for key in ['properties/jomtien', 'properties/pratumnak', 'properties/east-pattaya'] if key in home_hubs %}<a href="{{ url(key ~ '/') }}">{{ home_hubs[key].heading }}</a>{% endfor %}<a data-whatsapp hidden href="#">WhatsApp</a></div>
       <div>{{ mono('Routes') }}{% for spec in route_specs %}<a href="{{ url('visas/' ~ spec.slug ~ '/') }}">{{ spec.name }}</a>{% endfor %}<a href="{{ url('tools/visa-finder/') }}">Visa Finder</a></div>
       <div>{{ mono('Library') }}{% for name, slug in hubs[1:] %}<a href="{{ url(slug ~ '/') }}">{{ name }}</a>{% endfor %}</div>
     </div>
@@ -64,7 +74,7 @@
   </div>
 </footer>
 {% if page.template == 'home' %}{% include 'boon-note.html.j2' %}{% endif %}
-<a class="mobile-cta" href="{{ url('contact/') }}">Schedule consultation {{ icon('arrow') }}</a>
+{% if page.template == 'listing' %}<a class="mobile-cta" href="#enquire">Request a viewing · {{ page.home.ref }} {{ icon('arrow') }}</a>{% else %}<a class="mobile-cta" href="{{ url('contact/') }}">Schedule consultation {{ icon('arrow') }}</a>{% endif %}
 <script id="sht-config" type="application/json">{{ config|tojson }}</script>
 <script defer src="{{ asset('site.js') }}"></script>
 <script defer src="{{ asset('motion.js') }}"></script>

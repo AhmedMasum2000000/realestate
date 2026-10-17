@@ -36,6 +36,7 @@ def load(name, path):
 
 sht = load('sht_content', HERE/'content.py')
 mit = load('mit_content', ROOT/'mit'/'content.py')
+listings = load('sht_listings', HERE/'listings.py')
 CHECKED, MIT_PAGES, ROUTE_SPECS, SOURCES, VISAS = mit.CHECKED, mit.PAGES, mit.ROUTE_SPECS, mit.SOURCES, mit.VISAS
 
 DOMAIN = 'secondhomethailand.com'
@@ -91,8 +92,29 @@ def structured_data(page, faqs):
         {'@type': 'WebSite', '@id': SITE + '#website', 'name': 'Second Home Thailand', 'url': SITE, 'inLanguage': 'en'},
         {'@type': 'WebPage', '@id': canonical + '#page', 'url': canonical, 'name': page['title'], 'description': page['description'], 'isPartOf': {'@id': SITE + '#website'}, 'inLanguage': 'en'},
     ]
-    if page['slug']:
-        entries.append({'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE}, {'@type': 'ListItem', 'position': 2, 'name': page['title'].split('|')[0].strip(), 'item': canonical}]})
+    trail = page.get('trail') or ([(page['title'].split('|')[0].strip(), page['slug'])] if page['slug'] else [])
+    if trail:
+        entries.append({'@type': 'BreadcrumbList', 'itemListElement': [{'@type': 'ListItem', 'position': 1, 'name': 'Home', 'item': SITE}] + [{'@type': 'ListItem', 'position': i + 2, 'name': name, 'item': SITE + slug + '/'} for i, (name, slug) in enumerate(trail)]})
+    home = page.get('home')
+    if home:
+        residence = {'@type': home['schema_type'], 'name': home['h1'] + (' at ' + home['project'] if home['project'] else ''),
+                     'address': {'@type': 'PostalAddress', 'addressLocality': home['area'], 'addressRegion': 'Chon Buri', 'addressCountry': 'TH'}}
+        if home['beds'] is not None:
+            residence['numberOfBedrooms'] = home['beds']
+            residence['numberOfRooms'] = max(home['beds'], 1)
+        if home['baths']:
+            residence['numberOfBathroomsTotal'] = home['baths']
+        offer = {'@type': 'Offer', 'price': home['price'], 'priceCurrency': 'THB', 'url': canonical,
+                 'businessFunction': 'http://purl.org/goodrelations/v1#' + ('Sell' if home['deal'] == 'sale' else 'LeaseOut')}
+        if home['deal'] == 'rent':
+            offer['priceSpecification'] = {'@type': 'UnitPriceSpecification', 'price': home['price'], 'priceCurrency': 'THB', 'unitCode': 'MON'}
+        entries.append({'@type': 'RealEstateListing', '@id': canonical + '#listing', 'url': canonical, 'name': page['title'].split(' | ')[0], 'description': home['summary'],
+                        'datePosted': home['updated'].isoformat(), 'image': SITE + 'wp-content/sht-site/assets/' + home['image'], 'identifier': home['ref'],
+                        'offers': offer, 'about': residence, 'provider': {'@id': SITE + '#organization'}})
+    hub = page.get('hub')
+    if hub:
+        entries.append({'@type': 'ItemList', '@id': canonical + '#homes', 'name': hub['heading'], 'numberOfItems': len(hub['homes']),
+                        'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'url': SITE + h['slug'] + '/', 'name': h['h1']} for i, h in enumerate(hub['homes'][:30])]})
     if faqs:
         entries.append({'@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faqs]})
     return {'@context': 'https://schema.org', '@graph': entries}
@@ -115,6 +137,26 @@ def build(output: Path, preview: bool):
     version = hashlib.sha256(b''.join((output/'assets'/name).read_bytes() for name in ('site.css', 'site.js', 'motion.js', 'boon.js'))).hexdigest()[:10]
 
     pages = own_pages() + shared_pages()
+    # Property listings and their hubs: built from the shared catalogue, served as static pages.
+    homes = listings.load(ROOT, date.today())
+    newest = max(h['updated'] for h in homes)
+    when = newest.strftime('%-d %B %Y')
+    home_hubs = listings.build_hubs(homes, when)
+    listings.prepare_images(homes, output/'assets'/'listings', ROOT/'.cache'/'sht-listing-images')
+    def hub_trail(hub):
+        trail = [('Properties', 'properties')]
+        if hub['kind'] == 'area-type':
+            trail.append((hub['area'], 'properties/' + hub['area_slug']))
+        if hub['kind'] != 'all':
+            trail.append((hub['crumb'], hub['key']))
+        return trail
+    for key, hub in home_hubs.items():
+        pages.append({'slug': key, 'template': 'listings-hub', 'title': hub['title'], 'description': hub['description'], 'shared': False, 'hub': hub, 'static': True,
+                      'lastmod': max(h['updated'] for h in hub['homes']).isoformat(), 'trail': hub_trail(hub), 'faqs': hub['faqs']})
+    for home in homes:
+        trail = [('Properties', 'properties')] + ([(home_hubs[home['crumb']]['crumb'], home['crumb'])] if home['crumb'] != 'properties' else []) + [(home['ref'], home['slug'])]
+        pages.append({'slug': home['slug'], 'template': 'listing', 'title': home['title'], 'description': home['description'], 'shared': False, 'home': home, 'static': True,
+                      'lastmod': home['updated'].isoformat(), 'trail': trail, 'faqs': home['faqs']})
     known = {page['slug'] for page in pages}
 
     def asset(path):
@@ -165,8 +207,36 @@ def build(output: Path, preview: bool):
     metrics = [(guide_count, 'Guides in the library'), (route_count, 'Residency routes compared'), (len(SOURCES), 'Official sources linked')]
     env = Environment(loader=FileSystemLoader(HERE/'templates'), autoescape=True, undefined=StrictUndefined, keep_trailing_newline=True)
     env.filters['md'] = md
-    env.globals.update(icon=icon, photo=photo, url=url, asset=asset, label=label, by_slug=by_slug, guides_in=guides_in, hubs=HUBS, hub_names={slug: name for name, slug in HUBS}, metrics=metrics,
+    def hub_links(hub):
+        pick = lambda test: [k for k, h in home_hubs.items() if k != hub['key'] and test(h)]
+        kind = hub['kind']
+        if kind == 'all':
+            return [('By area', pick(lambda h: h['kind'] == 'area')), ('By type', pick(lambda h: h['kind'] == 'type')), ('Buy or rent', pick(lambda h: h['kind'] == 'deal'))]
+        if kind == 'deal':
+            return [('By type', pick(lambda h: h['kind'] == 'type' and h['deal'] == hub['deal'])), ('By area', pick(lambda h: h['kind'] == 'area'))]
+        if kind == 'type':
+            return [('By area', pick(lambda h: h['kind'] == 'area-type' and h['type_slug'] == hub['type_slug'] and h['deal'] == hub['deal'])), ('Other searches', pick(lambda h: h['kind'] in ('type', 'deal')))]
+        if kind == 'area':
+            return [('In ' + hub['area'], pick(lambda h: h['kind'] == 'area-type' and h['area_slug'] == hub['area_slug'])), ('Other areas', pick(lambda h: h['kind'] == 'area'))]
+        return [('Also in ' + hub['area'], pick(lambda h: h['kind'] in ('area', 'area-type') and h['area_slug'] == hub['area_slug'])),
+                ('Elsewhere', pick(lambda h: h['kind'] in ('type', 'area-type') and h.get('type_slug') == hub['type_slug'] and h['deal'] == hub['deal']))]
+    def guide_links(hub):
+        sale = [('What foreigners can own', 'Condominium quotas, land leases and what to avoid.', 'homes/foreign-ownership/'), ('Buying a condo, step by step', 'From reservation to the Land Office.', 'homes/buy-condo-thailand/'), ('The transfer at the Land Office', 'Fees, taxes and documents on the day.', 'homes/property-transfer/')]
+        rent = [('Renting in Pattaya', 'Leases, deposits and choosing an area.', 'homes/rent-in-pattaya/'), ('TM30 address notification', 'Your landlord’s duty, and why it matters to you.', 'stay-legal/tm30/'), ('Cost of living', 'Build a monthly budget for Thailand.', 'living/cost-of-living/')]
+        both = [sale[0], rent[0], ('Pattaya’s neighbourhoods', 'Jomtien, Pratumnak, Wongamat and the inland estates compared.', 'living/pattaya/')]
+        return sale if hub.get('deal') == 'sale' else rent if hub.get('deal') == 'rent' else both
+    type_options = sorted({(h['type_slug'], h['plural']) for h in homes})
+    area_counts = {}
+    for h in homes:
+        area_counts.setdefault((h['area_slug'], h['area']), 0)
+        area_counts[(h['area_slug'], h['area'])] += 1
+    area_options = [key for key, _ in sorted(area_counts.items(), key=lambda item: -item[1])]
+    featured = [h for h in homes if h['deal'] == 'sale' and not h['stale']][:6]
+    env.globals.update(icon=icon, photo=photo, home_hubs=home_hubs, hub_links=hub_links, guide_links=guide_links, type_options=type_options, area_options=area_options,
+                       updated_label=when, featured_homes=featured, home_count=len(homes), url=url, asset=asset, label=label, by_slug=by_slug, guides_in=guides_in, hubs=HUBS, hub_names={slug: name for name, slug in HUBS}, metrics=metrics,
                        route_specs=ROUTE_SPECS, visas=VISAS, checked=CHECKED, source_map=SOURCES, sht=sht, sister=SISTER, site=SITE)
+    gsc_state = ROOT/'data'/'gsc-secondhomethailand.com.json'
+    env.globals['gsc_meta'] = json.loads(gsc_state.read_text()).get('meta', '') if gsc_state.is_file() else ''
     config = {'basePath': '/', 'apiBase': '/wp-json/sht/v1/', 'preview': preview, 'checked': CHECKED, 'visas': {visa['slug']: {'name': visa['name']} for visa in VISAS}, 'fees': {}, 'whatsapp': ''}
     routes = []
     for page in pages:
@@ -183,7 +253,7 @@ def build(output: Path, preview: bool):
         if not main:
             raise SystemExit(f'No editable page region: {slug}')
         routes.append({'path': '/' + slug + '/' if slug else '/', 'file': relative, 'slug': slug or 'home', 'title': page['title'], 'description': page['description'],
-                       'canonical': canonical, 'content_hash': hashlib.sha256(('<!-- wp:html -->' + main[1] + '<!-- /wp:html -->').encode('utf-8')).hexdigest()})
+                       'canonical': canonical, **({'static': True, 'lastmod': page['lastmod']} if page.get('static') else {}), 'content_hash': hashlib.sha256(('<!-- wp:html -->' + main[1] + '<!-- /wp:html -->').encode('utf-8')).hexdigest()})
     (output/'404.html').write_text(env.get_template('404.html.j2').render(page={'slug': '404', 'template': '404', 'title': 'Page not found | Second Home Thailand', 'description': 'This page is not part of Second Home Thailand.', 'shared': False},
                                                                            faqs=[], canonical=SITE, config=config, schema={}, preview=preview), encoding='utf-8')
     known_paths = {route['path'].rstrip('/') or '/' for route in routes}
@@ -203,8 +273,19 @@ def build(output: Path, preview: bool):
     (output/'routes.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     # Only this site's own pages are listed; shared guides point search engines to Move In Thailand.
     listed = [route for route in routes if route['canonical'].startswith(SITE)]
-    sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join('<url><loc>' + xml_escape(SITE.rstrip('/') + route['path']) + '</loc><lastmod>' + manifest['built_at'] + '</lastmod></url>\n' for route in listed) + '</urlset>\n'
+    sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join('<url><loc>' + xml_escape(SITE.rstrip('/') + route['path']) + '</loc><lastmod>' + route.get('lastmod', manifest['built_at']) + '</lastmod></url>\n' for route in listed) + '</urlset>\n'
     (output/'sitemap.xml').write_text(sitemap, encoding='utf-8')
+    # A plain-text map for AI answer engines: what the site is, its key pages and where the homes are.
+    lines = ['# Second Home Thailand', '', '> A private residency concierge for people making Thailand their second home: long-stay visa routes, a home to buy or rent in the Pattaya area, arrival and renewals, planned by one desk and agreed in writing. No tracking cookies.', '',
+             '## Key pages', '']
+    for slug in ('', 'concierge', 'visas', 'properties', 'tools/visa-finder', 'library', 'contact'):
+        page = by_slug.get(slug) or {'title': 'Properties', 'description': ''}
+        lines.append(f"- [{page['title'].split(' | ')[0]}]({SITE}{slug + '/' if slug else ''}): {page['description']}")
+    lines += ['', f'## Homes for sale and rent ({len(homes)} listings, data updated {when})', '']
+    lines += [f"- [{hub['heading']}]({SITE}{key}/): {hub['facts'][0] if hub['facts'] else ''}" for key, hub in home_hubs.items() if hub['kind'] in ('all', 'deal', 'type', 'area')]
+    lines += ['', '## Residency routes', ''] + [f"- [{visa['name']}]({SISTER}visas/{visa['slug']}/)" for visa in VISAS]
+    lines += ['', '## Notes', '', '- Listing prices are asking prices from the listing agent and change; availability is confirmed before any viewing.', '- Visa and immigration decisions are made by the responsible Thai authorities.', f'- Guides are shared with the sister site Move In Thailand ({SISTER}).', '']
+    (output/'llms.txt').write_text('\n'.join(lines), encoding='utf-8')
     (output/'release.json').write_text(json.dumps({'site': 'Second Home Thailand', 'version': version, 'pages': len(routes), 'listed': len(listed)}), encoding='utf-8')
     print(f'Built {len(routes)} pages ({len(listed)} in the sitemap) in {output} ({"preview" if preview else "production"}).')
 

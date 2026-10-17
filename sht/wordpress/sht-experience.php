@@ -41,7 +41,7 @@ function sht_serve_sitemap() {
     $dates=array();foreach(get_posts(array('post_type'=>'sht_page','post_status'=>'publish','numberposts'=>1000,'suppress_filters'=>true)) as $page){$dates[get_post_meta($page->ID,'_sht_route',true)]=$page->post_modified_gmt;}
     status_header(200);header('Content-Type: application/xml; charset=UTF-8');
     echo '<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-    foreach($routes as $route){$stamp=isset($dates[$route['path']])?gmdate('c',strtotime($dates[$route['path']].' UTC')):($manifest['built_at'].'T00:00:00Z');echo '<url><loc>'.htmlspecialchars(home_url($route['path']),ENT_XML1|ENT_COMPAT,'UTF-8').'</loc><lastmod>'.esc_html($stamp).'</lastmod></url>';}
+    foreach($routes as $route){$stamp=isset($dates[$route['path']])?gmdate('c',strtotime($dates[$route['path']].' UTC')):(!empty($route['lastmod'])?$route['lastmod'].'T00:00:00Z':$manifest['built_at'].'T00:00:00Z');echo '<url><loc>'.htmlspecialchars(home_url($route['path']),ENT_XML1|ENT_COMPAT,'UTF-8').'</loc><lastmod>'.esc_html($stamp).'</lastmod></url>';}
     echo '</urlset>';exit;
 }
 // Existing SEO plugins may claim *-sitemap.xml during parse_request.
@@ -74,6 +74,8 @@ function sht_seed_editorial_pages() {
     $completed = true;
     kses_remove_filters();
     foreach ($routes as $route) {
+        // Listing and listing-hub pages come straight from the build; they are not editable page records.
+        if (!empty($route['static'])) { continue; }
         $existing = get_posts(array('post_type'=>'sht_page','post_status'=>'any','numberposts'=>1,'meta_key'=>'_sht_route','meta_value'=>$route['path'],'suppress_filters'=>true));
         $file = sht_page_file($route);
         if (!$file) { $completed=false; continue; }
@@ -110,6 +112,10 @@ function sht_published_page($path) {
 function sht_render_site() {
     if (is_admin() || wp_doing_ajax() || (defined('REST_REQUEST') && REST_REQUEST) || is_feed()) { return; }
     $path=rawurldecode(parse_url($_SERVER['REQUEST_URI'] ?? '/',PHP_URL_PATH) ?: '/');
+    if ($path === '/llms.txt') {
+        $file=sht_site_directory().'/llms.txt';
+        if (is_readable($file)) { status_header(200);header('Content-Type: text/plain; charset=UTF-8');header('X-Robots-Tag: noindex');readfile($file);exit; }
+    }
     if ($path === '/sht-sitemap.xml') {
         $file=sht_site_directory().'/sitemap.xml';
         if (is_readable($file)) { status_header(200);header('Content-Type: application/xml; charset=UTF-8');readfile($file);exit; }
@@ -120,7 +126,7 @@ function sht_render_site() {
     $route=sht_route($normal);
     if (!$route) { sht_not_found($normal); return; }
     $file=sht_page_file($route);if (!$file) { return; }
-    $page=sht_published_page($route['path']);
+    $page=empty($route['static']) ? sht_published_page($route['path']) : null;
     $preview_id=absint($_GET['sht_preview'] ?? 0);
     $preview=false;
     if ($preview_id && current_user_can('edit_post',$preview_id) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_sht_nonce'] ?? '')), 'sht_preview_'.$preview_id)) {
