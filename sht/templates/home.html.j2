@@ -1,33 +1,31 @@
 {% extends 'base.html.j2' %}
 {% from 'parts.html.j2' import mono, display, faq, cta, button, form with context %}
-{% macro echo(word) %}<span class="echo-row">{% for n in range(4, 0, -1) %}<span class="echo-layer" style="--n:{{ n }}" aria-hidden="true">{{ word }}</span>{% endfor %}<span class="echo-top">{{ word }}</span></span>{% endmacro %}
 {% block content %}
-<section class="hero">
-  <div class="frame">
-    <div class="hero-meta mono"><span>Residency concierge</span><span>Route · Home · Arrival · Care</span><span data-local-time>Pattaya · ICT</span></div>
-    <div class="hero-title">
-      <h1 class="echo" aria-label="Second Home Thailand">{{ echo('Second') }}{{ echo('Home') }}{{ echo('Thailand') }}</h1>
-      <div class="metrics">{% for value, name in metrics %}<div class="metric" data-stagger>{{ mono(name) }}<strong data-count="{{ value }}">{{ value }}</strong></div>{% endfor %}</div>
-    </div>
-    <div class="hero-foot">
-      <div class="hero-lede">
-        <p class="lede" data-reveal-words>A private desk for people making Thailand their second home. Your route, your home and your arrival, planned once, handled in order and agreed <em>in writing.</em></p>
-        <div class="button-row">{{ button('Schedule consultation', url('contact/')) }}<a class="text-arrow" href="{{ url('visas/') }}">Compare residency routes {{ icon('arrow') }}</a></div>
-      </div>
-    </div>
+<section class="cine" data-cine aria-labelledby="hero-title">
+  <div class="cine-media" data-cine-media aria-hidden="true">
+    <div class="cine-img">{{ photo('summit', 'cine-photo', sizes='100vw', eager=True, alt='') }}</div>
+    <div class="cine-sun"></div>
+    <div class="cine-mist cine-mist-1"></div>
+    <div class="cine-mist cine-mist-2"></div>
+    <canvas class="cine-motes" data-motes></canvas>
   </div>
-  <div class="hero-rule" aria-hidden="true"><span></span></div>
-</section>
-
-<section class="film" data-film aria-label="The Thai coast">
-  <div class="film-frame">{{ photo('coast', 'film-img', eager=True) }}</div>
-  <div class="frame film-caption mono"><span>Chapter 00 · Arrival</span><span>The Thai coast</span></div>
+  <div class="cine-shade" aria-hidden="true"></div>
+  <div class="cine-grain" aria-hidden="true"></div>
+  <div class="cine-bars" aria-hidden="true"><span></span><span></span></div>
+  <div class="frame cine-copy" data-cine-copy>
+    <p class="mono cine-kicker">Thailand residency &amp; long-stay visa concierge</p>
+    <h1 id="hero-title" class="cine-title">{% for word in 'Stay in Thailand as long as it feels like'.split() %}<span class="cw"><span style="--i:{{ loop.index0 }}">{{ word }}</span></span> {% endfor %}<em class="cw"><span style="--i:9">home.</span></em></h1>
+    <p class="cine-lede">Long-stay visas, your home and every renewal after you land, planned by one residency desk and agreed in writing.</p>
+    <a class="button button-light cine-cta" href="{{ url('contact/') }}"><span>Schedule consultation</span>{{ icon('arrow') }}</a>
+  </div>
+  <div class="cine-cue" aria-hidden="true"><span></span></div>
 </section>
 
 <section class="section philosophy">
   <div class="frame">
     {{ mono('Philosophy') }}
     <blockquote class="quote" data-reveal-words>A second home is not a visa. It is a <em>life,</em> arranged in the right order.</blockquote>
+    <div class="metrics metrics-row">{% for value, name in metrics %}<div class="metric" data-stagger>{{ mono(name) }}<strong data-count="{{ value }}">{{ value }}</strong></div>{% endfor %}</div>
     <div class="columns-3">{% for index, title, text in sht.PHILOSOPHY %}<div class="column" data-stagger><span class="index mono">{{ index }}</span><h3>{{ title }}</h3><p>{{ text }}</p></div>{% endfor %}</div>
   </div>
 </section>
@@ -106,9 +104,9 @@
   </div>
 </section>
 
-<section class="banner" aria-label="Stay as long as Thailand feels like home">
-  <div class="banner-img" data-parallax>{{ photo('summit', sizes='100vw', alt='') }}</div>
-  <div class="frame banner-copy"><p class="mono">Chapter 07 · Stay</p><p class="banner-line" data-reveal-words>Stay as long as Thailand feels like <em>home.</em></p></div>
+<section class="banner" aria-label="Your second home is closer than it looks">
+  <div class="banner-img" data-parallax>{{ photo('coast', sizes='100vw', alt='') }}</div>
+  <div class="frame banner-copy"><p class="mono">Chapter 07 · Stay</p><p class="banner-line" data-reveal-words>Your second home is closer than it <em>looks.</em></p></div>
 </section>
 
 {{ faq(faqs) }}

@@ -19,6 +19,7 @@
   <link rel="apple-touch-icon" href="{{ asset('mark.png') }}">
   <link rel="preload" href="{{ asset('fonts/anton-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ asset('fonts/inter-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  {% if page.template == 'home' %}<link rel="preload" as="image" href="{{ asset('photos/summit-800.webp') }}" imagesrcset="{{ asset('photos/summit-800.webp') }} 800w, {{ asset('photos/summit-1600.webp') }} 1600w, {{ asset('photos/summit-2000.webp') }} 2000w" imagesizes="100vw" fetchpriority="high">{% endif %}
   <script>(function(d){d.classList.add(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches?'motion-lite':'motion-ok')})(document.documentElement)</script>
   <link rel="stylesheet" href="{{ asset('site.css') }}">
   {% if schema %}<script type="application/ld+json">{{ schema|tojson }}</script>{% endif %}

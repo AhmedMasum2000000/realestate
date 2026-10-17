@@ -63,7 +63,7 @@ def own_pages():
     def page(slug, template, title, description, **extra):
         return {'slug': slug, 'template': template, 'title': title, 'description': description, 'shared': False, **extra}
     return [
-        page('', 'home', 'Second Home Thailand | Residency Concierge for Your Life in Thailand', 'A private residency desk for people making Thailand their second home: route strategy, applications, homes, arrival and renewals, planned once and agreed in writing.'),
+        page('', 'home', 'Stay in Thailand Long Term | Residency & Visa Concierge | Second Home Thailand', 'Stay in Thailand as long as it feels like home. Long-stay visa routes (LTR, Thailand Privilege, retirement, DTV), your home and every renewal, planned by one residency desk and agreed in writing.'),
         page('concierge', 'concierge', 'Concierge Services | Residency, Home & Arrival in Thailand | Second Home Thailand', 'Route Review, the full Residency Programme and ongoing Residency Care. Fixed scope and fee, agreed in writing before any paid work starts.', short='Concierge'),
         page('approach', 'approach', 'Our Approach | How Second Home Thailand Works', 'Fit before speed, written scope, official sources and no promises we cannot keep. How a Second Home Thailand engagement runs, from consultation to renewals.', short='Approach'),
         page('visas', 'routes', 'Thailand Residency Routes Compared | Privilege, LTR, Retirement & DTV', 'Compare Thailand’s long-stay routes side by side: length of stay, who each suits, the money test and whether you can work.', short='Routes'),

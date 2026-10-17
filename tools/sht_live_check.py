@@ -32,6 +32,10 @@ def check(context, url, tag, problems):
     before = page.evaluate(snap)
     time.sleep(2.5)
     after = page.evaluate(snap)
+    hero = page.evaluate("(() => { const h = document.querySelector('.cine h1'); const c = document.querySelector('.cine-copy'); return {title: h ? h.textContent.replace(/\\s+/g, ' ').trim() : '', links: c ? c.querySelectorAll('a').length : 0, paragraphs: c ? c.querySelectorAll('p').length : 0} })()")
+    print(f'{tag}: hero={hero}')
+    if not hero['title'].startswith('Stay in Thailand as long as it feels like home') or hero['links'] != 1:
+        problems.append(f'{tag}: cinematic hero missing or changed ({hero})')
     print(f'{tag}: release={release} clock_moves={before["clock"] != after["clock"]} running_animations={after["running"]}')
     if before['clock'] == after['clock']:
         problems.append(f'{tag}: the clock did not tick')

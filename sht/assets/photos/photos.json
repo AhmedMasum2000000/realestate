@@ -29,6 +29,10 @@
   "source": "assets/properties/3.jpg",
   "sizes": [
    [
+    2000,
+    1125
+   ],
+   [
     1600,
     900
    ],
