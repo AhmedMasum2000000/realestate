@@ -1,4 +1,4 @@
-{% from 'parts.html.j2' import mono with context %}{% from 'boon.html.j2' import boon %}<!doctype html>
+{% from 'parts.html.j2' import mono with context %}{% from 'boon.html.j2' import boon %}{% from 'logo.html.j2' import logo %}<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -21,26 +21,34 @@
   <link rel="preload" href="{{ asset('fonts/anton-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="{{ asset('fonts/inter-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
   {% if page.template == 'home' %}<link rel="preload" as="image" href="{{ asset('photos/summit-800.webp') }}" imagesrcset="{{ asset('photos/summit-800.webp') }} 800w, {{ asset('photos/summit-1600.webp') }} 1600w, {{ asset('photos/summit-2000.webp') }} 2000w" imagesizes="100vw" fetchpriority="high">{% endif %}
-  <script>(function(d){var lite=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;d.classList.add(lite?'motion-lite':'motion-ok');try{if(!lite&&!sessionStorage.getItem('sht-loader')){sessionStorage.setItem('sht-loader','1');d.classList.add('is-loading')}}catch(e){}})(document.documentElement)</script>
+  <script>(function(d){var lite=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;d.classList.add(lite?'motion-lite':'motion-ok');try{if(!lite&&!sessionStorage.getItem('sht-intro')){sessionStorage.setItem('sht-intro','1');d.classList.add('is-intro')}}catch(e){}})(document.documentElement)</script>
   <link rel="stylesheet" href="{{ asset('site.css') }}">
   {% if schema %}<script type="application/ld+json">{{ schema|tojson }}</script>{% endif %}
 </head>
 <body data-page="{{ page.template }}">
 <a class="skip-link" href="#main">Skip to content</a>
-<div class="boon-loader" id="boon-loader" aria-hidden="true">
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-inner">{{ logo('intro-logo') }}
+    <p class="intro-line intro-line-1">Remember the warm air when the door opened?</p>
+    <p class="intro-line intro-line-2">Imagine it every <em>morning.</em></p>
+  </div>
+</div>
+<script>(function(){var d=document.documentElement,o=document.getElementById('intro');if(!d.classList.contains('is-intro')){o.remove();return}
+var done=false,timer;function fly(){if(done)return;done=true;clearTimeout(timer);var mark=document.querySelector('.header .brand-mark'),logo=o.querySelector('.intro-logo');
+if(mark&&logo&&window.scrollY<80){var a=logo.getBoundingClientRect(),b=mark.getBoundingClientRect(),s=b.width/a.width;logo.style.color=getComputedStyle(mark).color;
+logo.style.transform='translate('+(b.left+b.width/2-(a.left+a.width/2))+'px,'+(b.top+b.height/2-(a.top+a.height/2))+'px) scale('+s+')'}
+o.classList.add('is-out');setTimeout(function(){d.classList.remove('is-intro');o.remove()},720)}
+timer=setTimeout(fly,3000);o.addEventListener('click',fly);addEventListener('keydown',fly,{once:true});addEventListener('wheel',fly,{once:true,passive:true});addEventListener('touchmove',fly,{once:true,passive:true})})()</script>
+<div class="boon-loader" id="boon-loader" aria-hidden="true" hidden>
   <div class="boon-loader-inner"><div class="boon-figure" data-loader-figure>{{ boon('puzzled', 'boon-pose is-on') }}{{ boon('success', 'boon-pose') }}</div>
-  <p class="boon-loader-say"><span class="boon-loader-404" data-loader-a>404?</span><span class="boon-loader-joke" data-loader-b>Just kidding! Welcome home.</span></p>
+  <p class="boon-loader-say"><span class="boon-loader-404">404?</span><span class="boon-loader-joke">Just kidding! Nearly there.</span></p>
   <div class="boon-loader-bar"><span></span></div></div>
 </div>
-<script>(function(){var d=document.documentElement,l=document.getElementById('boon-loader');if(!d.classList.contains('is-loading')){l.remove();return}
-var done=false,t1,t2;function end(){if(done)return;done=true;clearTimeout(t1);clearTimeout(t2);l.classList.add('is-out');d.classList.remove('is-loading');setTimeout(function(){l.remove()},600)}
-t1=setTimeout(function(){l.classList.add('is-joke');var f=l.querySelectorAll('.boon-pose');f[0].classList.remove('is-on');f[1].classList.add('is-on')},950);
-t2=setTimeout(end,2100);l.addEventListener('click',end);addEventListener('keydown',end,{once:true})})()</script>
 <div class="progress" aria-hidden="true"><span data-page-progress></span></div>
 <header class="header">
   <div class="frame header-inner">
     <a class="brand" href="{{ url('') }}" aria-label="Second Home Thailand home">
-      <svg class="brand-mark" viewBox="0 0 40 40" aria-hidden="true"><rect x="1" y="1" width="38" height="38" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 25h24" stroke="#4a90c2" stroke-width="2"/><path d="M8 25a12 12 0 0 1 24 0" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 31h24" stroke="currentColor" stroke-width="1"/></svg>
+      {{ logo('brand-mark') }}
       <span class="brand-name">Second Home<small>Thailand · Residency concierge</small></span>
     </a>
     <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button>

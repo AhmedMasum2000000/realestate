@@ -63,7 +63,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 .header.is-hidden{transform:translateY(-100%)}
 .header-inner{height:100%;display:flex;align-items:center;justify-content:space-between;gap:24px}
 .brand{display:flex;align-items:center;gap:14px;text-decoration:none}
-.brand-mark{width:36px;height:36px;color:inherit}
+.brand-mark{width:42px;height:auto;color:inherit;flex:none;transition:opacity .4s var(--out)}
 .brand-name{font:400 22px/1 var(--display);text-transform:uppercase;letter-spacing:-.01em;display:flex;flex-direction:column;gap:5px}
 .brand-name small{font:400 9px/1 var(--mono);letter-spacing:.2em;color:var(--muted)}
 .navigation{display:flex;align-items:center;gap:clamp(18px,2.6vw,40px)}
@@ -799,5 +799,28 @@ body[data-page=home] .header.is-solid,body[data-page=home] .header:has([aria-exp
 .boon-loader-bar{width:120px;height:2px;background:var(--line);overflow:hidden}
 .boon-loader-bar span{display:block;height:100%;background:var(--blue);transform-origin:0 50%;animation:loader-bar 2.1s linear forwards}
 @keyframes loader-bar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
-.is-loading .cine *,.is-loading .cine *::before,.is-loading .cine *::after{animation-play-state:paused!important}
-.is-loading body{overflow:hidden}
+.is-intro .cine *,.is-intro .cine *::before,.is-intro .cine *::after{animation-play-state:paused!important}
+.is-intro body{overflow:hidden}
+.is-intro .header .brand-mark{opacity:0}
+.boon-loader{opacity:0;transition:opacity .35s var(--out)}
+.boon-loader.is-on{opacity:1}
+.boon-loader .boon-loader-bar span{animation-duration:6s}
+
+/* First visit: the Threshold draws itself, one line of memory, one of curiosity, then the logo settles into the header. */
+.intro{position:fixed;inset:0;z-index:210;display:grid;place-items:center;cursor:pointer;color:var(--ink)}
+.intro::before{content:'';position:absolute;inset:0;background:var(--cream);transition:opacity .6s var(--out) .1s}
+.intro-inner{position:relative;display:grid;justify-items:center;gap:clamp(14px,2.2vh,22px);padding:0 24px;text-align:center}
+.intro-logo{width:clamp(120px,14vw,190px);height:auto;margin-bottom:clamp(10px,2vh,24px);transform-origin:50% 50%;transition:transform .7s var(--in-out),color .7s var(--out)}
+.intro .lg-door{stroke-dasharray:1;stroke-dashoffset:1;animation:lg-draw .95s var(--in-out) .38s forwards}
+.intro .lg-line{transform-box:fill-box;transform-origin:50% 50%;transform:scaleX(0);animation:lg-grow .5s var(--out) .08s forwards}
+.intro .lg-line-l,.intro .lg-line-r{animation-delay:.4s}
+.intro .lg-line-l{transform-origin:100% 50%}.intro .lg-line-r{transform-origin:0 50%}
+@keyframes lg-draw{to{stroke-dashoffset:0}}
+@keyframes lg-grow{to{transform:scaleX(1)}}
+.intro-line{opacity:0;transform:translateY(14px);animation:fade-up .9s var(--out) forwards}
+.intro-line-1{font:italic 400 clamp(22px,2.6vw,36px)/1.25 var(--serif);letter-spacing:-.01em;animation-delay:1.05s;max-width:22ch}
+.intro-line-2{font:400 clamp(34px,4.6vw,68px)/.92 var(--display);text-transform:uppercase;letter-spacing:-.03em;animation-delay:1.85s}
+.intro-line-2 em{font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:-.02em;color:var(--blue)}
+.intro.is-out::before{opacity:0}
+.intro.is-out .intro-line{transition:opacity .35s var(--out);opacity:0!important;animation:none}
+.intro.is-out{pointer-events:none}

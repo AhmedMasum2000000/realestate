@@ -14,6 +14,30 @@
     figure.querySelectorAll('.boon-pose').forEach(svg => svg.classList.toggle('is-on', svg.classList.contains('boon-' + name)));
   };
 
+  // Loading moment: if a page takes more than a moment to arrive after a click, Khun Boon jokes "404?" ... "Just kidding!".
+  const loader = document.getElementById('boon-loader');
+  if (loader && !reduce) {
+    let wait = null, joke = null;
+    const reset = () => {
+      clearTimeout(wait); clearTimeout(joke);
+      loader.classList.remove('is-on', 'is-joke'); loader.hidden = true; pose(loader, 'puzzled');
+    };
+    document.addEventListener('click', event => {
+      const link = event.target.closest('a[href]');
+      if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      if (link.target && link.target !== '_self' || link.hasAttribute('download') || link.origin !== location.origin) return;
+      if (link.pathname === location.pathname && link.search === location.search) return;
+      reset();
+      wait = setTimeout(() => {
+        loader.hidden = false;
+        requestAnimationFrame(() => loader.classList.add('is-on'));
+        joke = setTimeout(() => { loader.classList.add('is-joke'); pose(loader, 'success'); }, 1100);
+      }, 650);
+    });
+    addEventListener('pageshow', reset);
+    addEventListener('pagehide', () => clearTimeout(joke));
+  }
+
   // Welcome note: once a month, a few seconds after the hero has settled.
   const note = document.getElementById('boon-note');
   if (note) {
