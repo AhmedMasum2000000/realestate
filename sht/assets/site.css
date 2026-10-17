@@ -490,3 +490,126 @@ details[open] .faq-plus::before{background:var(--blue)}
 }
 @media print{.header,.footer,.mobile-cta,.progress,.aside,.cta-band{display:none}body{background:#fff}}
 .sht-preview-banner{background:var(--ink);color:var(--cream);padding:12px var(--gutter);font:400 10.5px/1.5 var(--mono);letter-spacing:.18em;text-transform:uppercase}
+
+/* Photography. Full colour, square-cut, revealed by a mask as the page scrolls. */
+img{height:auto}
+.film{position:relative;padding:0 0 28px}
+.film-frame,.hero-photo-frame{overflow:hidden;clip-path:inset(calc(var(--f,1) * 6%) calc(var(--f,1) * 9%) round 0);transition:clip-path .2s linear}
+.film-frame{height:min(88vh,860px);height:min(88svh,860px)}
+.film-img{width:100%;height:100%;object-fit:cover;transform:scale(calc(1 + var(--f,1) * .14));transform-origin:50% 50%;will-change:transform}
+.film-caption{display:flex;justify-content:space-between;gap:16px;padding-top:16px}
+.hero-photo{margin:clamp(40px,5vw,72px) 0 0}
+.hero-photo-frame{aspect-ratio:21/9}
+.hero-photo figcaption{padding-top:12px}
+.motion-lite .film-frame,.motion-lite .hero-photo-frame{clip-path:none}
+.motion-lite .film-img{transform:none}
+
+/* A year in your second home: a horizontal story pinned while you scroll */
+.story{position:relative;height:calc(var(--chapters) * 62vh + 100vh);border-top:1px solid var(--line)}
+.story-sticky{position:sticky;top:0;height:100vh;height:100svh;overflow:hidden;display:flex;flex-direction:column;justify-content:center;gap:clamp(24px,4vh,48px)}
+.story-head{display:flex;justify-content:space-between;align-items:end;gap:24px}
+.story-head>div:first-child{display:grid;gap:18px}
+.story-head .display{font-size:clamp(44px,5.6vw,92px)}
+.story-meter{width:min(280px,40%);display:grid;gap:12px}
+.story-meter b{font-weight:400;color:var(--blue)}
+.story-track{display:flex;gap:clamp(16px,2vw,32px);padding:0 var(--gutter);width:max-content;will-change:transform}
+.chapter{flex:none;width:clamp(280px,30vw,460px);display:grid;gap:18px;align-content:start;text-decoration:none}
+.chapter-img{position:relative;aspect-ratio:4/5;max-height:56vh;overflow:hidden;background:var(--paper)}
+.chapter-img img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--out)}
+.chapter:hover .chapter-img img{transform:scale(1.05)}
+.chapter-no{position:absolute;left:16px;top:12px;font:400 clamp(48px,4.6vw,80px)/.85 var(--display);color:var(--cream);letter-spacing:-.03em;text-shadow:0 0 30px rgba(23,23,23,.25)}
+.chapter-copy{display:grid;gap:8px;border-top:1.5px solid var(--ink);padding-top:16px}
+.chapter-copy h3{font:400 clamp(26px,2.2vw,36px)/.92 var(--display);text-transform:uppercase;letter-spacing:-.02em}
+.chapter-copy p{color:var(--muted);font-size:15px;max-width:40ch}
+.chapter-end{align-self:stretch;max-height:56vh;aspect-ratio:4/5;background:var(--ink);color:var(--cream);padding:28px;display:flex;flex-direction:column;justify-content:flex-end;gap:16px;transition:background .4s var(--out)}
+.chapter-end .mono{color:var(--cream-muted)}
+.chapter-end strong{font:400 clamp(40px,3.6vw,64px)/.88 var(--display);text-transform:uppercase;letter-spacing:-.03em;font-weight:400}
+.chapter-end .icon{width:40px;height:40px;stroke-width:1.2;transition:transform .5s var(--out),color .4s}
+.chapter-end:hover .icon{transform:translateX(8px);color:var(--blue)}
+.motion-lite .story{height:auto;padding:var(--section) 0}
+.motion-lite .story-sticky{position:static;height:auto}
+.motion-lite .story-track{width:auto;overflow-x:auto;scroll-snap-type:x mandatory}
+.motion-lite .chapter{scroll-snap-align:start}
+
+/* Service, route and process photographs */
+.service-img{display:block;aspect-ratio:4/3;overflow:hidden;margin:-4px 0 6px;background:var(--paper)}
+.service-img img{width:100%;height:100%;object-fit:cover;filter:grayscale(.35);transition:filter .6s var(--out),transform 1.2s var(--out)}
+.service-card:hover .service-img img{filter:none;transform:scale(1.05)}
+.service-card h3{margin-top:4px}
+.tile-photo{position:relative;display:block;aspect-ratio:16/9;overflow:hidden;margin:-28px -28px 28px}
+.tile-2 .tile-photo,.tile-3 .tile-photo{aspect-ratio:4/3}
+.tile-photo img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--out)}
+.tile:hover .tile-photo img{transform:scale(1.04)}
+.tile .form{top:auto;bottom:24px;right:24px;width:clamp(90px,10vw,140px)!important;opacity:.9}
+.tile-years{color:var(--cream);text-shadow:0 0 40px rgba(23,23,23,.3)}
+.tile-years small{color:var(--cream)}
+.tile-copy{padding-right:clamp(100px,11vw,160px)}
+.tile{display:flex;flex-direction:column;min-height:0}
+.pin-head{grid-column:1/5}
+.pin-media{grid-column:5/9;position:relative;aspect-ratio:3/4;max-height:70vh;width:100%;overflow:hidden;background:var(--paper)}
+.pin-photo{position:absolute;inset:0;opacity:0;transform:scale(1.08);transition:opacity .9s var(--out),transform 1.6s var(--out)}
+.pin-photo.is-active{opacity:1;transform:none}
+.pin-photo img{width:100%;height:100%;object-fit:cover}
+.pin-steps{grid-column:9/13}
+.pin-step{grid-template-columns:40px 1fr;padding:18px 0}
+.pin-step h3{font-size:clamp(26px,2.3vw,38px)}
+.pin-step p{font-size:15px}
+.pin-count{font-size:clamp(80px,9vw,150px)}
+
+/* Gallery mosaic, closing banner, in-article photographs */
+.mosaic{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(12px,1.6vw,24px);align-items:start}
+.mosaic-item{display:grid;gap:10px}
+.mosaic-img{overflow:hidden;background:var(--paper)}
+.mosaic-img img{width:100%;height:115%;object-fit:cover;transform:translateY(var(--py,0));will-change:transform}
+.mosaic-item figcaption{display:flex;gap:12px}
+.mosaic-item figcaption span{color:var(--blue)}
+.m-1{grid-column:1/8}.m-1 .mosaic-img{aspect-ratio:16/10}
+.m-2{grid-column:8/13;margin-top:clamp(40px,8vw,140px)}.m-2 .mosaic-img{aspect-ratio:4/5}
+.m-3{grid-column:1/5}.m-3 .mosaic-img{aspect-ratio:4/5}
+.m-4{grid-column:5/10;margin-top:clamp(30px,5vw,90px)}.m-4 .mosaic-img{aspect-ratio:1}
+.m-5{grid-column:10/13}.m-5 .mosaic-img{aspect-ratio:3/4}
+.m-6{grid-column:2/7}.m-6 .mosaic-img{aspect-ratio:4/3}
+.m-7{grid-column:7/13;margin-top:clamp(40px,7vw,120px)}.m-7 .mosaic-img{aspect-ratio:16/10}
+.m-8{grid-column:1/6}.m-8 .mosaic-img{aspect-ratio:4/3}
+.m-9{grid-column:6/12;margin-top:clamp(20px,4vw,72px)}.m-9 .mosaic-img{aspect-ratio:16/9}
+.gallery-link{margin-top:40px}
+.banner{position:relative;height:min(92vh,880px);overflow:hidden;color:var(--cream);display:flex;align-items:flex-end}
+.banner-img{position:absolute;inset:-12% 0;transform:translateY(var(--py,0));will-change:transform}
+.banner-img img{width:100%;height:100%;object-fit:cover}
+.banner::after{content:'';position:absolute;inset:0;background:rgba(23,23,23,.28)}
+.banner-copy{position:relative;z-index:1;padding-bottom:clamp(40px,6vw,96px);display:grid;gap:20px}
+.banner-copy .mono{color:var(--cream)}
+.banner-line{font:400 clamp(52px,8.6vw,150px)/.88 var(--display);text-transform:uppercase;letter-spacing:-.035em;max-width:14ch}
+.banner-line em{font-family:var(--serif);font-style:italic;text-transform:none;letter-spacing:-.02em;font-size:.9em}
+.article-photo{margin:0 0 48px;display:grid;gap:10px}
+.article-photo .mosaic-img{aspect-ratio:16/9}
+.motion-lite .mosaic-img img{height:100%;transform:none}
+.motion-lite .banner-img{inset:0;transform:none}
+
+@media (max-width:900px){
+  .film-frame{height:62vh;height:62svh}
+  .hero-photo-frame{aspect-ratio:4/3}
+  .story{height:calc(var(--chapters) * 70vh + 100vh)}
+  .story-head{flex-direction:column;align-items:start;gap:16px}
+  .story-head .display{font-size:40px}
+  .story-meter{width:100%}
+  .chapter{width:78vw}
+  .chapter-img{aspect-ratio:4/3;max-height:38vh}
+  .chapter-end{aspect-ratio:auto;min-height:38vh;max-height:none}
+  .chapter-copy p{font-size:14px}
+  .pin-media{grid-column:1/-1;aspect-ratio:16/9;max-height:22vh;order:1}
+  .pin-head{order:0;grid-column:1/-1}.pin-steps{order:2;grid-column:1/-1}
+  .pin-head .display{font-size:36px}
+  .pin-count{display:none}
+  .pin-step{padding:10px 0}
+  .pin-step h3{font-size:22px}
+  .tile-copy{padding-right:88px}
+  .tile-photo{margin:-22px -22px 22px}
+  .tile-2 .tile-photo,.tile-3 .tile-photo{aspect-ratio:16/10}
+  .tile .form{width:80px!important}
+  .mosaic{grid-template-columns:repeat(6,1fr)}
+  .mosaic-item{grid-column:1/-1!important;margin-top:0!important}
+  .m-2,.m-5,.m-8{grid-column:2/7!important}
+  .m-3,.m-6,.m-9{grid-column:1/6!important}
+  .banner{height:72vh}
+}

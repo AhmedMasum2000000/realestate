@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, cta, crumbs, button with context %}
+{% from 'parts.html.j2' import mono, cta, crumbs, button, hero_photo with context %}
 {% block content %}
 <section class="page-hero">
   <div class="frame">
@@ -8,6 +8,7 @@
       <div>{{ mono('The residency library') }}<h1 class="display page-title" data-reveal-words>Read first. <em>Decide later.</em></h1></div>
       <div class="page-hero-side"><p class="lede">{{ metrics[0][0] }} practical guides for living in Thailand long term, each linked to the official source that decides. Free to read, written to be acted on.</p></div>
     </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['library']) }}
   </div>
 </section>
 {% for name, slug in hubs %}{% set guides = guides_in(slug) %}{% if guides %}

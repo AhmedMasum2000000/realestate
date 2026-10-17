@@ -148,12 +148,24 @@ def build(output: Path, preview: bool):
     def guides_in(prefix):
         return [page for page in pages if page['shared'] and page['layout'] == 'guide' and (page['slug'] == prefix or page['slug'].startswith(prefix + '/'))]
 
+    photos = json.loads((asset_source/'photos'/'photos.json').read_text())
+
+    def photo(name, cls='', sizes='100vw', eager=False, alt=None):
+        # Responsive WebP with explicit dimensions, so pages do not shift while photos load.
+        if name not in photos:
+            raise ValueError(f'Unknown photo: {name}')
+        widths = sorted(photos[name]['sizes'])
+        width, height = widths[-1]
+        srcset = ', '.join(f"{asset(f'photos/{name}-{w}.webp')} {w}w" for w, _ in widths)
+        text = sht.PHOTOS[name] if alt is None else alt
+        return Markup(f'<img class="{escape(cls)}" src="{asset(f"photos/{name}-{widths[0][0]}.webp")}" srcset="{srcset}" sizes="{escape(sizes)}" width="{width}" height="{height}" alt="{escape(text)}" loading="{"eager" if eager else "lazy"}" decoding="async">')
+
     guide_count = sum(1 for page in pages if page['shared'] and page['layout'] == 'guide')
     route_count = len(VISAS) + sum(1 for page in MIT_PAGES if page['slug'].startswith('visas/') and page['template'] == 'editorial')
     metrics = [(guide_count, 'Guides in the library'), (route_count, 'Residency routes compared'), (len(SOURCES), 'Official sources linked')]
     env = Environment(loader=FileSystemLoader(HERE/'templates'), autoescape=True, undefined=StrictUndefined, keep_trailing_newline=True)
     env.filters['md'] = md
-    env.globals.update(icon=icon, url=url, asset=asset, label=label, by_slug=by_slug, guides_in=guides_in, hubs=HUBS, hub_names={slug: name for name, slug in HUBS}, metrics=metrics,
+    env.globals.update(icon=icon, photo=photo, url=url, asset=asset, label=label, by_slug=by_slug, guides_in=guides_in, hubs=HUBS, hub_names={slug: name for name, slug in HUBS}, metrics=metrics,
                        route_specs=ROUTE_SPECS, visas=VISAS, checked=CHECKED, source_map=SOURCES, sht=sht, sister=SISTER, site=SITE)
     config = {'basePath': '/', 'apiBase': '/wp-json/sht/v1/', 'preview': preview, 'checked': CHECKED, 'visas': {visa['slug']: {'name': visa['name']} for visa in VISAS}, 'fees': {}, 'whatsapp': ''}
     routes = []

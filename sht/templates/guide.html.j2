@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, faq, cta, sources, crumbs, rich_sections, related, button, form with context %}
+{% from 'parts.html.j2' import mono, faq, cta, sources, crumbs, rich_sections, related, button, form, hero_photo with context %}
 {% set visa = page.get('visa') %}
 {% set topic = page.slug.split('/')[0] %}
 {% block content %}
@@ -17,13 +17,17 @@
       </div>
     </div>
     {% if visa %}<div class="facts">{% for value, name in visa.facts %}<div class="metric" data-stagger>{{ mono(name) }}<strong class="metric-text">{{ value }}</strong></div>{% endfor %}<div class="metric metric-badge" data-stagger>{{ mono('Status') }}<strong class="metric-text">{{ visa.badge }}</strong></div></div>{% endif %}
+    {{ hero_photo((sht.ROUTE_PHOTOS.get(visa.slug, 'temple') if visa else sht.TOPIC_PHOTOS.get(topic, 'coast'))) }}
   </div>
 </section>
 {% if page.get('cards') %}<section class="section hub-cards"><div class="frame related-grid">{% for title, text, href in page.cards %}<a class="related-card" href="{{ url(href) }}" data-stagger><span class="related-index mono">{{ '%02d'|format(loop.index) }}</span><h3>{{ title }}</h3><p>{{ text }}</p><span class="link-arrow">{{ icon('arrow') }}</span></a>{% endfor %}</div></section>{% endif %}
 <section class="section article">
   <div class="frame article-grid">
     <article class="prose">
-      {{ rich_sections(visa.sections if visa else page.sections) }}
+      {% set body = visa.sections if visa else page.sections %}{% set pool = ['villa-aerial', 'sea-terrace', 'pool-living', 'garden-villa', 'courtyard-pool', 'resort', 'chinatown', 'summit', 'pool-night', 'beach-aerial', 'garden-pool', 'villa-modern'] %}
+      {{ rich_sections(body[:2]) }}
+      {% if body|length > 2 %}{% set inset = pool[page.slug|length % pool|length] %}<figure class="article-photo" data-stagger><div class="mosaic-img" data-parallax>{{ photo(inset, sizes='(max-width: 900px) 92vw, 760px') }}</div><figcaption class="mono">{{ sht.PHOTOS[inset] }}</figcaption></figure>{% endif %}
+      {{ rich_sections(body[2:]) }}
       {% set step = visa.next if visa else page.next %}{% if step %}<div class="next-step">{{ mono('Your next step') }}<h2>{{ step[0] }}</h2><a class="text-arrow" href="{{ url(step[1]) }}">Continue {{ icon('arrow') }}</a></div>{% endif %}
       {{ sources(visa.sources if visa else page.sources) }}
       <p class="shared-note mono">This guide is shared with our sister site, <a href="{{ canonical }}">Move In Thailand</a>.</p>

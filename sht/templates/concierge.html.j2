@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, cta, crumbs, button with context %}
+{% from 'parts.html.j2' import mono, cta, crumbs, button, hero_photo with context %}
 {% block content %}
 <section class="page-hero">
   <div class="frame">
@@ -8,6 +8,7 @@
       <div>{{ mono('Concierge') }}<h1 class="display page-title" data-reveal-words>Handled, <em>in writing.</em></h1></div>
       <div class="page-hero-side"><p class="lede">Three ways to work with us. Each one starts with a consultation and a written scope: what we will do, what it costs and what is not included, before any paid work begins.</p>{{ button('Schedule consultation', url('contact/')) }}</div>
     </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['concierge']) }}
   </div>
 </section>
 <section class="section engagements">

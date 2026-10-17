@@ -41,3 +41,7 @@
 {% else %}<rect x="40" y="40" width="320" height="320" fill="none" stroke="currentColor"/><path d="M40 360 360 40" stroke="#4a90c2" stroke-width="2"/>{% endif %}
 </svg>
 {% endmacro %}
+
+{% macro hero_photo(name, caption='') %}
+{% if name %}<figure class="hero-photo" data-film><div class="hero-photo-frame">{{ photo(name, 'film-img', sizes='100vw', eager=True) }}</div>{% if caption %}<figcaption class="mono">{{ caption }}</figcaption>{% endif %}</figure>{% endif %}
+{% endmacro %}

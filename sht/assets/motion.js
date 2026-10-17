@@ -51,6 +51,7 @@
     if (mobileCta) mobileCta.classList.toggle('is-shown', y > innerHeight * 0.6);
     last = y;
     pin();
+    if (full) frame();
   };
 
   // Pinned process: four steps across a 400vh section.
@@ -69,9 +70,48 @@
     if (active === current) return;
     current = active;
     steps.forEach((step, index) => { step.classList.toggle('is-active', index === active); step.classList.toggle('is-done', index < active); });
+    pinned.querySelectorAll('[data-pin-photo]').forEach((photo, index) => photo.classList.toggle('is-active', index === active));
     if (number) number.textContent = String(active + 1).padStart(2, '0');
   }
   if (pinned && !full) steps.forEach(step => step.classList.add('is-active'));
+
+  // Photographs: masks open as they arrive, a horizontal story runs while its section is pinned,
+  // and images drift a little against the scroll.
+  const films = [...document.querySelectorAll('[data-film]')];
+  const story = document.querySelector('[data-story]');
+  const track = story && story.querySelector('[data-story-track]');
+  const chapters = story ? story.querySelectorAll('[data-chapter]').length : 0;
+  const storyNumber = story && story.querySelector('[data-story-number]');
+  const storyBar = story && story.querySelector('[data-story-progress]');
+  const drifting = [...document.querySelectorAll('[data-parallax]')];
+  const clamp = value => Math.min(1, Math.max(0, value));
+  let queued = false;
+  function frame() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(() => {
+      queued = false;
+      const vh = innerHeight;
+      films.forEach(film => {
+        const top = film.getBoundingClientRect().top;
+        film.style.setProperty('--f', clamp((top - vh * 0.08) / (vh * 0.75)).toFixed(3));
+      });
+      if (track) {
+        const box = story.getBoundingClientRect();
+        const p = clamp(-box.top / (box.height - vh));
+        const distance = Math.max(0, track.scrollWidth - innerWidth);
+        track.style.transform = `translate3d(${(-p * distance).toFixed(1)}px,0,0)`;
+        if (storyBar) storyBar.style.width = (p * 100).toFixed(2) + '%';
+        if (storyNumber) storyNumber.textContent = String(Math.min(chapters, 1 + Math.floor(p * chapters * 0.999))).padStart(2, '0');
+      }
+      drifting.forEach(node => {
+        const box = node.getBoundingClientRect();
+        if (box.bottom < -200 || box.top > vh + 200) return;
+        const offset = (box.top + box.height / 2 - vh / 2) / vh;
+        node.style.setProperty('--py', (offset * -6).toFixed(2) + '%');
+      });
+    });
+  }
 
   addEventListener('scroll', onScroll, {passive: true});
   addEventListener('resize', onScroll);

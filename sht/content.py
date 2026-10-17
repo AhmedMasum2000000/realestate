@@ -60,3 +60,50 @@ PRIVACY = [
     ('How long we keep it', 'Initial enquiries are kept for 180 days unless they become an ongoing requested service or must be kept for a legal obligation. Any later identity checks or professional work get their own explanation.'),
     ('Cookies', 'This website sets no analytics or advertising cookies. The Visa Finder runs in your browser and needs no account.'),
 ]
+
+# Photographs: Thailand scenes from the existing site library, and homes from our property partner
+# Pattaya Home Pro. Homes are illustrative of the market, not current availability.
+PHOTOS = {
+    'temple': 'Golden temple roofs under a bright Bangkok sky',
+    'skyline': 'Bangkok’s skyline lit up at dusk',
+    'summit': 'Twin pagodas on a mountain ridge at sunset in northern Thailand',
+    'night-market': 'Neon signs and tuk-tuks on a rainy Bangkok night',
+    'chinatown': 'Yaowarat Road in Bangkok’s Chinatown, busy with signs and taxis',
+    'coast': 'Clear water and a quiet beach on the Thai coast',
+    'villa-aerial': 'Aerial view of a modern villa and pool among palms',
+    'villa-modern': 'A contemporary three-storey house with deep balconies',
+    'pool-night': 'A modern house and long pool lit at night',
+    'garden-villa': 'A Thai-style villa and sculpted garden at blue hour',
+    'sea-terrace': 'Sea view over terraced gardens on the Pattaya coast',
+    'pool-house': 'A family house wrapped around a blue-tiled pool',
+    'pool-living': 'An open living room beside a private pool',
+    'garden-pool': 'A long infinity pool and lawn loungers in a condominium garden',
+    'courtyard-pool': 'Single-storey villas around a courtyard pool',
+    'sea-towers': 'Condominium towers above the Pattaya bay',
+    'beach-aerial': 'Twin residential towers beside a long sandy beach',
+    'resort': 'A resort-style condominium with winding pools and bridges',
+    'white-house': 'A white two-storey house with balconies',
+    'home-1': 'A modern townhouse entrance with a landscaped drive',
+    'home-2': 'A gated residential street in Pattaya',
+}
+
+STORY = [
+    ('01', 'Land', 'skyline', 'The first night is a city that never quite sleeps. You arrive with a visa that already fits the plan.'),
+    ('02', 'Choose the coast', 'sea-terrace', 'Pattaya, Jomtien or further south: neighbourhoods chosen around your routine, not a brochure.'),
+    ('03', 'Find the home', 'pool-night', 'Rent first or buy with the ownership questions answered. The lease and the visa agree on dates.'),
+    ('04', 'Make it yours', 'pool-living', 'Bank account, insurance, internet and a driving licence, set up in the order each one needs.'),
+    ('05', 'Live it', 'night-market', 'Weeknight markets, weekend islands. The paperwork stays in the background, where it belongs.'),
+    ('06', 'Slow down', 'summit', 'Long weekends in the north. Your 90-day reports and re-entry permits are already on the calendar.'),
+    ('07', 'Stay', 'temple', 'Year two, year five, year ten. Renewals handled before they are due, for as long as Thailand is home.'),
+]
+
+GALLERY = [('villa-aerial', 'Pool villas'), ('sea-towers', 'Sea-view condominiums'), ('courtyard-pool', 'Courtyard homes'), ('villa-modern', 'Contemporary houses'),
+           ('resort', 'Resort living'), ('garden-pool', 'Garden pools'), ('beach-aerial', 'Beachfront towers'), ('white-house', 'Family houses'), ('pool-house', 'Private pools')]
+
+SERVICE_PHOTOS = ['skyline', 'temple', 'pool-house', 'chinatown', 'summit']
+PROCESS_PHOTOS = ['coast', 'villa-aerial', 'garden-villa', 'garden-pool']
+ROUTE_PHOTOS = {'dtv': 'sea-terrace', 'ltr': 'skyline', 'thailand-privilege': 'garden-villa', 'retirement': 'garden-pool',
+                'business': 'chinatown', 'marriage': 'temple', 'education': 'night-market'}
+TOPIC_PHOTOS = {'visas': 'temple', 'stay-legal': 'skyline', 'homes': 'pool-house', 'living': 'night-market', 'business': 'chinatown',
+                'invest': 'sea-towers', 'start-here': 'coast', 'faq': 'summit', 'tools': 'temple'}
+PAGE_PHOTOS = {'concierge': 'villa-aerial', 'approach': 'summit', 'visas': 'temple', 'library': 'night-market', 'contact': 'coast', 'privacy': None}

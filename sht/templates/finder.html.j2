@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, crumbs with context %}
+{% from 'parts.html.j2' import mono, crumbs, hero_photo with context %}
 {% block content %}
 <section class="page-hero">
   <div class="frame">
@@ -8,6 +8,7 @@
       <div>{{ mono('The Visa Finder') }}<h1 class="display page-title" data-reveal-words>Find your <em>starting point.</em></h1></div>
       <div class="page-hero-side"><p class="lede">Four questions about your plans. A shortlist of routes worth exploring. No account, no contact details, and your answers stay in your browser.</p></div>
     </div>
+    {{ hero_photo('temple') }}
   </div>
 </section>
 <section class="section finder">

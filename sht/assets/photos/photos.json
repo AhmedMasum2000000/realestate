@@ -1,0 +1,211 @@
+{
+ "temple": {
+  "source": "assets/properties/1.jpg",
+  "sizes": [
+   [
+    1600,
+    1200
+   ],
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "skyline": {
+  "source": "assets/properties/2.jpg",
+  "sizes": [
+   [
+    1600,
+    1066
+   ],
+   [
+    800,
+    534
+   ]
+  ]
+ },
+ "summit": {
+  "source": "assets/properties/3.jpg",
+  "sizes": [
+   [
+    1600,
+    900
+   ],
+   [
+    800,
+    450
+   ]
+  ]
+ },
+ "night-market": {
+  "source": "assets/properties/4.jpg",
+  "sizes": [
+   [
+    1600,
+    1238
+   ],
+   [
+    800,
+    620
+   ]
+  ]
+ },
+ "chinatown": {
+  "source": "assets/properties/5.jpg",
+  "sizes": [
+   [
+    800,
+    550
+   ]
+  ]
+ },
+ "coast": {
+  "source": "mit/assets/coast.webp",
+  "sizes": [
+   [
+    1600,
+    900
+   ],
+   [
+    800,
+    450
+   ]
+  ]
+ },
+ "villa-aerial": {
+  "source": "assets/properties/CP1871/hero.webp",
+  "sizes": [
+   [
+    800,
+    480
+   ]
+  ]
+ },
+ "villa-modern": {
+  "source": "assets/properties/CP1967/hero.jpg",
+  "sizes": [
+   [
+    800,
+    564
+   ]
+  ]
+ },
+ "pool-night": {
+  "source": "assets/properties/CP1951/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "garden-villa": {
+  "source": "assets/properties/CP2050/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "sea-terrace": {
+  "source": "assets/properties/CP2066/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "pool-house": {
+  "source": "assets/properties/CP1964/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "pool-living": {
+  "source": "assets/properties/CP2105/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "garden-pool": {
+  "source": "assets/properties/CP2154/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "courtyard-pool": {
+  "source": "assets/properties/CP1987/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "sea-towers": {
+  "source": "assets/properties/CP2194/hero.webp",
+  "sizes": [
+   [
+    800,
+    432
+   ]
+  ]
+ },
+ "beach-aerial": {
+  "source": "assets/properties/CP2223/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "resort": {
+  "source": "assets/properties/CP1932/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "white-house": {
+  "source": "assets/properties/CP1916/hero.jpg",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "home-1": {
+  "source": "mit/assets/home.webp",
+  "sizes": [
+   [
+    800,
+    600
+   ]
+  ]
+ },
+ "home-2": {
+  "source": "mit/assets/home-2.webp",
+  "sizes": [
+   [
+    800,
+    432
+   ]
+  ]
+ }
+}

@@ -19,6 +19,11 @@
   <div class="hero-rule" aria-hidden="true"><span></span></div>
 </section>
 
+<section class="film" data-film aria-label="The Thai coast">
+  <div class="film-frame">{{ photo('coast', 'film-img', eager=True) }}</div>
+  <div class="frame film-caption mono"><span>Chapter 00 · Arrival</span><span>The Thai coast</span></div>
+</section>
+
 <section class="section philosophy">
   <div class="frame">
     {{ mono('Philosophy') }}
@@ -27,10 +32,23 @@
   </div>
 </section>
 
+<section class="story" data-story style="--chapters:{{ sht.STORY|length }}" aria-labelledby="story-title">
+  <div class="story-sticky">
+    <div class="frame story-head">
+      <div>{{ mono('A year in your second home') }}<h2 id="story-title" class="display" data-reveal-words>Seven chapters. <em>One move.</em></h2></div>
+      <div class="story-meter" aria-hidden="true"><span class="mono"><b data-story-number>01</b> / {{ '%02d'|format(sht.STORY|length) }}</span><div class="bar"><span data-story-progress></span></div></div>
+    </div>
+    <div class="story-track" data-story-track>{% for index, title, image, text in sht.STORY %}<article class="chapter" data-chapter>
+      <div class="chapter-img">{{ photo(image, sizes='(max-width: 900px) 80vw, 40vw') }}<span class="chapter-no">{{ index }}</span></div>
+      <div class="chapter-copy"><h3>{{ title }}</h3><p>{{ text }}</p></div>
+    </article>{% endfor %}<a class="chapter chapter-end" href="{{ url('contact/') }}"><span class="mono">Your chapter one</span><strong>Schedule consultation</strong>{{ icon('arrow') }}</a></div>
+  </div>
+</section>
+
 <section class="section services" aria-labelledby="services-title">
   <div class="frame">
     <div class="section-head">{{ mono('Concierge services') }}<h2 id="services-title" class="display" data-reveal-words>Five desks. <em>One plan.</em></h2><p>Everything a long stay in Thailand asks of you, coordinated by one team that sees the whole move.</p></div>
-    <div class="service-row">{% for item in sht.SERVICES %}<a class="service-card" href="{{ url(item.href) }}" data-stagger><span class="service-line" aria-hidden="true"></span><span class="index mono">{{ item.index }}</span><h3>{{ item.title }}</h3><p>{{ item.text }}</p><span class="text-arrow">{{ item.link }} {{ icon('arrow') }}</span></a>{% endfor %}</div>
+    <div class="service-row">{% for item in sht.SERVICES %}<a class="service-card" href="{{ url(item.href) }}" data-stagger><span class="service-line" aria-hidden="true"></span><span class="service-img">{{ photo(sht.SERVICE_PHOTOS[loop.index0], sizes='(max-width: 900px) 92vw, 20vw', alt='') }}</span><span class="index mono">{{ item.index }}</span><h3>{{ item.title }}</h3><p>{{ item.text }}</p><span class="text-arrow">{{ item.link }} {{ icon('arrow') }}</span></a>{% endfor %}</div>
   </div>
 </section>
 
@@ -43,6 +61,7 @@
         <div class="pin-count" aria-hidden="true"><span data-pin-number>01</span><small>/ 04</small></div>
         <div class="bar" aria-hidden="true"><span data-pin-progress></span></div>
       </div>
+      <div class="pin-media" aria-hidden="true">{% for image in sht.PROCESS_PHOTOS %}<div class="pin-photo{% if loop.first %} is-active{% endif %}" data-pin-photo>{{ photo(image, sizes='(max-width: 900px) 92vw, 30vw', alt='') }}</div>{% endfor %}</div>
       <ol class="pin-steps">{% for index, title, text in sht.PROCESS %}<li class="pin-step" data-pin-step><span class="index mono">{{ index }}</span><div><h3>{{ title }}</h3><p>{{ text }}</p></div></li>{% endfor %}</ol>
     </div>
   </div>
@@ -52,6 +71,7 @@
   <div class="frame">
     <div class="section-head">{{ mono('Residency routes') }}<h2 id="showcase-title" class="display" data-reveal-words>Four ways <em>to stay.</em></h2><p>The long-stay routes most second-home owners compare first. Which one fits depends on your age, income, work and family.</p></div>
     <div class="showcase-grid">{% for spec in route_specs %}{% set note = sht.SHOWCASE[spec.slug] %}<a class="tile tile-{{ loop.index }}" href="{{ url('visas/' ~ spec.slug ~ '/') }}" data-stagger>
+      <span class="tile-photo">{{ photo(sht.ROUTE_PHOTOS[spec.slug], sizes='(max-width: 900px) 92vw, 55vw', alt='') }}</span>
       {{ form(spec.slug) }}
       <div class="tile-copy"><span class="mono">{{ note[0] }} · {{ spec.length }}</span><h3>{{ spec.name }}</h3><p>{{ note[1] }}</p><span class="text-arrow">Read the route {{ icon('arrow') }}</span></div>
       <span class="tile-years" aria-hidden="true">{{ spec.years }}<small>{{ 'YR' if spec.years == 1 else 'YRS' }}</small></span>
@@ -71,11 +91,24 @@
   <div class="pill-track" data-marquee>{% for _ in range(2) %}<div class="pill-set"{% if not loop.first %} aria-hidden="true"{% endif %}>{% for name in ['Retiring at 50+', 'Remote work', 'Moving with family', 'Buying a condo', 'Long-term rental', 'Thai spouse', 'Business owner', 'Investor', 'Already in Thailand', 'Still exploring'] %}<span class="pill">{{ name }}</span>{% endfor %}</div>{% endfor %}</div>
 </section>
 
+<section class="section gallery" aria-labelledby="gallery-title">
+  <div class="frame">
+    <div class="section-head">{{ mono('Homes, illustrated') }}<h2 id="gallery-title" class="display" data-reveal-words>Life, <em>arranged.</em></h2><p>The kinds of homes second-home owners choose on the eastern seaboard. Photographs from our property partner, Pattaya Home Pro; availability changes, so treat them as a sense of place, not a listing.</p></div>
+    <div class="mosaic">{% for image, caption in sht.GALLERY %}<figure class="mosaic-item m-{{ loop.index }}" data-stagger><div class="mosaic-img" data-parallax>{{ photo(image, sizes='(max-width: 900px) 92vw, 40vw') }}</div><figcaption class="mono"><span>{{ '%02d'|format(loop.index) }}</span>{{ caption }}</figcaption></figure>{% endfor %}</div>
+    <a class="text-arrow gallery-link" href="https://pattayahomepro.com/" target="_blank" rel="noopener">Browse current homes at Pattaya Home Pro {{ icon('external') }}</a>
+  </div>
+</section>
+
 <section class="section library-teaser" aria-labelledby="library-title">
   <div class="frame">
     <div class="section-head section-head-row">{{ mono('The residency library') }}<h2 id="library-title" class="display" data-reveal-words>Read first. <em>Decide later.</em></h2>{{ button('Open the library', url('library/'), 'button-ghost') }}</div>
     <ol class="index-list">{% for slug in ['start-here', 'stay-legal/90-day-report', 'homes/foreign-ownership', 'living/health-insurance', 'visas/permanent-residence', 'stay-legal/extension-of-stay'] %}{% set guide = by_slug[slug] %}<li data-stagger><a href="{{ url(slug ~ '/') }}"><span class="index mono">{{ '%02d'|format(loop.index) }}</span><span class="index-title">{{ guide.title.split('|')[0].split(':')[0].strip() }}</span><span class="index-hub mono">{{ hub_names.get(slug.split('/')[0], 'Guide') }}</span>{{ icon('arrow') }}</a></li>{% endfor %}</ol>
   </div>
+</section>
+
+<section class="banner" aria-label="Stay as long as Thailand feels like home">
+  <div class="banner-img" data-parallax>{{ photo('summit', sizes='100vw', alt='') }}</div>
+  <div class="frame banner-copy"><p class="mono">Chapter 07 · Stay</p><p class="banner-line" data-reveal-words>Stay as long as Thailand feels like <em>home.</em></p></div>
 </section>
 
 {{ faq(faqs) }}

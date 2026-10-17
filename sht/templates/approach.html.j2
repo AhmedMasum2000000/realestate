@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, cta, crumbs, button with context %}
+{% from 'parts.html.j2' import mono, cta, crumbs, button, hero_photo with context %}
 {% block content %}
 <section class="page-hero">
   <div class="frame">
@@ -8,6 +8,7 @@
       <div>{{ mono('Our approach') }}<h1 class="display page-title" data-reveal-words>Fit before <em>speed.</em></h1></div>
       <div class="page-hero-side"><p class="lede">Second Home Thailand is the concierge desk of the team behind Move In Thailand’s free guide library. We built the library to answer questions. We built this desk to carry the whole move.</p></div>
     </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['approach']) }}
   </div>
 </section>
 <section class="section principles">

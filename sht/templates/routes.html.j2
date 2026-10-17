@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, display, cta, crumbs, button, form with context %}
+{% from 'parts.html.j2' import mono, display, cta, crumbs, button, form, hero_photo with context %}
 {% block content %}
 <section class="page-hero">
   <div class="frame">
@@ -8,6 +8,7 @@
       <div>{{ mono('Residency routes') }}<h1 class="display page-title" data-reveal-words>Every way <em>to stay.</em></h1></div>
       <div class="page-hero-side"><p class="lede">Thailand has no single “residency visa”. It has routes, each with its own length of stay, money test and rules on work. Compare them here, then let us check the one that fits.</p>{{ button('Find my route with us', url('contact/?interest=visa')) }}</div>
     </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['visas']) }}
   </div>
 </section>
 <section class="section showcase">

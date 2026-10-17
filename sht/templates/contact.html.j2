@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, crumbs with context %}
+{% from 'parts.html.j2' import mono, crumbs, hero_photo with context %}
 {% block content %}
 <section class="page-hero">
   <div class="frame">
@@ -8,6 +8,7 @@
       <div>{{ mono('Consultation') }}<h1 class="display page-title" data-reveal-words>Begin with a <em>conversation.</em></h1></div>
       <div class="page-hero-side"><p class="lede">Tell us where you are now and the move you have in mind. You do not need every answer, only the questions that matter to you.</p></div>
     </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['contact']) }}
   </div>
 </section>
 <section class="section contact">
