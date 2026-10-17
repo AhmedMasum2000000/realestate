@@ -1,0 +1,83 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, display, faq, cta, button, form with context %}
+{% macro echo(word) %}<span class="echo-row">{% for n in range(4, 0, -1) %}<span class="echo-layer" style="--n:{{ n }}" aria-hidden="true">{{ word }}</span>{% endfor %}<span class="echo-top">{{ word }}</span></span>{% endmacro %}
+{% block content %}
+<section class="hero">
+  <div class="frame">
+    <div class="hero-meta mono"><span>Residency concierge</span><span>Route · Home · Arrival · Care</span><span data-local-time>Pattaya · ICT</span></div>
+    <div class="hero-title">
+      <h1 class="echo" aria-label="Second Home Thailand">{{ echo('Second') }}{{ echo('Home') }}{{ echo('Thailand') }}</h1>
+      <div class="metrics">{% for value, name in metrics %}<div class="metric" data-stagger>{{ mono(name) }}<strong data-count="{{ value }}">{{ value }}</strong></div>{% endfor %}</div>
+    </div>
+    <div class="hero-foot">
+      <div class="hero-lede">
+        <p class="lede" data-reveal-words>A private desk for people making Thailand their second home. Your route, your home and your arrival, planned once, handled in order and agreed <em>in writing.</em></p>
+        <div class="button-row">{{ button('Schedule consultation', url('contact/')) }}<a class="text-arrow" href="{{ url('visas/') }}">Compare residency routes {{ icon('arrow') }}</a></div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-rule" aria-hidden="true"><span></span></div>
+</section>
+
+<section class="section philosophy">
+  <div class="frame">
+    {{ mono('Philosophy') }}
+    <blockquote class="quote" data-reveal-words>A second home is not a visa. It is a <em>life,</em> arranged in the right order.</blockquote>
+    <div class="columns-3">{% for index, title, text in sht.PHILOSOPHY %}<div class="column" data-stagger><span class="index mono">{{ index }}</span><h3>{{ title }}</h3><p>{{ text }}</p></div>{% endfor %}</div>
+  </div>
+</section>
+
+<section class="section services" aria-labelledby="services-title">
+  <div class="frame">
+    <div class="section-head">{{ mono('Concierge services') }}<h2 id="services-title" class="display" data-reveal-words>Five desks. <em>One plan.</em></h2><p>Everything a long stay in Thailand asks of you, coordinated by one team that sees the whole move.</p></div>
+    <div class="service-row">{% for item in sht.SERVICES %}<a class="service-card" href="{{ url(item.href) }}" data-stagger><span class="service-line" aria-hidden="true"></span><span class="index mono">{{ item.index }}</span><h3>{{ item.title }}</h3><p>{{ item.text }}</p><span class="text-arrow">{{ item.link }} {{ icon('arrow') }}</span></a>{% endfor %}</div>
+  </div>
+</section>
+
+<section class="pin" data-pin aria-labelledby="process-title">
+  <div class="pin-sticky">
+    <div class="frame pin-grid">
+      <div class="pin-head">
+        {{ mono('How an engagement runs') }}
+        <h2 id="process-title" class="display">Four steps.<br><em>One desk.</em></h2>
+        <div class="pin-count" aria-hidden="true"><span data-pin-number>01</span><small>/ 04</small></div>
+        <div class="bar" aria-hidden="true"><span data-pin-progress></span></div>
+      </div>
+      <ol class="pin-steps">{% for index, title, text in sht.PROCESS %}<li class="pin-step" data-pin-step><span class="index mono">{{ index }}</span><div><h3>{{ title }}</h3><p>{{ text }}</p></div></li>{% endfor %}</ol>
+    </div>
+  </div>
+</section>
+
+<section class="section showcase" aria-labelledby="showcase-title">
+  <div class="frame">
+    <div class="section-head">{{ mono('Residency routes') }}<h2 id="showcase-title" class="display" data-reveal-words>Four ways <em>to stay.</em></h2><p>The long-stay routes most second-home owners compare first. Which one fits depends on your age, income, work and family.</p></div>
+    <div class="showcase-grid">{% for spec in route_specs %}{% set note = sht.SHOWCASE[spec.slug] %}<a class="tile tile-{{ loop.index }}" href="{{ url('visas/' ~ spec.slug ~ '/') }}" data-stagger>
+      {{ form(spec.slug) }}
+      <div class="tile-copy"><span class="mono">{{ note[0] }} · {{ spec.length }}</span><h3>{{ spec.name }}</h3><p>{{ note[1] }}</p><span class="text-arrow">Read the route {{ icon('arrow') }}</span></div>
+      <span class="tile-years" aria-hidden="true">{{ spec.years }}<small>{{ 'YR' if spec.years == 1 else 'YRS' }}</small></span>
+    </a>{% endfor %}</div>
+  </div>
+</section>
+
+<section class="section compare" aria-labelledby="compare-title">
+  <div class="frame">
+    <div class="section-head section-head-row">{{ mono('Side by side') }}<h2 id="compare-title" class="display" data-reveal-words>The <em>short</em> version.</h2></div>
+    <div class="table compare-table" role="region" aria-label="Residency routes compared" tabindex="0"><table><thead><tr><th>Route</th><th>Length of stay</th><th>Suits</th><th>The money test</th><th>Work in Thailand</th></tr></thead><tbody>{% for spec in route_specs %}<tr><td data-label="Route"><a href="{{ url('visas/' ~ spec.slug ~ '/') }}">{{ spec.name }}</a></td><td data-label="Length of stay">{{ spec.length }}</td><td data-label="Suits">{{ spec.suits }}</td><td data-label="The money test">{{ spec.money }}</td><td data-label="Work in Thailand">{{ spec.work }}</td></tr>{% endfor %}</tbody></table></div>
+    <p class="fineprint">A planning summary from official sources checked {{ checked }}. The responsible authority’s current requirements decide each application. <a href="{{ url('tools/visa-finder/') }}">Try the Visa Finder</a> for a shortlist around your answers.</p>
+  </div>
+</section>
+
+<section class="pills" aria-label="Who we work with">
+  <div class="pill-track" data-marquee>{% for _ in range(2) %}<div class="pill-set"{% if not loop.first %} aria-hidden="true"{% endif %}>{% for name in ['Retiring at 50+', 'Remote work', 'Moving with family', 'Buying a condo', 'Long-term rental', 'Thai spouse', 'Business owner', 'Investor', 'Already in Thailand', 'Still exploring'] %}<span class="pill">{{ name }}</span>{% endfor %}</div>{% endfor %}</div>
+</section>
+
+<section class="section library-teaser" aria-labelledby="library-title">
+  <div class="frame">
+    <div class="section-head section-head-row">{{ mono('The residency library') }}<h2 id="library-title" class="display" data-reveal-words>Read first. <em>Decide later.</em></h2>{{ button('Open the library', url('library/'), 'button-ghost') }}</div>
+    <ol class="index-list">{% for slug in ['start-here', 'stay-legal/90-day-report', 'homes/foreign-ownership', 'living/health-insurance', 'visas/permanent-residence', 'stay-legal/extension-of-stay'] %}{% set guide = by_slug[slug] %}<li data-stagger><a href="{{ url(slug ~ '/') }}"><span class="index mono">{{ '%02d'|format(loop.index) }}</span><span class="index-title">{{ guide.title.split('|')[0].split(':')[0].strip() }}</span><span class="index-hub mono">{{ hub_names.get(slug.split('/')[0], 'Guide') }}</span>{{ icon('arrow') }}</a></li>{% endfor %}</ol>
+  </div>
+</section>
+
+{{ faq(faqs) }}
+{{ cta() }}
+{% endblock %}

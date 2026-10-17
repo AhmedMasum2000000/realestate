@@ -1,0 +1,12 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, button with context %}
+{% block content %}
+<section class="page-hero not-found">
+  <div class="frame">
+    {{ mono('404 · Not on this site') }}
+    <h1 class="display page-title">This page has <em>moved on.</em></h1>
+    <p class="lede">The page you asked for is not part of Second Home Thailand. Start from the routes or the library.</p>
+    <div class="button-row">{{ button('Residency routes', url('visas/')) }}{{ button('The library', url('library/'), 'button-ghost') }}</div>
+  </div>
+</section>
+{% endblock %}

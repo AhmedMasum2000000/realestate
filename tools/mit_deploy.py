@@ -1,4 +1,4 @@
-"""Deploy only the Move In Thailand editorial folder and its MU plugin.
+"""Deploy only a site's editorial folder and its MU plugin (Move In Thailand or Second Home Thailand).
 
 The original WordPress theme, pages, plugins, configuration and uploads stay
 in place. Previously deployed editorial files are retained outside webroot.
@@ -18,18 +18,23 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from rep.cpanel import CpanelClient
 
-DOMAIN='moveinthailand.com'
+# Per site: build folder name in wp-content, plugin source, and what the published pages must show.
+SITES={
+    'mit':{'domain':'moveinthailand.com','prefix':'mit','plugin':ROOT/'mit'/'wordpress'/'mit-experience.php','min_routes':25,'home_marker':'Your next chapter.','sitemap_listed':None,'gone':[]},
+    'sht':{'domain':'secondhomethailand.com','prefix':'sht','plugin':ROOT/'sht'/'wordpress'/'sht-experience.php','min_routes':25,'home_marker':'Residency concierge','sitemap_listed':'listed','gone':['/author/bw9jc/']},
+}
 
 def ensure_dir(client,parent,name):
     path=(parent.rstrip('/')+'/' if parent else '')+name
     if not client.exists(path): client.mkdir(parent or client.home,name)
     return path
 
-def deploy(build,release):
+def deploy(build,release,site='mit'):
+    config=SITES[site];DOMAIN=config['domain'];prefix=config['prefix']
     if not release or not all(char.isalnum() or char=='-' for char in release):
         raise SystemExit('A safe release name is required.')
     manifest=json.loads((build/'routes.json').read_text(encoding='utf-8'))
-    if manifest['domain']!=DOMAIN or len(manifest['routes'])<25:
+    if manifest['domain']!=DOMAIN or len(manifest['routes'])<config['min_routes']:
         raise SystemExit('Unexpected site manifest.')
     host=os.environ['CPANEL_HOST'].strip()
     if host.startswith('https://'): host=urlparse(host).hostname
@@ -42,21 +47,21 @@ def deploy(build,release):
         raise SystemExit('Domain root or existing WordPress installation did not match. No deployment performed.')
     content=root+'/wp-content'
     if not client.exists(content): raise SystemExit('WordPress content folder was not found.')
-    staging_parent=ensure_dir(client,'','mit-deployments')
+    staging_parent=ensure_dir(client,'',prefix+'-deployments')
     staging=ensure_dir(client,staging_parent,release)
-    package=ROOT/'.cache'/('mit-'+release+'.zip');package.parent.mkdir(exist_ok=True)
+    package=ROOT/'.cache'/(prefix+'-'+release+'.zip');package.parent.mkdir(exist_ok=True)
     with zipfile.ZipFile(package,'w',zipfile.ZIP_DEFLATED) as archive:
         for file in sorted(build.rglob('*')):
-            if file.is_file(): archive.write(file,'mit-site/'+file.relative_to(build).as_posix())
-        archive.write(ROOT/'mit'/'wordpress'/'mit-experience.php','mu-plugins/mit-experience.php')
+            if file.is_file(): archive.write(file,prefix+'-site/'+file.relative_to(build).as_posix())
+        archive.write(config['plugin'],'mu-plugins/'+prefix+'-experience.php')
     client.upload(package,staging)
     client.extract(staging+'/'+package.name,staging)
-    new_site=staging+'/mit-site';new_plugin=staging+'/mu-plugins/mit-experience.php'
+    new_site=staging+'/'+prefix+'-site';new_plugin=staging+'/mu-plugins/'+prefix+'-experience.php'
     for path in (new_site+'/index.html',new_site+'/routes.json',new_site+'/assets/site.js',new_plugin):
         if not client.exists(path): raise SystemExit('Staged release was incomplete; live files were not switched.')
     ensure_dir(client,content,'mu-plugins')
-    live_site=content+'/mit-site';live_plugin=content+'/mu-plugins/mit-experience.php'
-    previous_site=staging+'/previous-mit-site';previous_plugin=staging+'/previous-mit-experience.php'
+    live_site=content+'/'+prefix+'-site';live_plugin=content+'/mu-plugins/'+prefix+'-experience.php'
+    previous_site=staging+'/previous-'+prefix+'-site';previous_plugin=staging+'/previous-'+prefix+'-experience.php'
     had_site=client.exists(live_site);had_plugin=client.exists(live_plugin)
     switched_site=False;switched_plugin=False
     def move(source,destination):
@@ -73,34 +78,39 @@ def deploy(build,release):
         # Read the published release. GETs do not create an enquiry or send email.
         public='https://'+DOMAIN
         expected=manifest['version']
-        response=requests.get(public+'/wp-content/mit-site/release.json',params={'release':release},timeout=45)
+        response=requests.get(public+'/wp-content/'+prefix+'-site/release.json',params={'release':release},timeout=45)
         response.raise_for_status()
         if response.json().get('version')!=expected: raise RuntimeError('The public release version did not match.')
-        homepage=requests.get(public+'/',params={'mit_release':release},headers={'Cache-Control':'no-cache'},timeout=60)
+        homepage=requests.get(public+'/',params={prefix+'_release':release},headers={'Cache-Control':'no-cache'},timeout=60)
         homepage.raise_for_status()
-        if 'Your next chapter.' not in homepage.text or 'mit-config' not in homepage.text:
+        if config['home_marker'] not in homepage.text or prefix+'-config' not in homepage.text:
             raise RuntimeError('The published homepage did not show the editorial experience.')
-        guide=requests.get(public+'/tools/visa-finder/',params={'mit_release':release},timeout=45)
+        guide=requests.get(public+'/tools/visa-finder/',params={prefix+'_release':release},timeout=45)
         guide.raise_for_status()
         if 'id="visa-finder"' not in guide.text: raise RuntimeError('The Visa Finder page was not served by WordPress.')
-        bootstrap=requests.get(public+'/wp-json/mit/v1/bootstrap',headers={'Cache-Control':'no-cache'},timeout=45)
+        bootstrap=requests.get(public+'/wp-json/'+prefix+'/v1/bootstrap',headers={'Cache-Control':'no-cache'},timeout=45)
         bootstrap.raise_for_status()
         if not bootstrap.json().get('token'): raise RuntimeError('The secure enquiry bootstrap was unavailable.')
-        sitemap=requests.get(public+'/mit-sitemap.xml',params={'release':release},timeout=45)
+        sitemap=requests.get(public+'/'+prefix+'-sitemap.xml',params={'release':release},timeout=45)
         sitemap.raise_for_status()
-        if sitemap.text.count('<loc>')!=len(manifest['routes']): raise RuntimeError('The website sitemap was incomplete.')
+        expected_locs=json.loads((build/'release.json').read_text())[config['sitemap_listed']] if config['sitemap_listed'] else len(manifest['routes'])
+        if sitemap.text.count('<loc>')!=expected_locs: raise RuntimeError('The website sitemap was incomplete.')
         index=requests.get(public+'/sitemap.xml',params={'release':release},timeout=45)
         index.raise_for_status()
-        if public+'/mit-sitemap.xml' not in index.text: raise RuntimeError('The existing SEO sitemap index did not include the rebuilt pages.')
+        if public+'/'+prefix+'-sitemap.xml' not in index.text: raise RuntimeError('The existing SEO sitemap index did not include the rebuilt pages.')
+        for path in config['gone']:
+            # Pages left over from the previous template must no longer be public.
+            old_page=requests.get(public+path,params={prefix+'_release':release},timeout=45,allow_redirects=False)
+            if old_page.status_code not in (301,404,410): raise RuntimeError(f'An old template page is still public: {path} ({old_page.status_code})')
     except Exception:
-        if switched_plugin: move(live_plugin,staging+'/failed-mit-experience.php')
+        if switched_plugin: move(live_plugin,staging+'/failed-'+prefix+'-experience.php')
         if had_plugin and client.exists(previous_plugin): move(previous_plugin,live_plugin)
-        if switched_site: move(live_site,staging+'/failed-mit-site')
+        if switched_site: move(live_site,staging+'/failed-'+prefix+'-site')
         if had_site and client.exists(previous_site): move(previous_site,live_site)
         raise
     report={'domain':DOMAIN,'release':release,'version':manifest['version'],'pages':len(manifest['routes']),'original_wordpress_preserved':True,'retained_previous_release':staging if had_site or had_plugin else None,'published_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'public_homepage':True,'visa_finder_page':True,'secure_form_bootstrap':True,'sitemap_in_existing_seo_index':True}
-    (ROOT/'.cache'/'mit-deploy-report.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+    (ROOT/'.cache'/(prefix+'-deploy-report.json')).write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report,indent=2))
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--build',type=Path,default=ROOT/'.cache'/'mit-build');parser.add_argument('--release',required=True);args=parser.parse_args();deploy(args.build.resolve(),args.release)
+    parser=argparse.ArgumentParser();parser.add_argument('--site',choices=sorted(SITES),default='mit');parser.add_argument('--build',type=Path);parser.add_argument('--release',required=True);args=parser.parse_args();deploy((args.build or ROOT/'.cache'/(args.site+'-build')).resolve(),args.release,args.site)
