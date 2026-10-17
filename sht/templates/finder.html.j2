@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, crumbs, hero_photo with context %}
+{% from 'parts.html.j2' import mono, crumbs, hero_photo with context %}{% from 'boon.html.j2' import boon %}
 {% block content %}
 <section class="page-hero">
   <div class="frame">
@@ -19,7 +19,7 @@
       <div id="quiz-content" aria-live="polite"></div>
       <div class="quiz-actions"><button type="button" id="quiz-back" class="text-arrow">← Back</button><button type="button" id="quiz-next" class="button" disabled>Next question {{ icon('arrow') }}</button></div>
     </div>
-    <aside class="aside"><div class="aside-card">{{ mono('A clearer first conversation') }}<p>The result is a shortlist to discuss, not an eligibility decision. Nationality, application location and documents still need checking.</p><a class="text-arrow" href="{{ url('visas/') }}">Compare every route {{ icon('arrow') }}</a></div></aside>
+    <aside class="aside"><div class="boon-helper" data-boon-finder><div class="boon-figure" data-boon-figure>{{ boon('guide', 'boon-pose is-on') }}{{ boon('notes', 'boon-pose') }}{{ boon('success', 'boon-pose') }}</div><p class="boon-bubble" data-boon-say aria-live="polite">Four questions, about two minutes. Shall we find your starting point?</p></div><div class="aside-card">{{ mono('A clearer first conversation') }}<p>The result is a shortlist to discuss, not an eligibility decision. Nationality, application location and documents still need checking.</p><a class="text-arrow" href="{{ url('visas/') }}">Compare every route {{ icon('arrow') }}</a></div></aside>
   </div>
   <noscript><div class="frame note">The Visa Finder needs JavaScript. You can <a href="{{ url('visas/') }}">compare all routes here</a>.</div></noscript>
 </section>

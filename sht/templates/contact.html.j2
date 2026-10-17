@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, crumbs, hero_photo with context %}
+{% from 'parts.html.j2' import mono, crumbs, hero_photo with context %}{% from 'boon.html.j2' import boon %}
 {% block content %}
 <section class="page-hero">
   <div class="frame">
@@ -38,6 +38,10 @@
       <noscript><p>This form needs JavaScript to submit securely. Enable JavaScript and reload the page.</p></noscript>
     </form>
     <aside class="aside">
+      <div class="boon-helper" data-boon-helper>
+        <div class="boon-figure" data-boon-figure>{{ boon('notes', 'boon-pose is-on') }}{{ boon('success', 'boon-pose') }}{{ boon('puzzled', 'boon-pose') }}</div>
+        <p class="boon-bubble" data-boon-say aria-live="polite">Just the essentials for now. I’ll keep notes as you go.</p>
+      </div>
       <div class="aside-card">
         {{ mono('What happens next') }}
         <ol class="steps steps-tight"><li><strong>We read your priorities.</strong> Your timeline and the questions that matter most.</li><li><strong>We arrange the consultation.</strong> A time that suits you, and who you will speak with.</li><li><strong>You receive a written scope.</strong> Only if you want paid help, and before any work begins.</li></ol>

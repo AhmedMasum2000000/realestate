@@ -15,6 +15,7 @@
   --gutter:clamp(16px,3.2vw,48px);--section:clamp(80px,10vw,160px);
 }
 *,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%;scroll-padding-top:96px}
 body{margin:0;background:var(--cream);color:var(--ink);font:400 16px/1.6 var(--body);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:clip}
 img,svg{display:block;max-width:100%}
@@ -651,4 +652,63 @@ body[data-page=home] .header.is-solid,body[data-page=home] .header:has([aria-exp
   .cine-copy{padding-bottom:96px}
   .cine-cue{display:none}
   .metrics-row{grid-template-columns:repeat(3,1fr);gap:14px}
+}
+
+/* Khun Boon, the concierge. Still by default; a slow blink and small ear movement where motion is welcome. */
+.boon{display:block;width:100%;height:auto;overflow:visible}
+.boon .b-eyes,.boon .b-ear,.boon .b-wave,.boon .b-sweet{transform-box:fill-box}
+.boon-figure{display:grid}
+.boon-figure .boon-pose{grid-area:1/1;opacity:0;transform:translateY(6px);transition:opacity .5s var(--out),transform .6s var(--out)}
+.boon-figure .boon-pose.is-on{opacity:1;transform:none}
+.boon-bubble{position:relative;background:var(--paper);border:1.5px solid var(--ink);padding:16px 18px;font-size:17px;line-height:1.5;color:var(--ink)}
+.boon-bubble::before{content:'';position:absolute;left:28px;top:-8px;width:13px;height:13px;background:var(--paper);border-left:1.5px solid var(--ink);border-top:1.5px solid var(--ink);transform:rotate(45deg)}
+.boon-helper{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:center}
+.boon-helper .boon-bubble::before{left:-8px;top:24px;transform:rotate(-45deg)}
+.motion-ok .boon .b-eyes{transform-origin:50% 50%;animation:boon-blink 8s infinite}
+@keyframes boon-blink{0%,95%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.1)}}
+.motion-ok .boon .b-ear-l{transform-origin:100% 40%;animation:boon-ear 7s var(--in-out) infinite alternate}
+.motion-ok .boon .b-ear-r{transform-origin:0 40%;animation:boon-ear 7s var(--in-out) -3.5s infinite alternate-reverse}
+@keyframes boon-ear{from{transform:rotate(-2deg)}to{transform:rotate(2.5deg)}}
+.motion-ok .is-waving .boon-goodbye .b-wave{transform-origin:0 100%;animation:boon-wave 2s var(--in-out) 1}
+@keyframes boon-wave{0%,100%{transform:rotate(0)}25%,75%{transform:rotate(-12deg)}50%{transform:rotate(8deg)}}
+
+/* Welcome note */
+.boon-note{position:fixed;right:20px;bottom:20px;z-index:45;width:min(470px,calc(100vw - 32px));display:grid;grid-template-columns:132px 1fr;gap:16px;align-items:end;background:var(--paper);border:1.5px solid var(--ink);padding:18px 22px 20px 14px;color:var(--ink);opacity:0;transform:translateY(24px);transition:opacity .6s var(--out),transform .7s var(--out)}
+.boon-note.is-in{opacity:1;transform:none}
+.boon-note .boon-figure{align-self:end;margin-bottom:-4px}
+.boon-note-copy{display:grid;gap:10px;justify-items:start;padding-right:22px}
+.boon-note h2{font:400 26px/.95 var(--display);text-transform:uppercase;letter-spacing:-.015em}
+.boon-note-copy>p:not(.mono){font-size:17px;line-height:1.5}
+.boon-actions{display:flex;flex-wrap:wrap;align-items:center;gap:8px 18px;margin-top:4px}
+.boon-actions .button{min-height:48px}
+.boon-later{min-height:48px;padding:0 4px;border:0;background:none;font:400 10.5px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;cursor:pointer;color:var(--muted)}
+.boon-later:hover{color:var(--ink)}
+.boon-close{position:absolute;top:8px;right:8px;width:44px;height:44px;border:0;background:none;cursor:pointer}
+.boon-close span::before,.boon-close span::after{content:'';position:absolute;left:14px;right:14px;top:21px;height:1.5px;background:var(--ink);transform:rotate(45deg)}
+.boon-close span::after{transform:rotate(-45deg)}
+.boon-close:hover span::before,.boon-close:hover span::after{background:var(--blue)}
+
+/* Footer sign-off, 404, date keeper */
+.footer-boon{display:flex;align-items:center;gap:14px;margin-top:32px;font:400 10.5px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--cream-muted)}
+.boon-mini{width:44px;flex:none}
+.boon-404{display:grid;grid-template-columns:150px minmax(0,340px);gap:18px;align-items:center}
+.boon-404 .boon-bubble::before{left:-8px;top:30px;transform:rotate(-45deg)}
+.reminder{background:var(--paper);border:1.5px solid var(--ink);padding:24px;display:grid;gap:16px}
+.reminder-head{display:grid;grid-template-columns:72px 1fr;gap:12px;align-items:center}
+.reminder-head h3{font:400 24px/.95 var(--display);text-transform:uppercase;margin-top:6px}
+.reminder label:not(.check){display:grid;gap:8px;font:500 15px/1.35 var(--body)}
+.reminder input[type=date]{min-height:48px;font-size:18px;border:0;border-bottom:1.5px solid var(--ink);background:transparent;padding:8px 0;border-radius:0}
+.reminder input[type=date]:focus{outline:0;border-bottom-color:var(--blue)}
+.reminder-result{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px;font-size:16px}
+.reminder-date{font:400 30px/1 var(--display);text-transform:uppercase;color:var(--blue)}
+.reminder-actions{display:grid;gap:10px;margin-top:4px}
+.reminder-error{color:var(--ink);font-weight:500}
+.aside .reminder .button{justify-self:start}
+@media (max-width:900px){
+  .boon-note{left:12px;right:12px;bottom:78px;width:auto;grid-template-columns:76px 1fr;gap:10px;padding:14px 12px 14px 8px}
+  .boon-note .mono{font-size:9px}
+  .boon-note h2{font-size:21px}
+  .boon-note-copy>p:not(.mono){font-size:16px}
+  .boon-404{grid-template-columns:110px 1fr}
+  .boon-helper{grid-template-columns:80px 1fr}
 }

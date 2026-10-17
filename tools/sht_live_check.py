@@ -32,6 +32,10 @@ def check(context, url, tag, problems):
     before = page.evaluate(snap)
     time.sleep(2.5)
     after = page.evaluate(snap)
+    boon = page.evaluate("(() => { const n = document.getElementById('boon-note'); return n ? {shown: !n.hidden, poses: n.querySelectorAll('svg.boon').length} : null })()")
+    print(f'{tag}: khun_boon_note={boon}')
+    if not boon or boon['poses'] != 4:
+        problems.append(f'{tag}: Khun Boon welcome note missing ({boon})')
     hero = page.evaluate("(() => { const h = document.querySelector('.cine h1'); const c = document.querySelector('.cine-copy'); return {title: h ? h.textContent.replace(/\\s+/g, ' ').trim() : '', links: c ? c.querySelectorAll('a').length : 0, paragraphs: c ? c.querySelectorAll('p').length : 0} })()")
     print(f'{tag}: hero={hero}')
     if not hero['title'].startswith('Stay in Thailand as long as it feels like home') or hero['links'] != 1:
@@ -70,6 +74,14 @@ def check(context, url, tag, problems):
             print(f'{tag}: /{path} status={response.status} canonical={canonical}')
             if not ok:
                 problems.append(f'/{path} was not served by the new site ({response.status})')
+        # Khun Boon: welcome note on the home page and a working 90-day date keeper.
+        page.goto(url + 'stay-legal/90-day-report/', wait_until='load', timeout=60000)
+        page.fill('#reminder-date', '2026-10-01')
+        page.click('.reminder button[type=submit]')
+        due = page.evaluate("(document.querySelector('.reminder-date') || {}).textContent || ''")
+        print(f'{tag}: date keeper 2026-10-01 -> {due}')
+        if due != 'Tuesday 29 December 2026':
+            problems.append(f'90-day date keeper gave {due!r}')
         for path in GONE:
             response = page.goto(url + path, wait_until='load', timeout=60000)
             print(f'{tag}: old /{path} status={response.status}')

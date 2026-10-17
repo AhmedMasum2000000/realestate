@@ -1,0 +1,9 @@
+{% from 'parts.html.j2' import mono with context %}{% from 'boon.html.j2' import boon %}
+<form class="reminder" data-reminder novalidate>
+  <div class="reminder-head">{{ boon('calendar', 'boon-small') }}<div>{{ mono('Khun Boon’s date keeper') }}<h3>When is my next 90-day report?</h3></div></div>
+  <label for="reminder-date">The date you arrived, or of your last 90-day report<input id="reminder-date" name="date" type="date" required></label>
+  <button class="button" type="submit"><span>Work out my date</span></button>
+  <div class="reminder-result" data-reminder-result aria-live="polite" hidden></div>
+  <noscript><p class="fineprint">This small tool needs JavaScript.</p></noscript>
+  <p class="fineprint">Counted with the date you enter as day one, so it errs on the early side. The date on your immigration receipt is the one that counts. Nothing leaves your browser.</p>
+</form>

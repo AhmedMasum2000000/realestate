@@ -26,6 +26,7 @@ jobs:
           python sht/build.py
           node --check .cache/sht-build/assets/site.js
           node --check sht/assets/motion.js
+          node --check sht/assets/boon.js
           php -l sht/wordpress/sht-experience.php
       - name: Publish to the existing cPanel WordPress site
         env:

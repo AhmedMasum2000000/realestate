@@ -1,5 +1,5 @@
 {% extends 'base.html.j2' %}
-{% from 'parts.html.j2' import mono, faq, cta, sources, crumbs, rich_sections, related, button, form, hero_photo with context %}
+{% from 'parts.html.j2' import mono, faq, cta, sources, crumbs, rich_sections, related, button, form, hero_photo with context %}{% from 'boon.html.j2' import boon %}
 {% set visa = page.get('visa') %}
 {% set topic = page.slug.split('/')[0] %}
 {% block content %}
@@ -39,6 +39,7 @@
         {% set items = visa.checklist if visa else page.checklist %}{% if items %}<ul class="ticks">{% for item in items %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Tell us your situation once. We map the route, the documents and the costs, in writing.</p>{% endif %}
         {{ button('Schedule consultation', url('contact/?interest=' ~ (visa.slug if visa else topic))) }}
       </div>
+      {% if topic == 'stay-legal' %}{% include 'reminder.html.j2' %}{% endif %}
       <a class="aside-link" href="{{ url('tools/visa-finder/') }}">{{ mono('Still comparing?') }}<span>Take the Visa Finder</span>{{ icon('arrow') }}</a>
     </aside>
   </div>

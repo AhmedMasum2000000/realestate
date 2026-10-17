@@ -1,4 +1,4 @@
-{% from 'parts.html.j2' import mono with context %}<!doctype html>
+{% from 'parts.html.j2' import mono with context %}{% from 'boon.html.j2' import boon %}<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -59,12 +59,15 @@
     </div>
     <p class="footer-note">Our guide library is shared with our sister site, <a href="{{ sister }}" rel="noopener">Move In Thailand</a>. Visa and immigration decisions are made by the responsible Thai authorities.</p>
     <div class="footer-wordmark" aria-hidden="true"><span>Second</span><span>Home</span></div>
+    <p class="footer-boon">{{ boon('welcome', 'boon-mini') }}<span>Khun Boon is at your service.</span></p>
     <div class="footer-bottom"><span>© {{ '2026' }} Second Home Thailand</span><span data-local-time>Pattaya · ICT</span><a href="{{ url('privacy/') }}">Privacy</a></div>
   </div>
 </footer>
+{% if page.template == 'home' %}{% include 'boon-note.html.j2' %}{% endif %}
 <a class="mobile-cta" href="{{ url('contact/') }}">Schedule consultation {{ icon('arrow') }}</a>
 <script id="sht-config" type="application/json">{{ config|tojson }}</script>
 <script defer src="{{ asset('site.js') }}"></script>
 <script defer src="{{ asset('motion.js') }}"></script>
+<script defer src="{{ asset('boon.js') }}"></script>
 </body>
 </html>

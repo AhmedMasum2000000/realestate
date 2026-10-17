@@ -1,0 +1,75 @@
+{# Khun Boon, the Second Home Thailand concierge. Built from the character guide's vector edition:
+   calm simple shapes, exact fills (#d9d2c5 skin, #fffdf8 cream, #171717 ink, #4a90c2 sash), no gradients.
+   Poses: welcome, offering, notes, guide, calendar, success, puzzled, resting, goodbye. #}
+{% macro trunk(d) %}<path d="{{ d }}" fill="none" stroke="#171717" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/><path d="{{ d }}" fill="none" stroke="#d9d2c5" stroke-width="11.4" stroke-linecap="round" stroke-linejoin="round"/>{% endmacro %}
+{% macro book(x, y, r=-8) %}<g transform="translate({{ x }} {{ y }}) rotate({{ r }})"><rect x="-13" y="-19" width="26" height="38" rx="3" fill="#171717"/><path d="M9 -17v34" stroke="#fffdf8" stroke-width="1.2" opacity=".55"/><path d="M-5 19v8l3-3 3 3v-8" fill="#4a90c2" stroke="#171717" stroke-width="1"/></g>{% endmacro %}
+{% macro paw(x, y, rx=8, ry=9, r=0) %}<ellipse cx="{{ x }}" cy="{{ y }}" rx="{{ rx }}" ry="{{ ry }}" transform="rotate({{ r }} {{ x }} {{ y }})" fill="#d9d2c5" stroke="#171717" stroke-width="1.8"/>{% endmacro %}
+
+{% macro boon(pose='welcome', cls='', label='') %}
+{% set happy = pose in ('welcome', 'success') %}
+<svg class="boon boon-{{ pose }} {{ cls }}" viewBox="0 0 200 250" {% if label %}role="img" aria-label="{{ label }}"{% else %}aria-hidden="true"{% endif %} focusable="false">
+  <g class="b-tail"><path d="M139 196c10 10 20 10 27 2" fill="none" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/><path d="M163 199c2-8 9-11 12-8 2 4-3 11-12 8z" fill="#171717"/></g>
+  {% if pose == 'resting' %}
+  <ellipse cx="74" cy="232" rx="24" ry="13" fill="#d9d2c5" stroke="#171717" stroke-width="2"/><ellipse cx="126" cy="232" rx="24" ry="13" fill="#d9d2c5" stroke="#171717" stroke-width="2"/>
+  <path d="M62 236a5 5 0 0 1 9 0M73 238a5 5 0 0 1 9 0M118 238a5 5 0 0 1 9 0M129 236a5 5 0 0 1 9 0" fill="#fffdf8" stroke="#171717" stroke-width="1.5"/>
+  {% else %}
+  <g class="b-legs"><path d="M70 198v38q0 6 6 6h17q5 0 5-6v-38zM102 198v38q0 6 5 6h17q6 0 6-6v-38z" fill="#d9d2c5" stroke="#171717" stroke-width="2"/><path d="M73 242a5 5 0 0 1 10 0M85 242a5 5 0 0 1 10 0M105 242a5 5 0 0 1 10 0M117 242a5 5 0 0 1 10 0" fill="#fffdf8" stroke="#171717" stroke-width="1.5"/></g>
+  {% endif %}
+  <path class="b-body" d="M100 138c-28 0-42 22-42 52 0 22 12 36 42 36s42-14 42-36c0-30-14-52-42-52z" fill="#d9d2c5" stroke="#171717" stroke-width="2.2"/>
+  <ellipse cx="100" cy="190" rx="26" ry="31" fill="#fffdf8"/>
+  <g class="b-sash"><path d="M64 150l9-10 66 58-9 9z" fill="#4a90c2" stroke="#171717" stroke-width="1.8" stroke-linejoin="round"/><path d="M77 145l-6 7M91 157l-6 7M105 169l-6 7M119 181l-6 7M68 149l67 59" stroke="#fffdf8" stroke-width="1.3" opacity=".9"/>
+    <path d="M127 205l10-3 9 34-11 3z" fill="#4a90c2" stroke="#171717" stroke-width="1.8" stroke-linejoin="round"/><path d="M129 213l11-3M131 222l11-3M133 231l10-3M134 204l6 33" stroke="#fffdf8" stroke-width="1.2" opacity=".9"/>
+    <circle cx="133" cy="203" r="6.5" fill="#4a90c2" stroke="#171717" stroke-width="1.8"/><path d="M131 200c3 1 4 4 2 7" fill="none" stroke="#fffdf8" stroke-width="1.2"/></g>
+  {# arms and props #}
+  {% if pose in ('welcome',) %}
+    <path d="M72 150c8 4 14 10 20 18M128 150c-8 4-14 10-20 18" fill="none" stroke="#171717" stroke-width="1.8" stroke-linecap="round"/>
+    <path class="b-wai" d="M100 146c-8 2-12 12-11 24 1 6 6 8 11 6zM100 146c8 2 12 12 11 24-1 6-6 8-11 6z" fill="#d9d2c5" stroke="#171717" stroke-width="1.8" stroke-linejoin="round"/><path d="M95 156l3 2M94 163l4 2" stroke="#171717" stroke-width="1" opacity=".45"/>
+  {% elif pose == 'offering' %}
+    <g class="b-tray"><path d="M68 170l32-12 32 12-32 14z" fill="#fffdf8" stroke="#171717" stroke-width="1.8" stroke-linejoin="round"/><path d="M72 171l28 9 28-9M100 160v24" fill="none" stroke="#4a90c2" stroke-width="1.3"/>
+      <circle class="b-sweet" cx="91" cy="164" r="7.5" fill="#fffdf8" stroke="#171717" stroke-width="1.6"/><circle class="b-sweet b-sweet-2" cx="109" cy="164" r="7.5" fill="#fffdf8" stroke="#171717" stroke-width="1.6"/><path d="M87 162h3M106 161h3M89 166h2M108 166h2" stroke="#d9d2c5" stroke-width="1.6" stroke-linecap="round"/></g>
+    {{ paw(66, 174, 8, 9, -20) }}{{ paw(134, 174, 8, 9, 20) }}
+  {% elif pose == 'notes' %}
+    <g class="b-notebook"><path d="M70 164h30v32H70z" fill="#fffdf8" stroke="#171717" stroke-width="1.8"/><path d="M100 164h30v32h-30z" fill="#fffdf8" stroke="#171717" stroke-width="1.8"/><path d="M67 197h66" stroke="#171717" stroke-width="3" stroke-linecap="round"/><path d="M104 162v22l3-3 3 3v-22" fill="#4a90c2" stroke="#171717" stroke-width="1"/><path d="M75 172h19M75 179h17M75 186h13M114 172h11" stroke="#171717" stroke-width="1" opacity=".35"/></g>
+    {{ paw(66, 186, 7.5, 8.5, -10) }}{{ paw(134, 186, 7.5, 8.5, 10) }}
+  {% elif pose == 'calendar' %}
+    <g class="b-calendar"><rect x="68" y="160" width="64" height="44" rx="3" fill="#fffdf8" stroke="#171717" stroke-width="1.8"/><path d="M68 170h64" stroke="#4a90c2" stroke-width="1.6"/><path d="M76 156v8M89 156v8M102 156v8M115 156v8" stroke="#171717" stroke-width="1.6" stroke-linecap="round"/><path d="M68 181h64M68 192h64M84 170v34M100 170v34M116 170v34" stroke="#4a90c2" stroke-width=".9" opacity=".7"/><circle class="b-date" cx="108" cy="186.5" r="6" fill="none" stroke="#4a90c2" stroke-width="2"/></g>
+    {{ paw(66, 182, 7.5, 8.5, -10) }}{{ paw(134, 182, 7.5, 8.5, 10) }}
+  {% elif pose == 'resting' %}
+    <g class="b-cup"><path d="M82 166h20v11q0 8-10 8t-10-8z" fill="#fffdf8" stroke="#171717" stroke-width="1.6"/><path d="M102 169q7 0 6 5t-6 4" fill="none" stroke="#171717" stroke-width="1.4"/><path d="M84 170h16" stroke="#4a90c2" stroke-width="1.4"/><path class="b-steam" d="M88 160q-3-4 0-8M96 160q-3-4 0-8" fill="none" stroke="#171717" stroke-width="1.2" opacity=".4" stroke-linecap="round"/></g>
+    {{ paw(80, 178, 8, 8.5, -10) }}{{ paw(134, 178, 7.5, 9, 10) }}
+  {% else %}
+    {{ book(70, 172) }}{{ paw(76, 172, 9, 10, -15) }}
+    <path d="M132 150c10 6 12 24 6 36-3 5-9 4-10-1" fill="#d9d2c5" stroke="#171717" stroke-width="1.8" stroke-linecap="round"/>
+  {% endif %}
+  {# ears, head, face #}
+  <g class="b-ear b-ear-l"><path d="M68 62C46 50 18 62 18 98c0 30 22 48 40 42 12-4 16-46 10-78z" fill="#d9d2c5" stroke="#171717" stroke-width="2.2"/><path d="M60 74c-14-6-30 4-30 26 0 20 12 32 22 28 8-4 12-34 8-54z" fill="#fffdf8"/></g>
+  <g class="b-ear b-ear-r"><path d="M132 62c22-12 50 0 50 36 0 30-22 48-40 42-12-4-16-46-10-78z" fill="#d9d2c5" stroke="#171717" stroke-width="2.2"/><path d="M140 74c14-6 30 4 30 26 0 20-12 32-22 28-8-4-12-34-8-54z" fill="#fffdf8"/></g>
+  <path class="b-head" d="M100 40c27 0 44 14 44 46 0 34-17 54-44 54s-44-20-44-54c0-32 17-46 44-46z" fill="#d9d2c5" stroke="#171717" stroke-width="2.2"/>
+  <path d="M95 41c-1-6 5-9 8-6 2 2 0 5-2 6" fill="#d9d2c5" stroke="#171717" stroke-width="1.8" stroke-linecap="round"/>
+  <ellipse cx="73" cy="113" rx="7" ry="4" fill="#efb8a8" opacity=".75"/><ellipse cx="127" cy="113" rx="7" ry="4" fill="#efb8a8" opacity=".75"/>
+  <g class="b-face">
+  {% if happy %}
+    <path d="M80 89q6-7 12 0M108 89q6-7 12 0" fill="none" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+  {% elif pose == 'resting' %}
+    <path d="M80 89q6 4 12 0M108 89q6 4 12 0" fill="none" stroke="#171717" stroke-width="2.2" stroke-linecap="round"/>
+  {% elif pose == 'puzzled' %}
+    <path d="M79 79l11-4M110 77q6-5 12 0" fill="none" stroke="#171717" stroke-width="1.8" stroke-linecap="round"/>
+    <g class="b-eyes"><ellipse cx="86" cy="88" rx="3.3" ry="4.3" fill="#171717"/><ellipse cx="115" cy="87" rx="3.3" ry="4.5" fill="#171717"/><circle cx="87.2" cy="86.5" r="1.1" fill="#fff"/><circle cx="116.2" cy="85.5" r="1.1" fill="#fff"/></g>
+  {% else %}
+    <path d="M80 77q6-4 12 0M108 77q6-4 12 0" fill="none" stroke="#171717" stroke-width="1.8" stroke-linecap="round"/>
+    <g class="b-eyes"><ellipse cx="86" cy="88" rx="3.3" ry="4.3" fill="#171717"/><ellipse cx="114" cy="88" rx="3.3" ry="4.3" fill="#171717"/><circle cx="87.2" cy="86.5" r="1.1" fill="#fff"/><circle cx="115.2" cy="86.5" r="1.1" fill="#fff"/></g>
+  {% endif %}
+  {% if pose == 'puzzled' %}<path d="M83 127q6-4 12 0" fill="none" stroke="#171717" stroke-width="2" stroke-linecap="round"/>{% else %}<path d="M81 123q8 7 16 0" fill="none" stroke="#171717" stroke-width="2" stroke-linecap="round"/>{% endif %}
+  </g>
+  {# trunk #}
+  <g class="b-trunk">
+  {% if pose == 'guide' %}{{ trunk('M100 112C102 124 112 134 128 134C144 134 160 128 172 118') }}<path d="M172 118c4-3 6 2 3 4" fill="none" stroke="#171717" stroke-width="1.5"/>
+  {% elif pose in ('goodbye',) %}<g class="b-wave">{{ trunk('M100 112C104 120 122 120 132 108C140 98 142 84 138 76') }}</g>
+  {% elif pose == 'puzzled' %}{{ trunk('M100 112C106 122 128 118 136 102C142 88 138 66 126 54') }}
+  {% elif pose == 'notes' %}{{ trunk('M100 112C100 126 104 140 110 152') }}<path class="b-pen" d="M109 150l7 20" stroke="#4a90c2" stroke-width="3.4" stroke-linecap="round"/><path d="M116 170l1 3" stroke="#171717" stroke-width="2" stroke-linecap="round"/>
+  {% else %}{{ trunk('M100 112C100 126 108 136 120 134C130 132 132 120 124 116C118 113 114 119 119 122') }}
+  {% endif %}
+  </g>
+  <g class="b-glasses" fill="none" stroke="#171717" stroke-width="1.8"><circle cx="88" cy="107" r="8.5" fill="rgba(255,253,248,.25)"/><circle cx="112" cy="107" r="8.5" fill="rgba(255,253,248,.25)"/><path d="M96.5 106q3.5-3 7 0M79.5 105l-8-4M120.5 105l8-4"/></g>
+</svg>
+{% endmacro %}

@@ -103,7 +103,7 @@ def build(output: Path, preview: bool):
         shutil.rmtree(output)
     output.mkdir(parents=True)
     asset_source = HERE/'assets'
-    required = ['site.css', 'motion.js', 'mark.svg', 'mark.png', 'og.png', 'fonts/anton-latin-400-normal.woff2', 'fonts/inter-latin-400-normal.woff2', 'fonts/inter-latin-500-normal.woff2', 'fonts/inter-latin-600-normal.woff2', 'fonts/martian-mono-latin-400-normal.woff2']
+    required = ['site.css', 'motion.js', 'boon.js', 'mark.svg', 'mark.png', 'og.png', 'fonts/anton-latin-400-normal.woff2', 'fonts/inter-latin-400-normal.woff2', 'fonts/inter-latin-500-normal.woff2', 'fonts/inter-latin-600-normal.woff2', 'fonts/martian-mono-latin-400-normal.woff2']
     missing = [name for name in required if not (asset_source/name).is_file()]
     if missing:
         raise SystemExit('Missing prepared assets: ' + ', '.join(missing))
@@ -112,7 +112,7 @@ def build(output: Path, preview: bool):
     shared_js = (ROOT/'mit'/'assets'/'site.js').read_text(encoding='utf-8').replace("'mit-config'", "'sht-config'").replace("'wp-json/mit/v1/'", "'wp-json/sht/v1/'").replace('Move In Thailand: small, local tools', 'Second Home Thailand: small, local tools (shared with Move In Thailand)')
     (output/'assets'/'site.js').write_text(shared_js, encoding='utf-8')
     asset_prefix = '/assets/' if preview else '/wp-content/sht-site/assets/'
-    version = hashlib.sha256(b''.join((output/'assets'/name).read_bytes() for name in ('site.css', 'site.js', 'motion.js'))).hexdigest()[:10]
+    version = hashlib.sha256(b''.join((output/'assets'/name).read_bytes() for name in ('site.css', 'site.js', 'motion.js', 'boon.js'))).hexdigest()[:10]
 
     pages = own_pages() + shared_pages()
     known = {page['slug'] for page in pages}
