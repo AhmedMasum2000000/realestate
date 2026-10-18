@@ -6,7 +6,7 @@
   <title>{{ page.title }}</title>
   <meta name="description" content="{{ page.description }}">
   <meta name="theme-color" content="#e7e2d8">
-  <meta name="robots" content="{{ 'noindex,nofollow' if preview or page.template == '404' else 'index,follow' }}">
+  <meta name="robots" content="{{ 'noindex,nofollow' if preview or page.template == '404' else 'noindex,follow' if page.get('noindex') else 'index,follow' }}">
   <link rel="canonical" href="{{ canonical }}">
   {% if gsc_meta and not page.slug %}<meta name="google-site-verification" content="{{ gsc_meta }}">{% endif %}
   <meta property="og:type" content="website">
@@ -23,6 +23,7 @@
   {% if page.template == 'home' %}<link rel="preload" as="image" href="{{ asset('photos/summit-800.webp') }}" imagesrcset="{{ asset('photos/summit-800.webp') }} 800w, {{ asset('photos/summit-1600.webp') }} 1600w, {{ asset('photos/summit-2000.webp') }} 2000w" imagesizes="100vw" fetchpriority="high">{% endif %}
   <script>(function(d){var lite=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;d.classList.add(lite?'motion-lite':'motion-ok');try{if(!lite&&!sessionStorage.getItem('sht-intro')){sessionStorage.setItem('sht-intro','1');d.classList.add('is-intro')}}catch(e){}})(document.documentElement)</script>
   <link rel="stylesheet" href="{{ asset('site.css') }}">
+  {% if page.template == 'proposal' %}<link rel="stylesheet" href="{{ asset('proposal.css') }}">{% endif %}
   {% if schema %}<script type="application/ld+json">{{ schema|tojson }}</script>{% endif %}
 </head>
 <body data-page="{{ page.template }}">
@@ -71,7 +72,7 @@ timer=setTimeout(fly,3000);o.addEventListener('click',fly);addEventListener('key
     </div>
     <div class="footer-grid">
       <div><p class="footer-lede">A private residency desk for people making Thailand their second home. Route, home, paperwork and arrival, planned once and agreed in writing.</p></div>
-      <div>{{ mono('Concierge') }}<a href="{{ url('concierge/') }}">Engagements</a><a href="{{ url('approach/') }}">Our approach</a><a href="{{ url('contact/') }}">Consultation</a><a href="{{ url('properties/') }}">Homes for sale &amp; rent</a>{% for key in ['properties/jomtien', 'properties/pratumnak', 'properties/east-pattaya'] if key in home_hubs %}<a href="{{ url(key ~ '/') }}">{{ home_hubs[key].heading }}</a>{% endfor %}<a data-whatsapp hidden href="#">WhatsApp</a></div>
+      <div>{{ mono('Concierge') }}<a href="{{ url('concierge/') }}">Engagements</a><a href="{{ url('approach/') }}">Our approach</a><a href="{{ url('contact/') }}">Consultation</a><a href="{{ url('proposal/') }}">The Second Home Plan</a><a href="{{ url('faq/') }}">Questions &amp; answers</a><a href="{{ url('properties/') }}">Homes for sale &amp; rent</a>{% for key in ['properties/jomtien', 'properties/pratumnak', 'properties/east-pattaya'] if key in home_hubs %}<a href="{{ url(key ~ '/') }}">{{ home_hubs[key].heading }}</a>{% endfor %}<a data-whatsapp hidden href="#">WhatsApp</a></div>
       <div>{{ mono('Routes') }}{% for spec in route_specs %}<a href="{{ url('visas/' ~ spec.slug ~ '/') }}">{{ spec.name }}</a>{% endfor %}<a href="{{ url('tools/visa-finder/') }}">Visa Finder</a></div>
       <div>{{ mono('Library') }}{% for name, slug in hubs[1:] %}<a href="{{ url(slug ~ '/') }}">{{ name }}</a>{% endfor %}</div>
     </div>
@@ -87,5 +88,6 @@ timer=setTimeout(fly,3000);o.addEventListener('click',fly);addEventListener('key
 <script defer src="{{ asset('site.js') }}"></script>
 <script defer src="{{ asset('motion.js') }}"></script>
 <script defer src="{{ asset('boon.js') }}"></script>
+{% if page.template == 'proposal' %}<script defer src="{{ asset('proposal.js') }}"></script>{% endif %}
 </body>
 </html>

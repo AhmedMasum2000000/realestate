@@ -86,6 +86,68 @@
     }
   }
 
+  // Brand film: nothing loads or plays until the visitor asks. "No thanks" folds the offer to one quiet line.
+  const film = document.querySelector('[data-film-offer]');
+  if (film) {
+    const KEY = 'sht-film';
+    const video = film.querySelector('[data-film-video]');
+    const figure = film.querySelector('[data-boon-figure]');
+    const say = film.querySelector('[data-film-say]');
+    const later = film.querySelector('[data-film-later]');
+    const decline = remember => {
+      film.classList.add('is-declined'); later.hidden = false;
+      if (remember) store.set(KEY, 'no');
+    };
+    const play = () => {
+      if (!video.src) {
+        // Phones held upright get the vertical cut.
+        const tall = matchMedia('(max-width: 700px) and (orientation: portrait)').matches;
+        film.classList.toggle('is-tall', tall);
+        if (tall) video.poster = video.dataset.posterTall;
+        video.src = tall ? video.dataset.srcTall : video.dataset.srcWide;
+      }
+      film.classList.remove('is-declined'); later.hidden = true;
+      film.classList.add('is-playing');
+      store.remove(KEY);
+      pose(figure, 'success');
+      say.textContent = 'Enjoy. Pause any time; I will be right here.';
+      film.querySelector('[data-film-actions]').hidden = true;
+      video.play().catch(() => { /* the visitor can press play on the controls */ });
+    };
+    if (store.get(KEY) === 'no') decline(false);
+    film.querySelectorAll('[data-film-play]').forEach(button => button.addEventListener('click', play));
+    film.querySelector('[data-film-again]').addEventListener('click', () => { play(); film.scrollIntoView({behavior: reduce ? 'auto' : 'smooth', block: 'center'}); });
+    film.querySelector('[data-film-no]').addEventListener('click', () => {
+      pose(figure, 'goodbye');
+      say.textContent = 'Of course. It is here if you change your mind.';
+      setTimeout(() => decline(true), reduce ? 0 : 1400);
+    });
+    video.addEventListener('ended', () => { pose(figure, 'success'); say.textContent = 'Thank you for watching. Shall we begin with one conversation?'; });
+  }
+
+  // FAQ search: filters the answers as you type and opens the ones that match.
+  const faqFilter = document.querySelector('[data-faq-filter]');
+  if (faqFilter) {
+    const items = [...document.querySelectorAll('[data-faq-item]')];
+    const groups = [...document.querySelectorAll('[data-faq-group]')];
+    const none = document.querySelector('[data-faq-none]');
+    faqFilter.addEventListener('input', () => {
+      const words = faqFilter.value.toLowerCase().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      items.forEach(item => {
+        const match = words.every(word => item.textContent.toLowerCase().includes(word));
+        item.hidden = !match;
+        if (words.length) item.open = match;
+        if (match) shown += 1;
+      });
+      groups.forEach(group => { group.hidden = !group.querySelector('[data-faq-item]:not([hidden])'); });
+      none.hidden = shown > 0;
+    });
+    // A link to one question opens it.
+    const opened = location.hash && document.getElementById(location.hash.slice(1));
+    if (opened && opened.matches('[data-faq-item]')) opened.open = true;
+  }
+
   // Consultation form helper: one calm sentence for the field in hand.
   const helper = document.querySelector('[data-boon-helper]');
   const form = document.getElementById('move-enquiry');

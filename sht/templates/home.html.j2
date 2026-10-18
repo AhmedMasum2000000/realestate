@@ -30,6 +30,27 @@
   </div>
 </section>
 
+{# The brand film. Never plays on its own: Khun Boon offers it once, and "No thanks" is remembered. #}
+<section class="film-offer" id="film" data-film-offer aria-labelledby="film-title">
+  <div class="frame film-grid">
+    <div class="film-ask">
+      {{ mono('The film · 60 seconds') }}
+      <h2 id="film-title" class="display" data-reveal-words>A minute <em>with us.</em></h2>
+      <div class="boon-helper film-boon">{% from 'boon.html.j2' import boon %}<div class="boon-figure" data-boon-figure>{{ boon('offering', 'boon-pose is-on') }}{{ boon('success', 'boon-pose') }}{{ boon('goodbye', 'boon-pose') }}</div>
+        <p class="boon-bubble" data-film-say>Would you like to watch our 60-second film? It plays only if you press play. Sound on, if you like.</p></div>
+      <div class="boon-actions" data-film-actions><button class="button" type="button" data-film-play><span>Play the film</span>{{ icon('arrow') }}</button><button class="boon-later" type="button" data-film-no>No thanks</button></div>
+    </div>
+    <div class="film-frame">
+      <video class="film-video" data-film-video controls playsinline preload="none" poster="{{ asset('film/poster-16x9.webp') }}" width="1280" height="720" aria-label="The Door Opens, the Second Home Thailand film"
+             data-src-wide="{{ asset('film/the-door-opens-16x9.mp4') }}" data-src-tall="{{ asset('film/the-door-opens-9x16.mp4') }}" data-poster-tall="{{ asset('film/poster-9x16.webp') }}">
+        <track kind="captions" srclang="en" label="English" src="{{ asset('film/the-door-opens.en.vtt') }}">
+      </video>
+      <button class="film-poster-play" type="button" data-film-play aria-label="Play the 60-second film"><span aria-hidden="true"></span></button>
+    </div>
+  </div>
+  <p class="frame film-later" data-film-later hidden><button type="button" data-film-again>Changed your mind? Watch the 60-second film {{ icon('arrow') }}</button></p>
+</section>
+
 <section class="story" data-story style="--chapters:{{ sht.STORY|length }}" aria-labelledby="story-title">
   <div class="story-sticky">
     <div class="frame story-head">

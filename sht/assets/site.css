@@ -824,3 +824,59 @@ body[data-page=home] .header.is-solid,body[data-page=home] .header:has([aria-exp
 .intro.is-out::before{opacity:0}
 .intro.is-out .intro-line{transition:opacity .35s var(--out);opacity:0!important;animation:none}
 .intro.is-out{pointer-events:none}
+
+/* Brand film: offered by Khun Boon, played only on request */
+.film-offer{background:var(--ink);color:var(--cream);padding:clamp(64px,8vw,120px) 0}
+.film-offer .mono{color:var(--cream-muted)}
+.film-grid{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:clamp(28px,4vw,64px);align-items:center}
+.film-ask{display:grid;gap:22px;justify-items:start}
+.film-ask .display{font-size:clamp(44px,6vw,92px)}
+.film-boon{max-width:440px}
+.film-offer .button{background:var(--cream);color:var(--ink);border-color:var(--cream)}
+.film-offer .button:hover{background:var(--blue);border-color:var(--blue);color:#fff}
+.film-offer .boon-later{color:var(--cream-muted)}
+.film-offer .boon-later:hover{color:var(--cream)}
+.film-frame{position:relative;background:#000;aspect-ratio:16/9;max-width:100%}
+.film-video{display:block;width:100%;height:100%;object-fit:contain;background:#000}
+.film-poster-play{position:absolute;inset:0;border:0;background:transparent;cursor:pointer;display:grid;place-items:center}
+.film-poster-play span{width:84px;height:84px;border-radius:50%;background:rgba(23,23,23,.72);border:1.5px solid var(--cream);display:grid;place-items:center;transition:transform .4s var(--out),background .4s var(--out)}
+.film-poster-play span::before{content:'';margin-left:6px;border-style:solid;border-width:13px 0 13px 22px;border-color:transparent transparent transparent var(--cream)}
+.film-poster-play:hover span{transform:scale(1.06);background:var(--blue)}
+.film-offer.is-playing .film-poster-play{display:none}
+.film-offer.is-tall .film-frame{aspect-ratio:9/16;max-height:82vh;margin:0 auto;width:auto}
+.film-offer.is-declined{padding:18px 0;background:var(--cream);color:var(--ink)}
+.film-offer.is-declined .film-grid{display:none}
+.film-later button{border:0;background:none;padding:10px 0;display:inline-flex;gap:10px;align-items:center;font:400 10.5px/1.4 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--muted);cursor:pointer}
+.film-later button:hover{color:var(--ink)}
+@media (max-width:900px){.film-grid{grid-template-columns:1fr}}
+
+/* FAQ page */
+.faq-tools{display:grid;gap:18px;margin-top:clamp(28px,4vw,48px);border-top:1px solid var(--line);padding-top:24px}
+.faq-search{display:grid;gap:8px;max-width:560px}
+.faq-search input{min-height:54px;padding:0 16px;border:1.5px solid var(--ink);background:var(--paper);font:400 17px/1.2 var(--body);color:var(--ink);border-radius:0;-webkit-appearance:none}
+.faq-jump{display:flex;flex-wrap:wrap;gap:8px}
+.faq-jump a{display:inline-flex;gap:8px;align-items:center;padding:10px 14px;border:1px solid var(--line);text-decoration:none;font:400 10.5px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase}
+.faq-jump a span{color:var(--blue)}
+.faq-jump a:hover{border-color:var(--ink)}
+.faq-page{display:grid;gap:clamp(56px,7vw,96px);padding-bottom:var(--section)}
+.faq-group{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:clamp(24px,4vw,64px);align-items:start;scroll-margin-top:96px}
+.faq-group-head{display:grid;gap:12px;position:sticky;top:110px}
+.faq-group-head .display{font-size:clamp(34px,4.4vw,60px)}
+.faq-group-head p:not(.mono){color:var(--muted);max-width:34ch}
+.faq-page .faq-list{border-top:1.5px solid var(--ink)}
+.faq-page details{border-bottom:1px solid var(--line);scroll-margin-top:96px}
+.faq-page summary{display:flex;justify-content:space-between;gap:20px;align-items:center;padding:22px 0;cursor:pointer;list-style:none}
+.faq-page summary::-webkit-details-marker{display:none}
+.faq-page summary h3{font:600 19px/1.35 var(--body);margin:0}
+.faq-answer{display:grid;gap:12px;padding:0 0 24px;max-width:68ch}
+.faq-short{font-size:18px;line-height:1.6}
+.faq-answer p:not(.faq-short){color:var(--muted)}
+.faq-answer a{color:var(--ink);text-decoration-color:var(--blue);text-underline-offset:3px}
+.faq-page .sources{margin-top:24px}
+.faq-ask{max-width:640px;grid-template-columns:110px 1fr}
+.faq-none{font-size:18px}
+@media (max-width:900px){.faq-group{grid-template-columns:1fr}.faq-group-head{position:static}}
+.film-offer .display{color:var(--cream)}
+.film-frame{height:auto}
+.film-video{position:absolute;inset:0}
+.faq-hero .page-title{font-size:clamp(46px,6.4vw,104px)}

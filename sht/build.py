@@ -37,13 +37,14 @@ def load(name, path):
 sht = load('sht_content', HERE/'content.py')
 mit = load('mit_content', ROOT/'mit'/'content.py')
 listings = load('sht_listings', HERE/'listings.py')
+faq = load('sht_faq', HERE/'faq.py')
 CHECKED, MIT_PAGES, ROUTE_SPECS, SOURCES, VISAS = mit.CHECKED, mit.PAGES, mit.ROUTE_SPECS, mit.SOURCES, mit.VISAS
 
 DOMAIN = 'secondhomethailand.com'
 SITE = 'https://' + DOMAIN + '/'
 SISTER = 'https://moveinthailand.com/'
 # Move In Thailand pages that describe that business rather than the shared guide library.
-NOT_SHARED = {'about', 'privacy', 'services', 'residency-care', 'contact', 'fees', 'tools', 'visas', ''}
+NOT_SHARED = {'faq', 'about', 'privacy', 'services', 'residency-care', 'contact', 'fees', 'tools', 'visas', ''}
 SHARED_TEMPLATES = {'editorial': 'guide', 'visa': 'guide', 'finder': 'finder'}
 HUBS = [('Residency routes', 'visas'), ('Staying legal', 'stay-legal'), ('Homes & property', 'homes'), ('Living in Thailand', 'living'), ('Business & investment', 'business'), ('Start here', 'start-here')]
 
@@ -69,7 +70,9 @@ def own_pages():
         page('approach', 'approach', 'Our Approach | How Second Home Thailand Works', 'Fit before speed, written scope, official sources and no promises we cannot keep. How a Second Home Thailand engagement runs, from consultation to renewals.', short='Approach'),
         page('visas', 'routes', 'Thailand Residency Routes Compared | Privilege, LTR, Retirement & DTV', 'Compare Thailand’s long-stay routes side by side: length of stay, who each suits, the money test and whether you can work.', short='Routes'),
         page('library', 'library', 'Thailand Residency Library | Visas, Homes, Living & Staying Legal', 'Practical, source-linked guides for living in Thailand long term: visas, reports and extensions, property, banking, insurance and daily life.', short='Library'),
+        page('faq', 'faq', 'Moving to Thailand FAQ: Visas, Property, Costs & Staying Legal | Second Home Thailand', 'Straight answers on living in Thailand long term: retirement, LTR, DTV and Privilege visas, 90-day reports, buying a condo as a foreigner, Pattaya costs and how our residency desk works.', short='FAQ'),
         page('contact', 'contact', 'Schedule a Consultation | Second Home Thailand', 'Tell us about the move you have in mind. A first consultation about your route, your home and your timeline, with no obligation.', short='Consultation'),
+        page('proposal', 'proposal', 'The Second Home Plan | Your Thailand Move, Planned | Second Home Thailand', 'Your plan to live in Thailand: visa, home and arrival from one desk, agreed in writing. Leave an email or phone number to open the full plan.', short='Your plan', noindex=True),
         page('privacy', 'privacy', 'Privacy | Second Home Thailand', 'What the consultation form collects, why, where it is kept, how long, and the choices you have. No tracking cookies.', short='Privacy'),
     ]
 
@@ -83,6 +86,14 @@ def shared_pages():
         copy['title'] = re.sub(r'\s*\|\s*Move In Thailand\s*$', '', copy['title']) + ' | Second Home Thailand'
         pages.append(copy)
     return pages
+
+
+FILM_DATE = '2026-10-18'
+
+
+def plain(text):
+    # Schema answers carry text, not markdown: keep a link's words, drop its address and bold marks.
+    return re.sub(r'\*\*(.+?)\*\*', r'\1', re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text))
 
 
 def structured_data(page, faqs):
@@ -115,8 +126,14 @@ def structured_data(page, faqs):
     if hub:
         entries.append({'@type': 'ItemList', '@id': canonical + '#homes', 'name': hub['heading'], 'numberOfItems': len(hub['homes']),
                         'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'url': SITE + h['slug'] + '/', 'name': h['h1']} for i, h in enumerate(hub['homes'][:30])]})
+    if page.get('template') == 'home':
+        film = SITE + 'wp-content/sht-site/assets/film/'
+        entries.append({'@type': 'VideoObject', '@id': SITE + '#film', 'name': 'The Door Opens | Second Home Thailand',
+                        'description': 'A 60-second film about moving to Thailand with one residency desk: your visa route, documents, home, arrival and renewals, agreed in writing.',
+                        'thumbnailUrl': [film + 'poster-16x9.jpg'], 'uploadDate': FILM_DATE, 'duration': 'PT60S', 'contentUrl': film + 'the-door-opens-16x9.mp4',
+                        'embedUrl': SITE + '#film', 'inLanguage': 'en', 'publisher': {'@id': SITE + '#organization'}})
     if faqs:
-        entries.append({'@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': a}} for q, a in faqs]})
+        entries.append({'@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': plain(a)}} for q, a in faqs]})
     return {'@context': 'https://schema.org', '@graph': entries}
 
 
@@ -134,7 +151,7 @@ def build(output: Path, preview: bool):
     shared_js = (ROOT/'mit'/'assets'/'site.js').read_text(encoding='utf-8').replace("'mit-config'", "'sht-config'").replace("'wp-json/mit/v1/'", "'wp-json/sht/v1/'").replace('Move In Thailand: small, local tools', 'Second Home Thailand: small, local tools (shared with Move In Thailand)')
     (output/'assets'/'site.js').write_text(shared_js, encoding='utf-8')
     asset_prefix = '/assets/' if preview else '/wp-content/sht-site/assets/'
-    version = hashlib.sha256(b''.join((output/'assets'/name).read_bytes() for name in ('site.css', 'site.js', 'motion.js', 'boon.js'))).hexdigest()[:10]
+    version = hashlib.sha256(b''.join((output/'assets'/name).read_bytes() for name in ('site.css', 'site.js', 'motion.js', 'boon.js', 'proposal.css', 'proposal.js'))).hexdigest()[:10]
 
     pages = own_pages() + shared_pages()
     # Property listings and their hubs: built from the shared catalogue, served as static pages.
@@ -232,7 +249,8 @@ def build(output: Path, preview: bool):
         area_counts[(h['area_slug'], h['area'])] += 1
     area_options = [key for key, _ in sorted(area_counts.items(), key=lambda item: -item[1])]
     featured = [h for h in homes if h['deal'] == 'sale' and not h['stale']][:6]
-    env.globals.update(icon=icon, photo=photo, home_hubs=home_hubs, hub_links=hub_links, guide_links=guide_links, type_options=type_options, area_options=area_options,
+    env.globals.update(faq_groups=faq.FAQ_GROUPS, faq_count=len(faq.all_questions()), slugify=lambda text: re.sub(r'[^a-z0-9]+', '-', text.lower()).strip('-')[:80],
+                       icon=icon, photo=photo, home_hubs=home_hubs, hub_links=hub_links, guide_links=guide_links, type_options=type_options, area_options=area_options,
                        updated_label=when, featured_homes=featured, home_count=len(homes), url=url, asset=asset, label=label, by_slug=by_slug, guides_in=guides_in, hubs=HUBS, hub_names={slug: name for name, slug in HUBS}, metrics=metrics,
                        route_specs=ROUTE_SPECS, visas=VISAS, checked=CHECKED, source_map=SOURCES, sht=sht, sister=SISTER, site=SITE)
     gsc_state = ROOT/'data'/'gsc-secondhomethailand.com.json'
@@ -245,7 +263,7 @@ def build(output: Path, preview: bool):
         destination = output/relative
         destination.parent.mkdir(parents=True, exist_ok=True)
         template = page['layout'] if page['shared'] else page['template']
-        faqs = sht.FAQ if template == 'home' else page.get('visa', {}).get('faqs', page.get('faqs', []))
+        faqs = sht.FAQ if template == 'home' else faq.all_questions() if template == 'faq' else page.get('visa', {}).get('faqs', page.get('faqs', []))
         canonical = (SISTER if page['shared'] else SITE) + (slug + '/' if slug else '')
         html = env.get_template(template + '.html.j2').render(page=page, faqs=faqs, canonical=canonical, config=config, schema=structured_data(page, faqs), preview=preview)
         destination.write_text(html, encoding='utf-8')
@@ -253,7 +271,7 @@ def build(output: Path, preview: bool):
         if not main:
             raise SystemExit(f'No editable page region: {slug}')
         routes.append({'path': '/' + slug + '/' if slug else '/', 'file': relative, 'slug': slug or 'home', 'title': page['title'], 'description': page['description'],
-                       'canonical': canonical, **({'static': True, 'lastmod': page['lastmod']} if page.get('static') else {}), 'content_hash': hashlib.sha256(('<!-- wp:html -->' + main[1] + '<!-- /wp:html -->').encode('utf-8')).hexdigest()})
+                       'canonical': canonical, **({'static': True, 'lastmod': page['lastmod']} if page.get('static') else {}), **({'noindex': True} if page.get('noindex') else {}), 'content_hash': hashlib.sha256(('<!-- wp:html -->' + main[1] + '<!-- /wp:html -->').encode('utf-8')).hexdigest()})
     (output/'404.html').write_text(env.get_template('404.html.j2').render(page={'slug': '404', 'template': '404', 'title': 'Page not found | Second Home Thailand', 'description': 'This page is not part of Second Home Thailand.', 'shared': False},
                                                                            faqs=[], canonical=SITE, config=config, schema={}, preview=preview), encoding='utf-8')
     known_paths = {route['path'].rstrip('/') or '/' for route in routes}
@@ -272,17 +290,18 @@ def build(output: Path, preview: bool):
     manifest = {'version': version, 'content_version': content_version, 'built_at': date.today().isoformat(), 'domain': DOMAIN, 'routes': routes, 'aliases': aliases}
     (output/'routes.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2), encoding='utf-8')
     # Only this site's own pages are listed; shared guides point search engines to Move In Thailand.
-    listed = [route for route in routes if route['canonical'].startswith(SITE)]
+    listed = [route for route in routes if route['canonical'].startswith(SITE) and not route.get('noindex')]
     sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + ''.join('<url><loc>' + xml_escape(SITE.rstrip('/') + route['path']) + '</loc><lastmod>' + route.get('lastmod', manifest['built_at']) + '</lastmod></url>\n' for route in listed) + '</urlset>\n'
     (output/'sitemap.xml').write_text(sitemap, encoding='utf-8')
     # A plain-text map for AI answer engines: what the site is, its key pages and where the homes are.
     lines = ['# Second Home Thailand', '', '> A private residency concierge for people making Thailand their second home: long-stay visa routes, a home to buy or rent in the Pattaya area, arrival and renewals, planned by one desk and agreed in writing. No tracking cookies.', '',
              '## Key pages', '']
-    for slug in ('', 'concierge', 'visas', 'properties', 'tools/visa-finder', 'library', 'contact'):
+    for slug in ('', 'concierge', 'visas', 'properties', 'faq', 'tools/visa-finder', 'library', 'contact'):
         page = by_slug.get(slug) or {'title': 'Properties', 'description': ''}
         lines.append(f"- [{page['title'].split(' | ')[0]}]({SITE}{slug + '/' if slug else ''}): {page['description']}")
     lines += ['', f'## Homes for sale and rent ({len(homes)} listings, data updated {when})', '']
     lines += [f"- [{hub['heading']}]({SITE}{key}/): {hub['facts'][0] if hub['facts'] else ''}" for key, hub in home_hubs.items() if hub['kind'] in ('all', 'deal', 'type', 'area')]
+    lines += ['', '## Frequently asked questions', ''] + [f"- [{q}]({SITE}faq/#{re.sub(r'[^a-z0-9]+', '-', q.lower()).strip('-')[:80]}): {short}" for _, _, _, items, _ in faq.FAQ_GROUPS for q, short, _ in items]
     lines += ['', '## Residency routes', ''] + [f"- [{visa['name']}]({SISTER}visas/{visa['slug']}/)" for visa in VISAS]
     lines += ['', '## Notes', '', '- Listing prices are asking prices from the listing agent and change; availability is confirmed before any viewing.', '- Visa and immigration decisions are made by the responsible Thai authorities.', f'- Guides are shared with the sister site Move In Thailand ({SISTER}).', '']
     (output/'llms.txt').write_text('\n'.join(lines), encoding='utf-8')

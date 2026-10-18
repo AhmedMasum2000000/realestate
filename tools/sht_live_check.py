@@ -11,12 +11,13 @@ Screenshots go to .cache/live-check/. Exits non-zero if a check fails.
 import os
 import sys
 import time
+import requests
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
 OUT = Path('.cache/live-check')
-INNER = ['properties/', 'properties/jomtien/', 'properties/condos-for-sale/', 'visas/', 'visas/ltr/', 'stay-legal/90-day-report/', 'concierge/', 'contact/', 'library/', 'tools/visa-finder/']
+INNER = ['faq/', 'proposal/', 'properties/', 'properties/jomtien/', 'properties/condos-for-sale/', 'visas/', 'visas/ltr/', 'stay-legal/90-day-report/', 'concierge/', 'contact/', 'library/', 'tools/visa-finder/']
 GONE = ['author/bw9jc/']
 
 
@@ -74,6 +75,25 @@ def check(context, url, tag, problems):
             print(f'{tag}: /{path} status={response.status} canonical={canonical}')
             if not ok:
                 problems.append(f'/{path} was not served by the new site ({response.status})')
+        # The film is offered, never auto-played; the FAQ carries its schema; the proposal opens behind a short form.
+        page.goto(url, wait_until='load', timeout=60000)
+        film = page.evaluate("(() => { const v = document.querySelector('[data-film-video]'); return v ? {src: v.currentSrc, playing: !v.paused, offer: !!document.querySelector('[data-film-play]')} : null })()")
+        print(f'{tag}: film={film}')
+        if not film or film['src'] or film['playing'] or not film['offer']:
+            problems.append(f'film offer missing or loading on its own ({film})')
+        clip = requests.head(url + 'wp-content/sht-site/assets/film/the-door-opens-16x9.mp4', timeout=30)
+        if clip.status_code != 200:
+            problems.append(f'film file answers {clip.status_code}')
+        page.goto(url + 'faq/', wait_until='load', timeout=60000)
+        faq = page.evaluate("(() => ({items: document.querySelectorAll('[data-faq-item]').length, schema: [...document.querySelectorAll('script[type=\"application/ld+json\"]')].some(s => s.textContent.includes('FAQPage'))}))()")
+        print(f'{tag}: faq={faq}')
+        if faq['items'] < 25 or not faq['schema']:
+            problems.append(f'FAQ page incomplete ({faq})')
+        page.goto(url + 'proposal/', wait_until='load', timeout=60000)
+        gate = page.evaluate("(() => ({closed: document.querySelector('[data-proposal-body]').hidden, form: !!document.getElementById('proposal-form'), robots: document.querySelector('meta[name=robots]').content}))()")
+        print(f'{tag}: proposal={gate}')
+        if not gate['closed'] or not gate['form'] or 'noindex' not in gate['robots']:
+            problems.append(f'proposal gate not as expected ({gate})')
         # Khun Boon: welcome note on the home page and a working 90-day date keeper.
         page.goto(url + 'stay-legal/90-day-report/', wait_until='load', timeout=60000)
         page.fill('#reminder-date', '2026-10-01')

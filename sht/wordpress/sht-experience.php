@@ -32,7 +32,7 @@ function sht_page_file($route) {
 }
 // Shared guides carry a canonical link to Move In Thailand, so only this site's own pages are listed.
 function sht_listed_routes() {
-    return array_values(array_filter(sht_manifest()['routes'] ?? array(),function($route){return strpos($route['canonical'] ?? '','https://secondhomethailand.com/')===0;}));
+    return array_values(array_filter(sht_manifest()['routes'] ?? array(),function($route){return strpos($route['canonical'] ?? '','https://secondhomethailand.com/')===0 && empty($route['noindex']);}));
 }
 function sht_serve_sitemap() {
     $path=parse_url($_SERVER['REQUEST_URI'] ?? '/',PHP_URL_PATH);
@@ -297,7 +297,45 @@ add_action('rest_api_init',function(){
         $response=new WP_REST_Response(array('token'=>sht_form_token(),'expires_in'=>1200),200);$response->header('Cache-Control','no-store, private');return $response;
     }));
     register_rest_route('sht/v1','/enquiries',array('methods'=>'POST','permission_callback'=>'__return_true','callback'=>'sht_save_enquiry'));
+    register_rest_route('sht/v1','/proposal-leads',array('methods'=>'POST','permission_callback'=>'__return_true','callback'=>'sht_save_proposal_lead'));
 });
+/* Proposal reader: an email or a phone number opens the proposal page. Saved as a private enquiry. */
+function sht_save_proposal_lead($request) {
+    if(!sht_same_origin($request)){return new WP_Error('sht_origin','Please use the form on the Second Home Thailand website.',array('status'=>403));}
+    if(strlen($request->get_body())>4000){return new WP_Error('sht_size','Please shorten your details and try again.',array('status'=>413));}
+    $data=$request->get_json_params();if(!is_array($data)){$data=array();}
+    foreach($data as $value){if(is_array($value)||is_object($value)){return new WP_Error('sht_fields','Please check the form fields.',array('status'=>400));}}
+    if(!sht_token_valid($data['token']??'')){return new WP_Error('sht_token','Your form session expired. Please try again.',array('status'=>403));}
+    if(!empty($data['website'])){return new WP_Error('sht_spam','The request could not be accepted. Please reload the page.',array('status'=>400));}
+    $name=trim(sanitize_text_field($data['name']??''));$contact=trim(sanitize_text_field($data['contact']??''));
+    $email='';$phone='';
+    if(is_email($contact) && strlen($contact)<=200){$email=sanitize_email($contact);}
+    elseif(preg_match('/^\+?[0-9][0-9 ().-]{6,24}$/',$contact) && strlen(preg_replace('/\D/','',$contact))>=7){$phone=$contact;}
+    if((!$email && !$phone) || sht_text_length($name)>120 || ($data['consent']??false)!==true){
+        return new WP_Error('sht_fields','Please add an email address or a phone number with its country code, and tick the permission box.',array('status'=>400));
+    }
+    $request_id=sanitize_text_field($data['request_id']??'');
+    if(!preg_match('/^[a-zA-Z0-9-]{10,80}$/',$request_id)){return new WP_Error('sht_request','Please reload the page and try again.',array('status'=>400));}
+    $request_hash=hash_hmac('sha256',$request_id.'|'.$contact,wp_salt('auth'));
+    $existing=get_posts(array('post_type'=>'sht_enquiry','post_status'=>'private','numberposts'=>1,'meta_key'=>'_sht_request_hash','meta_value'=>$request_hash,'suppress_filters'=>true));
+    if($existing){$saved=get_post_meta($existing[0]->ID,'_sht_enquiry',true);return new WP_REST_Response(array('saved'=>true,'reference'=>$saved['reference']),200);}
+    $network=hash_hmac('sha256',($_SERVER['REMOTE_ADDR']??'unknown').'|'.gmdate('Y-m-d-H'),wp_salt('auth'));
+    $limit_key='sht_rate_'.substr($network,0,32);$count=(int)get_transient($limit_key);
+    if($count>=10){return new WP_Error('sht_limit','Too many requests from this connection. Please try again later.',array('status'=>429));}
+    $reference='SHT-'.gmdate('ymd').'-'.strtoupper(wp_generate_password(6,false,false));
+    $record=array('reference'=>$reference,'name'=>$name?:'Proposal reader','email'=>$email,'phone'=>$phone,'interest'=>'proposal','timeline'=>'','budget'=>'','message'=>'Opened the Second Home Plan proposal.','source'=>'/proposal/','submitted_at'=>gmdate('c'),'contact_consent'=>true,'marketing_consent'=>false,'consent_version'=>'2026-10-08');
+    $id=wp_insert_post(array('post_type'=>'sht_enquiry','post_status'=>'private','post_title'=>$reference.' · Proposal · '.($name?:($email?:$phone)),'meta_input'=>array('_sht_enquiry'=>$record,'_sht_request_hash'=>$request_hash,'_sht_lead_status'=>'new','_sht_legal_hold'=>'0')),true);
+    if(is_wp_error($id)||!$id){return new WP_Error('sht_storage','Your details could not be saved. Please try again.',array('status'=>500));}
+    set_transient($limit_key,$count+1,HOUR_IN_SECONDS);
+    $settings=get_option('sht_site_settings',array());
+    if($settings['notifications']??true){
+        $inbox=$settings['notification_email']??'';if(!$inbox){$inbox=get_option('admin_email');}
+        $body="Someone opened the Second Home Plan proposal.\n\nReference: ".$reference."\n\nReview the lead in your private administration area:\n".admin_url('post.php?post='.$id.'&action=edit');
+        $sent=is_email($inbox)?wp_mail($inbox,'Second Home Thailand proposal lead '.$reference,$body):false;
+        update_post_meta($id,'_sht_notification',$sent?'accepted':'failed');
+    }else{update_post_meta($id,'_sht_notification','disabled');}
+    $response=new WP_REST_Response(array('saved'=>true,'reference'=>$reference),201);$response->header('Cache-Control','no-store, private');return $response;
+}
 function sht_save_enquiry($request) {
     if(!sht_same_origin($request)){return new WP_Error('sht_origin','Please use the form on the Second Home Thailand website.',array('status'=>403));}
     if(strlen($request->get_body())>20000){return new WP_Error('sht_size','Please shorten your message and try again.',array('status'=>413));}
