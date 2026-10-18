@@ -152,9 +152,9 @@ function sht_render_site() {
             // Build FAQ data from the currently published answers, including staff edits.
             $data['@graph']=array_values(array_filter($data['@graph'] ?? array(),function($item){return ($item['@type'] ?? '')!=='FAQPage';}));
             foreach ($data['@graph'] as &$item) { if (($item['@type'] ?? '')==='WebPage') { if ($seo_title) {$item['name']=$seo_title;} if ($description) {$item['description']=$description;} } } unset($item);
-            if(preg_match_all('/<details>\s*<summary>(.*?)<\/summary>\s*<p>(.*?)<\/p>\s*<\/details>/s',$content,$faq_matches,PREG_SET_ORDER)){
+            if(preg_match_all('/<details\b[^>]*>\s*<summary>(.*?)<\/summary>(.*?)<\/details>/s',$content,$faq_matches,PREG_SET_ORDER)){
                 $questions=array();
-                foreach($faq_matches as $faq){$question=preg_replace('/<span\b[^>]*>.*?<\/span>/s','',$faq[1]);$questions[]=array('@type'=>'Question','name'=>trim(html_entity_decode(wp_strip_all_tags($question),ENT_QUOTES|ENT_HTML5,'UTF-8')),'acceptedAnswer'=>array('@type'=>'Answer','text'=>trim(html_entity_decode(wp_strip_all_tags($faq[2]),ENT_QUOTES|ENT_HTML5,'UTF-8'))));}
+                foreach($faq_matches as $faq){$question=preg_replace('/<span\b[^>]*>.*?<\/span>/s','',$faq[1]);$questions[]=array('@type'=>'Question','name'=>trim(html_entity_decode(wp_strip_all_tags($question),ENT_QUOTES|ENT_HTML5,'UTF-8')),'acceptedAnswer'=>array('@type'=>'Answer','text'=>trim(preg_replace('/\s+/',' ',html_entity_decode(wp_strip_all_tags(str_replace('</p>','</p> ',$faq[2])),ENT_QUOTES|ENT_HTML5,'UTF-8')))));}
                 $data['@graph'][]=array('@type'=>'FAQPage','mainEntity'=>$questions);
             }
             return '<script type="application/ld+json">'.wp_json_encode($data,JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT).'</script>';
