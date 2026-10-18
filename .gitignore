@@ -32,3 +32,5 @@ site/
 
 # Netlify CLI link state — machine-local, recreated by `netlify link`.
 .netlify/
+video/out/
+video/music/*.mp3
