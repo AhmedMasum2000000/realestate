@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Build, verify, and publish the site to cPanel over SSH.
+
+    bin/deploy-cpanel                 # dry run — shows every step, changes nothing
+    bin/deploy-cpanel --apply         # actually publish
+    bin/deploy-cpanel --apply --docroot public_html/staging
+
+Reads credentials from config/.env (never committed) or the environment, so
+nothing sensitive is passed on the command line or printed.
+
+The upload is one gzipped archive rather than ~1,700 separate SFTP writes,
+which turns several minutes into a few seconds. The swap is a rename, so the
+live document root is never left half-written, and the previous version is
+kept so a bad deploy can be rolled back in one command.
+"""
+
+import argparse
+import shutil
+import subprocess
+import sys
+import tarfile
+import tempfile
+import time
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.config import load_env  # noqa: E402
+from rep.ssh import SshRunner  # noqa: E402
+
+KEEP_BACKUPS = 2
+STAGE_DIR = ".phpro-deploy"
+
+
+def q(value: str) -> str:
+    import shlex
+    return shlex.quote(value)
+
+
+def build_and_verify(out: Path) -> None:
+    for step in (
+        [sys.executable, str(ROOT / "bin" / "build-site"), str(out)],
+        [sys.executable, str(ROOT / "bin" / "check-site"), str(out)],
+        [sys.executable, str(ROOT / "bin" / "check-layout"), str(out)],
+    ):
+        name = Path(step[1]).name
+        print(f"\n$ {name} …")
+        proc = subprocess.run(step, cwd=ROOT)
+        if proc.returncode != 0:
+            raise SystemExit(f"{name} failed — nothing was published")
+
+
+def archive(src: Path, dest: Path) -> Path:
+    with tarfile.open(dest, "w:gz") as tar:
+        for item in sorted(src.iterdir()):
+            tar.add(item, arcname=item.name)
+    return dest
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(add_help=True)
+    parser.add_argument("--apply", action="store_true",
+                        help="publish for real; without it nothing is changed")
+    parser.add_argument("--docroot", default="",
+                        help="document root relative to the home directory "
+                             "(default: DEPLOY_DOCROOT or public_html)")
+    parser.add_argument("--rollback", action="store_true",
+                        help="restore the most recent backup and exit")
+    args = parser.parse_args()
+
+    env = load_env()
+    host = env.get("SSH_HOST", "")
+    user = env.get("SSH_USER", "")
+    if not host or not user:
+        print(
+            "error: SSH_HOST and SSH_USER are not set.\n"
+            "  Copy config/.env.example to config/.env and fill in the SSH section,\n"
+            "  or export them in the environment. Never paste them into a chat.",
+            file=sys.stderr,
+        )
+        return 1
+
+    docroot = args.docroot or env.get("DEPLOY_DOCROOT", "public_html")
+    runner = SshRunner(
+        host=host,
+        user=user,
+        port=int(env.get("SSH_PORT", "22") or 22),
+        key_path=env.get("SSH_KEY_PATH", ""),
+        password=env.get("SSH_PASSWORD", ""),
+        dry_run=not args.apply,
+    )
+
+    mode = "APPLY" if args.apply else "DRY RUN — nothing will change"
+    print(f"cPanel deploy [{mode}]")
+    print(f"  server  : {user}@{host}:{runner.port}")
+    print(f"  docroot : ~/{docroot}")
+
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    stage = f"{STAGE_DIR}/{stamp}"
+
+    if args.rollback:
+        listing = runner.run(f"ls -1d {q(docroot)}.bak-* 2>/dev/null | tail -1")
+        previous = listing.stdout.strip()
+        if not previous:
+            print("no backup found to roll back to", file=sys.stderr)
+            return 1
+        print(f"  rolling back to {previous}")
+        runner.run(f"rm -rf {q(docroot)}.rollback && mv {q(docroot)} {q(docroot)}.rollback "
+                   f"&& mv {q(previous)} {q(docroot)}").check()
+        print("rolled back")
+        return 0
+
+    work = Path(tempfile.mkdtemp(prefix="phpro-deploy-"))
+    try:
+        built = work / "site"
+        build_and_verify(built)
+
+        bundle = archive(built, work / "site.tar.gz")
+        size_mb = bundle.stat().st_size / 1_048_576
+        files = sum(1 for _ in built.rglob("*") if _.is_file())
+        print(f"\npackaged {files} files ({size_mb:.1f}MB)")
+
+        remote_bundle = f"{stage}/site.tar.gz"
+        print(f"\nuploading -> ~/{remote_bundle}")
+        runner.run(f"mkdir -p {q(stage)}").check()
+        if args.apply:
+            runner.upload(bundle, remote_bundle)
+
+        print("extracting")
+        runner.run(f"mkdir -p {q(stage)}/next && "
+                   f"tar -xzf {q(remote_bundle)} -C {q(stage)}/next").check()
+
+        print(f"swapping into ~/{docroot}")
+        # A rename rather than a copy: the live root is never half-written, and
+        # the outgoing version is retained rather than deleted.
+        runner.run(
+            f"if [ -e {q(docroot)} ]; then mv {q(docroot)} {q(docroot)}.bak-{stamp}; fi && "
+            f"mv {q(stage)}/next {q(docroot)}"
+        ).check()
+
+        print("cleaning up")
+        runner.run(f"rm -rf {q(stage)}").check()
+        runner.run(
+            f"ls -1dt {q(docroot)}.bak-* 2>/dev/null | tail -n +{KEEP_BACKUPS + 1} "
+            f"| xargs -r rm -rf"
+        )
+
+        if args.apply:
+            print(f"\npublished. previous version kept as ~/{docroot}.bak-{stamp}")
+            print("  roll back with: bin/deploy-cpanel --apply --rollback")
+        else:
+            print("\ndry run complete — re-run with --apply to publish")
+        return 0
+    finally:
+        runner.close()
+        shutil.rmtree(work, ignore_errors=True)
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

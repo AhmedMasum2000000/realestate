@@ -1,0 +1,107 @@
+[
+ {
+  "asset": "photos/temple-*.webp",
+  "source": "assets/properties/1.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/skyline-*.webp",
+  "source": "assets/properties/2.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/summit-*.webp",
+  "source": "assets/properties/3.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/night-market-*.webp",
+  "source": "assets/properties/4.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/chinatown-*.webp",
+  "source": "assets/properties/5.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/coast-*.webp",
+  "source": "mit/assets/coast.webp",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/villa-aerial-*.webp",
+  "source": "assets/properties/CP1871/hero.webp",
+  "use": "Property photograph from partner Pattaya Home Pro, as used on Move In Thailand; illustrative, not a current listing or availability claim"
+ },
+ {
+  "asset": "photos/villa-modern-*.webp",
+  "source": "assets/properties/CP1967/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/pool-night-*.webp",
+  "source": "assets/properties/CP1951/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/garden-villa-*.webp",
+  "source": "assets/properties/CP2050/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/sea-terrace-*.webp",
+  "source": "assets/properties/CP2066/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/pool-house-*.webp",
+  "source": "assets/properties/CP1964/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/pool-living-*.webp",
+  "source": "assets/properties/CP2105/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/garden-pool-*.webp",
+  "source": "assets/properties/CP2154/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/courtyard-pool-*.webp",
+  "source": "assets/properties/CP1987/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/sea-towers-*.webp",
+  "source": "assets/properties/CP2194/hero.webp",
+  "use": "Property photograph from partner Pattaya Home Pro, as used on Move In Thailand; illustrative, not a current listing or availability claim"
+ },
+ {
+  "asset": "photos/beach-aerial-*.webp",
+  "source": "assets/properties/CP2223/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/resort-*.webp",
+  "source": "assets/properties/CP1932/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/white-house-*.webp",
+  "source": "assets/properties/CP1916/hero.jpg",
+  "use": "Thailand scene from the repository photo library (also used by Move In Thailand)"
+ },
+ {
+  "asset": "photos/home-1-*.webp",
+  "source": "mit/assets/home.webp",
+  "use": "Property photograph from partner Pattaya Home Pro, as used on Move In Thailand; illustrative, not a current listing or availability claim"
+ },
+ {
+  "asset": "photos/home-2-*.webp",
+  "source": "mit/assets/home-2.webp",
+  "use": "Property photograph from partner Pattaya Home Pro, as used on Move In Thailand; illustrative, not a current listing or availability claim"
+ }
+]

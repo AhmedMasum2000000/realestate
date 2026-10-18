@@ -1,0 +1,302 @@
+#!/usr/bin/env python3
+"""Polite site crawler for content migration and competitor research.
+
+    bin/crawl-site https://www.moveinthailand.com/ --mode own --out data/research/moveinthailand.json
+    bin/crawl-site https://www.pattaya4all.com/home/ --mode structure --out data/research/pattaya4all.json
+
+--mode own        our own site: keeps each page's text, images and links, so the
+                  content can be migrated and every old URL redirected
+--mode structure  someone else's site: keeps only what a content-gap analysis
+                  needs (URL, title, headings, word count, page type, links).
+                  Body text is never stored: their writing stays theirs.
+
+Honours robots.txt, identifies itself, and waits between requests.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+import time
+import xml.etree.ElementTree as ET
+from collections import deque
+from html.parser import HTMLParser
+from pathlib import Path
+from urllib import robotparser
+from urllib.parse import urldefrag, urljoin, urlparse
+
+import requests
+
+UA = "MoveInThailandResearchBot/1.0 (+https://www.moveinthailand.com/)"
+SKIP_EXT = re.compile(r"\.(jpe?g|png|gif|webp|svg|ico|pdf|zip|rar|mp4|mp3|webm|css|js|xml|txt|docx?|xlsx?)$", re.I)
+SKIP_PATH = re.compile(r"/(wp-admin|wp-json|wp-login|feed|xmlrpc|cart|checkout|my-account|wp-content/uploads)\b|[?&](replytocom|s|add-to-cart)=", re.I)
+
+
+class Page(HTMLParser):
+    """Collects what a page says and where it points, without a DOM library."""
+
+    BLOCK = {"p", "li", "h1", "h2", "h3", "h4", "td", "th", "blockquote", "dd", "dt", "figcaption"}
+    DROP = {"head", "script", "style", "noscript", "svg", "nav", "footer", "header", "form", "iframe"}
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.title = ""
+        self.meta: dict[str, str] = {}
+        self.headings: list[tuple[str, str]] = []
+        self.links: list[str] = []
+        self.images: list[dict] = []
+        self.blocks: list[str] = []
+        self.jsonld: list[str] = []
+        self._stack: list[str] = []
+        self._drop = 0
+        self._buf: list[str] = []
+        self._in_title = False
+        self._in_ld = False
+        self._ld: list[str] = []
+        self._heading: str | None = None
+        self._hbuf: list[str] = []
+
+    def handle_starttag(self, tag, attrs):
+        a = dict(attrs)
+        if tag == "title":
+            self._in_title = True
+        elif tag == "meta":
+            key = (a.get("name") or a.get("property") or "").lower()
+            if key in ("description", "og:title", "og:description", "og:image", "robots", "generator"):
+                self.meta[key] = (a.get("content") or "").strip()
+        elif tag == "link" and (a.get("rel") or "").lower() == "canonical":
+            self.meta["canonical"] = a.get("href") or ""
+        elif tag == "a" and a.get("href"):
+            self.links.append(a["href"])
+        elif tag == "img":
+            src = a.get("src") or a.get("data-src") or a.get("data-lazy-src")
+            if src:
+                self.images.append({"src": src, "alt": (a.get("alt") or "").strip()})
+        elif tag == "script" and (a.get("type") or "").lower() == "application/ld+json":
+            self._in_ld = True
+        if tag in self.DROP:
+            self._drop += 1
+        if tag in ("h1", "h2", "h3", "h4"):
+            self._heading, self._hbuf = tag, []
+        if tag in self.BLOCK:
+            self._flush()
+        self._stack.append(tag)
+
+    def handle_endtag(self, tag):
+        if tag == "title":
+            self._in_title = False
+        if tag == "script" and self._in_ld:
+            self._in_ld = False
+            self.jsonld.append("".join(self._ld))
+            self._ld = []
+        if tag in ("h1", "h2", "h3", "h4") and self._heading == tag:
+            text = " ".join("".join(self._hbuf).split())
+            if text:
+                self.headings.append((tag, text))
+            self._heading = None
+        if tag in self.BLOCK:
+            self._flush()
+        if tag in self.DROP and self._drop:
+            self._drop -= 1
+        if self._stack and self._stack[-1] == tag:
+            self._stack.pop()
+
+    def handle_data(self, data):
+        if self._in_title:
+            self.title += data
+        if self._in_ld:
+            self._ld.append(data)
+            return
+        if self._heading:
+            self._hbuf.append(data)
+        if not self._drop:
+            self._buf.append(data)
+
+    def _flush(self):
+        text = " ".join("".join(self._buf).split())
+        if len(text) > 1:
+            self.blocks.append(text)
+        self._buf = []
+
+    def close(self):
+        super().close()
+        self._flush()
+
+
+def schema_types(raw: list[str]) -> list[str]:
+    found: set[str] = set()
+
+    def walk(node):
+        if isinstance(node, dict):
+            t = node.get("@type")
+            if isinstance(t, str):
+                found.add(t)
+            elif isinstance(t, list):
+                found.update(x for x in t if isinstance(x, str))
+            for v in node.values():
+                walk(v)
+        elif isinstance(node, list):
+            for v in node:
+                walk(v)
+
+    for chunk in raw:
+        try:
+            walk(json.loads(chunk))
+        except ValueError:
+            continue
+    return sorted(found)
+
+
+def normalise(url: str, base: str, host: str) -> str | None:
+    url = urldefrag(urljoin(base, url.strip()))[0]
+    p = urlparse(url)
+    if p.scheme not in ("http", "https") or p.netloc.lower().removeprefix("www.") != host:
+        return None
+    if SKIP_EXT.search(p.path) or SKIP_PATH.search(url):
+        return None
+    path = p.path or "/"
+    return f"{p.scheme}://{p.netloc.lower()}{path}" + (f"?{p.query}" if p.query and "page" in p.query else "")
+
+
+def sitemap_urls(session, root: str, robots_maps: list[str], host: str, limit: int) -> list[str]:
+    todo = deque(robots_maps or [f"{root}/sitemap.xml", f"{root}/wp-sitemap.xml", f"{root}/sitemap_index.xml"])
+    seen, urls = set(), []
+    while todo and len(urls) < limit and len(seen) < 60:
+        sm = todo.popleft()
+        if sm in seen:
+            continue
+        seen.add(sm)
+        try:
+            r = session.get(sm, timeout=30)
+            if r.status_code != 200 or b"<" not in r.content[:200]:
+                continue
+            tree = ET.fromstring(r.content)
+        except (requests.RequestException, ET.ParseError):
+            continue
+        for loc in tree.iter():
+            if not loc.tag.endswith("loc") or not loc.text:
+                continue
+            u = loc.text.strip()
+            if u.endswith(".xml") or "sitemap" in u.rsplit("/", 1)[-1]:
+                todo.append(u)
+            else:
+                n = normalise(u, root, host)
+                if n:
+                    urls.append(n)
+        time.sleep(0.5)
+    return urls
+
+
+def crawl(start: str, mode: str, max_pages: int, delay: float) -> dict:
+    p = urlparse(start)
+    host = p.netloc.lower().removeprefix("www.")
+    root = f"{p.scheme}://{p.netloc}"
+    session = requests.Session()
+    session.headers["User-Agent"] = UA
+
+    robots = robotparser.RobotFileParser()
+    robots_maps: list[str] = []
+    try:
+        r = session.get(f"{root}/robots.txt", timeout=20)
+        lines = r.text.splitlines() if r.status_code == 200 else []
+        robots.parse(lines)
+        robots_maps = [l.split(":", 1)[1].strip() for l in lines if l.lower().startswith("sitemap:")]
+    except requests.RequestException:
+        robots.parse([])
+
+    queue = deque([normalise(start, start, host) or start])
+    for u in sitemap_urls(session, root, robots_maps, host, max_pages * 2):
+        queue.append(u)
+    seen: set[str] = set()
+    pages, redirects, errors = [], [], []
+
+    while queue and len(pages) < max_pages:
+        url = queue.popleft()
+        if url in seen:
+            continue
+        seen.add(url)
+        if not robots.can_fetch(UA, url):
+            errors.append({"url": url, "error": "disallowed by robots.txt"})
+            continue
+        try:
+            resp = session.get(url, timeout=30, allow_redirects=True)
+        except requests.RequestException as exc:
+            errors.append({"url": url, "error": type(exc).__name__})
+            continue
+        finally:
+            time.sleep(delay)
+        final = normalise(resp.url, resp.url, host) or resp.url
+        if final != url:
+            redirects.append({"from": url, "to": final, "status": resp.history[0].status_code if resp.history else resp.status_code})
+            if final in seen:
+                continue
+            seen.add(final)
+        if resp.status_code != 200 or "html" not in resp.headers.get("content-type", ""):
+            errors.append({"url": final, "error": f"HTTP {resp.status_code}"})
+            continue
+
+        doc = Page()
+        doc.feed(resp.content.decode("utf-8", "replace"))
+        doc.close()
+        internal = []
+        for href in doc.links:
+            n = normalise(href, final, host)
+            if n:
+                internal.append(n)
+                if n not in seen:
+                    queue.append(n)
+        words = sum(len(b.split()) for b in doc.blocks)
+        page = {
+            "url": final,
+            "path": urlparse(final).path,
+            "title": " ".join(doc.title.split()),
+            "description": doc.meta.get("description", "")[:200],
+            "robots": doc.meta.get("robots", ""),
+            "canonical": doc.meta.get("canonical", ""),
+            "headings": [f"{t}: {h[:140]}" for t, h in doc.headings[:60]],
+            "words": words,
+            "schema": schema_types(doc.jsonld),
+            "internal_links": len(set(internal)),
+            "images": len(doc.images),
+        }
+        if mode == "own":
+            page["og_image"] = doc.meta.get("og:image", "")
+            page["generator"] = doc.meta.get("generator", "")
+            page["text"] = doc.blocks
+            page["image_list"] = doc.images[:80]
+            page["links_to"] = sorted(set(internal))
+        pages.append(page)
+        print(f"[{len(pages):>4}] {words:>5}w  {final}", flush=True)
+
+    return {
+        "site": root,
+        "mode": mode,
+        "crawled_at": time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime()),
+        "pages": pages,
+        "redirects": redirects,
+        "errors": errors[:200],
+        "unvisited": len([u for u in queue if u not in seen]),
+    }
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("url")
+    ap.add_argument("--mode", choices=["own", "structure"], required=True)
+    ap.add_argument("--max", type=int, default=500)
+    ap.add_argument("--delay", type=float, default=1.0)
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args()
+    result = crawl(args.url, args.mode, args.max, args.delay)
+    out = Path(args.out)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(result, ensure_ascii=False, indent=1) + "\n")
+    print(f"\n{len(result['pages'])} pages, {len(result['redirects'])} redirects, "
+          f"{len(result['errors'])} errors, {result['unvisited']} queued but not visited -> {out}")
+    return 0 if result["pages"] else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,30 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, cta, crumbs, button, hero_photo with context %}
+{% block content %}
+<section class="page-hero">
+  <div class="frame">
+    {{ crumbs(page) }}
+    <div class="page-hero-grid">
+      <div>{{ mono('Concierge') }}<h1 class="display page-title" data-reveal-words>Handled, <em>in writing.</em></h1></div>
+      <div class="page-hero-side"><p class="lede">Three ways to work with us. Each one starts with a consultation and a written scope: what we will do, what it costs and what is not included, before any paid work begins.</p>{{ button('Schedule consultation', url('contact/')) }}</div>
+    </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['concierge']) }}
+  </div>
+</section>
+<section class="section engagements">
+  <div class="frame engagement-grid">{% for item in sht.ENGAGEMENTS %}<article class="engagement{% if item.get('lead') %} is-lead{% endif %}" data-stagger><span class="index mono">{{ '%02d'|format(loop.index) }}</span><h2>{{ item.name }}</h2><p class="engagement-for">{{ item['for'] }}</p><ul class="ticks">{% for line in item['items'] %}<li>{{ line }}</li>{% endfor %}</ul><div class="engagement-fee">{{ mono('Fee') }}<strong>Fixed, quoted in writing</strong></div><p class="engagement-note">{{ item.note }}</p>{{ button('Ask about ' ~ item.name, url('contact/?interest=' ~ ('care' if loop.last else 'fees')), '' if item.get('lead') else 'button-ghost') }}</article>{% endfor %}</div>
+</section>
+<section class="section services">
+  <div class="frame">
+    <div class="section-head">{{ mono('What sits inside') }}<h2 class="display" data-reveal-words>Five desks. <em>One plan.</em></h2></div>
+    <div class="service-row">{% for item in sht.SERVICES %}<a class="service-card" href="{{ url(item.href) }}" data-stagger><span class="service-line" aria-hidden="true"></span><span class="index mono">{{ item.index }}</span><h3>{{ item.title }}</h3><p>{{ item.text }}</p><span class="text-arrow">{{ item.link }} {{ icon('arrow') }}</span></a>{% endfor %}</div>
+  </div>
+</section>
+<section class="section split">
+  <div class="frame split-grid">
+    <div>{{ mono('Not included') }}<h2 class="display" data-reveal-words>What we <em>won’t</em> do.</h2></div>
+    <ul class="ticks ticks-cross"><li>Promise an approval. The responsible authority decides.</li><li>Recommend a route your circumstances do not support.</li><li>Hide official fees inside ours. Government and membership fees are shown separately.</li><li>Ask for passports or bank statements before there is a plan and a secure way to share them.</li></ul>
+  </div>
+</section>
+{{ cta() }}
+{% endblock %}

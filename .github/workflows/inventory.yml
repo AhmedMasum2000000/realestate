@@ -1,0 +1,39 @@
+name: Account inventory
+
+# Read-only: lists every domain on the cPanel account, where each one lives,
+# what it serves and whether its DNS is editable through cPanel. Pass extra
+# domains to check ones that may not be on the account.
+
+on:
+  workflow_dispatch:
+    inputs:
+      domains:
+        description: "Extra domains to check, space-separated (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  inventory:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Inventory
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+          DOMAINS: ${{ inputs.domains }}
+        run: |
+          # word-splitting of DOMAINS is intended: one argument per domain
+          bin/inventory $DOMAINS | tee -a "$GITHUB_STEP_SUMMARY"

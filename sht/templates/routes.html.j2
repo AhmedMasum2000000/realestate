@@ -1,0 +1,33 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, display, cta, crumbs, button, form, hero_photo with context %}
+{% block content %}
+<section class="page-hero">
+  <div class="frame">
+    {{ crumbs(page) }}
+    <div class="page-hero-grid">
+      <div>{{ mono('Residency routes') }}<h1 class="display page-title" data-reveal-words>Every way <em>to stay.</em></h1></div>
+      <div class="page-hero-side"><p class="lede">Thailand has no single “residency visa”. It has routes, each with its own length of stay, money test and rules on work. Compare them here, then let us check the one that fits.</p>{{ button('Find my route with us', url('contact/?interest=visa')) }}</div>
+    </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['visas']) }}
+  </div>
+</section>
+<section class="section showcase">
+  <div class="frame">
+    <div class="showcase-grid">{% for spec in route_specs %}{% set note = sht.SHOWCASE[spec.slug] %}<a class="tile tile-{{ loop.index }}" href="{{ url('visas/' ~ spec.slug ~ '/') }}" data-stagger>{{ form(spec.slug) }}<div class="tile-copy"><span class="mono">{{ note[0] }} · {{ spec.length }}</span><h2>{{ spec.name }}</h2><p>{{ note[1] }}</p><span class="text-arrow">Read the route {{ icon('arrow') }}</span></div><span class="tile-years" aria-hidden="true">{{ spec.years }}<small>{{ 'YR' if spec.years == 1 else 'YRS' }}</small></span></a>{% endfor %}</div>
+  </div>
+</section>
+<section class="section compare">
+  <div class="frame">
+    <div class="section-head section-head-row">{{ mono('Side by side') }}<h2 class="display" data-reveal-words>The <em>short</em> version.</h2></div>
+    <div class="table compare-table" role="region" aria-label="Residency routes compared" tabindex="0"><table><thead><tr><th>Route</th><th>Length of stay</th><th>Suits</th><th>The money test</th><th>Work in Thailand</th></tr></thead><tbody>{% for spec in route_specs %}<tr><td data-label="Route"><a href="{{ url('visas/' ~ spec.slug ~ '/') }}">{{ spec.name }}</a></td><td data-label="Length of stay">{{ spec.length }}</td><td data-label="Suits">{{ spec.suits }}</td><td data-label="The money test">{{ spec.money }}</td><td data-label="Work in Thailand">{{ spec.work }}</td></tr>{% endfor %}</tbody></table></div>
+    <p class="fineprint">A planning summary from official sources checked {{ checked }}. The responsible authority decides each application.</p>
+  </div>
+</section>
+<section class="section library-teaser">
+  <div class="frame">
+    <div class="section-head section-head-row">{{ mono('Every route') }}<h2 class="display" data-reveal-words>Route <em>guides.</em></h2>{{ button('Take the Visa Finder', url('tools/visa-finder/'), 'button-ghost') }}</div>
+    <ol class="index-list">{% for visa in visas %}<li data-stagger><a href="{{ url('visas/' ~ visa.slug ~ '/') }}"><span class="index mono">{{ '%02d'|format(loop.index) }}</span><span class="index-title">{{ visa.name }}</span><span class="index-hub mono">{{ visa.badge }}</span>{{ icon('arrow') }}</a></li>{% endfor %}{% for guide in guides_in('visas') %}<li data-stagger><a href="{{ url(guide.slug ~ '/') }}"><span class="index mono">{{ '%02d'|format(visas|length + loop.index) }}</span><span class="index-title">{{ label(guide) }}</span><span class="index-hub mono">Guide</span>{{ icon('arrow') }}</a></li>{% endfor %}</ol>
+  </div>
+</section>
+{{ cta() }}
+{% endblock %}

@@ -1,0 +1,23 @@
+{% macro eyebrow(text) %}<p class="eyebrow"><span></span>{{ text }}</p>{% endmacro %}
+{% macro faq(items) %}
+{% if items %}<section class="section faq-section"><div class="wrap faq-layout"><div>{{ eyebrow('A LITTLE MORE CLARITY') }}<h2>Good questions.<br><mark class="hl">Straight answers.</mark></h2><p>What people ask us most before they take the next step.</p></div><div class="faq-list">{% for question, answer in items %}<details><summary>{{ question }}<span aria-hidden="true">+</span></summary><p>{{ answer }}</p></details>{% endfor %}</div></div></section>{% endif %}
+{% endmacro %}
+{% macro cta(title='You don’t need every answer.<br><mark class="hl hl-dark">Just a clear next step.</mark>',text='') %}
+<section class="closing"><div class="closing-glow" aria-hidden="true"></div><div class="wrap closing-inner"><div>{{ eyebrow('LET’S MAKE IT FEEL POSSIBLE') }}<h2 class="gradient-headline">{{ title|safe }}</h2><p>{% if text %}{{ text }}{% else %}<span class="visually-hidden">Retiring, working remotely, moving with family or starting a business? </span><span aria-hidden="true">Whether you are <span class="rotator" data-rotator><span>retiring</span><span>working remotely</span><span>moving with family</span><span>starting a business</span></span>, </span>tell us where you are now. We will put the decisions in order, so you can stop researching and start planning.{% endif %}</p></div><div class="closing-action"><a class="button button-light" href="{{ url('contact/') }}">Plan my move {{ icon('arrow') }}</a><span>A free 15-minute conversation. No obligation.</span></div></div></section>
+{% endmacro %}
+{% macro sources(keys) %}
+{% if keys %}<aside class="sources"><p class="eyebrow">OFFICIAL SOURCES · CHECKED {{ checked|upper }}</p><p>This is a planning overview. Check the requirements for your own circumstances with the responsible authority. Specialist legal or tax questions need qualified advice.</p><ul>{% for key in keys %}<li><a href="{{ source_map[key][1] }}" target="_blank" rel="noopener">{{ source_map[key][0] }} {{ icon('external') }}</a></li>{% endfor %}</ul></aside>{% endif %}
+{% endmacro %}
+
+{% macro crumbs(page, pages_by_slug) %}
+{% set parent = page.slug.rsplit('/', 1)[0] if '/' in page.slug else '' %}<div class="wrap breadcrumb"><a href="{{ url('') }}">Home</a><span>/</span>{% if parent and parent in pages_by_slug %}<a href="{{ url(parent ~ '/') }}">{{ crumb_label(pages_by_slug[parent]) }}</a><span>/</span>{% endif %}<span>{{ crumb_label(page) }}</span></div>
+{% endmacro %}
+{% macro rich_sections(sections) %}
+{% for item in sections %}{% set extra = item[2] if item|length > 2 else {} %}<section>{% if item[0] %}<h2>{{ item[0] }}</h2>{% endif %}{% if item[1] %}<p>{{ item[1]|md }}</p>{% endif %}{% for para in extra.get('paras') or [] %}<p>{{ para|md }}</p>{% endfor %}{% if extra.get('list') %}<ul class="check-list">{% for entry in extra.list %}<li>{{ icon('check') }}<span>{{ entry|md }}</span></li>{% endfor %}</ul>{% endif %}{% if extra.get('steps') %}<ol class="number-list">{% for entry in extra.steps %}<li><p>{{ entry|md }}</p></li>{% endfor %}</ol>{% endif %}{% if extra.get('table') %}<div class="fee-table" role="region" aria-label="{{ item[0] or 'Table' }}" tabindex="0"><table><thead><tr>{% for head in extra.table.head %}<th>{{ head }}</th>{% endfor %}</tr></thead><tbody>{% for row in extra.table.rows %}<tr>{% for cell in row %}<td data-label="{{ extra.table.head[loop.index0] }}">{{ cell|md }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>{% endif %}{% for para in extra.get('after') or [] %}<p>{{ para|md }}</p>{% endfor %}{% if extra.get('note') %}<div class="notice">{{ extra.note|md }}</div>{% endif %}{% if extra.get('warn') %}<div class="result-alert">{{ extra.warn|md }}</div>{% endif %}</section>{% endfor %}
+{% endmacro %}
+{% macro next_step(step) %}
+{% if step %}<div class="download-block next-step">{{ eyebrow('YOUR NEXT STEP') }}<h2>{{ step[0] }}</h2><div class="button-row"><a class="button" href="{{ url(step[1]) }}">Continue {{ icon('arrow') }}</a></div></div>{% endif %}
+{% endmacro %}
+{% macro related(items) %}
+{% if items %}<section class="section soft-section compact-section related-section"><div class="wrap">{{ eyebrow('KEEP READING') }}<div class="related-grid">{% for title,text,href in items %}<a class="related-card" href="{{ url(href) }}"><h2>{{ title }}</h2><p>{{ text }}</p><span class="text-link">Read the guide {{ icon('arrow') }}</span></a>{% endfor %}</div></div></section>{% endif %}
+{% endmacro %}

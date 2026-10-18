@@ -1,0 +1,26 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, cta, crumbs, button, hero_photo with context %}
+{% block content %}
+<section class="page-hero">
+  <div class="frame">
+    {{ crumbs(page) }}
+    <div class="page-hero-grid">
+      <div>{{ mono('Our approach') }}<h1 class="display page-title" data-reveal-words>Fit before <em>speed.</em></h1></div>
+      <div class="page-hero-side"><p class="lede">Second Home Thailand is the concierge desk of the team behind Move In Thailand’s free guide library. We built the library to answer questions. We built this desk to carry the whole move.</p></div>
+    </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['approach']) }}
+  </div>
+</section>
+<section class="section principles">
+  <div class="frame">
+    <ol class="principle-list">{% for title, text in sht.PRINCIPLES %}<li data-stagger><span class="index mono">{{ '%02d'|format(loop.index) }}</span><h2>{{ title }}</h2><p>{{ text }}</p></li>{% endfor %}</ol>
+  </div>
+</section>
+<section class="section process-static">
+  <div class="frame">
+    <div class="section-head">{{ mono('How an engagement runs') }}<h2 class="display" data-reveal-words>Four steps. <em>One desk.</em></h2></div>
+    <ol class="columns-4">{% for index, title, text in sht.PROCESS %}<li class="column" data-stagger><span class="index mono">{{ index }}</span><h3>{{ title }}</h3><p>{{ text }}</p></li>{% endfor %}</ol>
+  </div>
+</section>
+{{ cta() }}
+{% endblock %}

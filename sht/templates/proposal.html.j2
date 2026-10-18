@@ -1,0 +1,271 @@
+{% extends 'base.html.j2' %}
+{% from 'boon.html.j2' import boon %}
+{# The Second Home Plan: the client proposal. The cover is open to everyone; the rest opens after an email
+   or phone number is saved (wp-json/sht/v1/proposal-leads). Not indexed: the same answers live on /concierge/ and /faq/. #}
+{% block content %}
+<div class="pp" id="top" data-proposal>
+
+<!-- COVER · Attention -->
+<section class="cover" aria-labelledby="cover-title">
+  <div class="cover-img" style="background-image:url({{ asset('photos/summit-1600.webp') }})" role="img" aria-label="Twin pagodas on a mountain ridge at sunset in northern Thailand"></div>
+  <div class="wrap">
+    <p class="for">Prepared for <strong data-name>you</strong> · 5-minute read</p>
+    <h1 class="pp-display" id="cover-title"><span class="word">Remember</span> <span class="word" style="animation-delay:.08s">the</span> <span class="word" style="animation-delay:.16s">warm</span> <span class="word" style="animation-delay:.24s">air?</span><br><span class="word" style="animation-delay:.5s">Let’s</span> <span class="word" style="animation-delay:.58s">make</span> <span class="word" style="animation-delay:.66s">it</span> <span class="word" style="animation-delay:.74s"><em>every morning.</em></span></h1>
+    <p class="pp-lede">This is your plan to live in Thailand. Your visa, your home and your arrival, planned together by one team and agreed in writing before you pay for anything.</p>
+    <div class="boon-say">{{ boon('welcome') }}<p class="bubble"><b>Sawasdee krap!</b> I’m Khun Boon. I’ll walk you through this in six short chapters. Tap any question below to jump straight to the answer.</p></div>
+    <nav class="questions" aria-label="Your questions">
+      <a href="#tangle"><span>Q1</span><strong>Why is moving so hard?</strong></a>
+      <a href="#offer"><span>Q2</span><strong>What exactly do I get?</strong></a>
+      <a href="#price"><span>Q3</span><strong>How much is it?</strong></a>
+      <a href="#promise"><span>Q4</span><strong>What if it goes wrong?</strong></a>
+      <a href="#start"><span>Q5</span><strong>What do I do now?</strong></a>
+    </nav>
+  </div>
+</section>
+<section class="pp-gate" id="open-plan" data-proposal-gate aria-labelledby="gate-title">
+  <div class="wrap pp-gate-grid">
+    <div class="stack">
+      <p class="pp-ch"><b>›</b><span class="pp-mono">Open your plan</span></p>
+      <h2 class="h2" id="gate-title">Where shall we <em>send it?</em></h2>
+      <div class="boon-say">{{ boon('notes') }}<p class="bubble">Leave your email or phone number and the full plan opens right here. We use it only to follow up on this plan.</p></div>
+    </div>
+    <form class="pp-form" id="proposal-form" novalidate>
+      <label for="pp-name">Your first name <span>optional</span></label>
+      <input id="pp-name" name="name" type="text" autocomplete="given-name" maxlength="120">
+      <label for="pp-contact">Email or phone number</label>
+      <input id="pp-contact" name="contact" type="text" inputmode="email" autocomplete="email" required maxlength="200" placeholder="you@example.com or +44 7700 900123">
+      <p class="pp-hint">For a phone number, start with your country code.</p>
+      <div class="pp-trap" aria-hidden="true"><label for="pp-website">Website</label><input id="pp-website" name="website" type="text" tabindex="-1" autocomplete="off"></div>
+      <label class="pp-check" for="pp-consent"><input id="pp-consent" name="consent" type="checkbox" required> <span>You may contact me about this plan. <a href="/privacy/">Privacy</a></span></label>
+      <button class="btn" type="submit">Open my plan <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 9h12M10 4l5 5-5 5"/></svg></button>
+      <p class="pp-status" id="pp-status" role="status" aria-live="polite"></p>
+    </form>
+  </div>
+</section>
+<div data-proposal-body hidden>
+
+<!-- CHAPTER 1 · Desire -->
+<section id="dream">
+  <div class="wrap stack" style="gap:36px">
+    <div class="stack read rv">
+      <p class="pp-ch"><b>01</b><span class="pp-mono">The dream</span></p>
+      <h2 class="h2">Picture a normal <em>Tuesday</em> in Thailand.</h2>
+      <p class="pp-lede">No alarm. Coffee by the sea. Lunch for less than a coffee at home. A sunset that still stops you, even after a year. This is what you are really buying. Everything on this page exists to get you here safely.</p>
+    </div>
+    <div class="dream rv">
+      <figure><img src="{{ asset('photos/sea-terrace-800.webp') }}" alt="A terrace looking over the sea in Thailand"><figcaption><small>7:30 am</small>Breakfast with the sea in view.</figcaption></figure>
+      <figure><img src="{{ asset('photos/temple-800.webp') }}" alt="Golden temple roofs under a bright sky"><figcaption><small>11:00 am</small>A quiet temple, five minutes away.</figcaption></figure>
+      <figure><img src="{{ asset('photos/night-market-800.webp') }}" alt="Neon signs and tuk-tuks on a rainy night"><figcaption><small>8:00 pm</small>Dinner at the night market.</figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- CHAPTER 2 · Problem + Agitate -->
+<section class="dark" id="tangle">
+  <div class="wrap stack" style="gap:40px">
+    <div class="stack read rv">
+      <p class="pp-ch"><b>02</b><span class="pp-mono">The problem</span></p>
+      <h2 class="h2">Then the <em>questions</em> start.</h2>
+      <p class="pp-lede">Which visa? Rent or buy? Is this agent real? What do I do after I land? Most people try to answer these alone, with five different helpers who never talk to each other. Here is what that can cost.</p>
+    </div>
+    <div class="tangle">
+      <ol class="pit rv">
+        <li><span class="x">×</span><div><strong>The wrong visa costs you months.</strong><p>Privilege, Long-Term Resident, retirement, DTV. Each has its own rules. Pick the wrong one and you start again.</p></div></li>
+        <li><span class="x">×</span><div><strong>Some visa agents are not real.</strong><p>In Pattaya, one agency took money from more than 100 tourists. Many were left overstaying with no visa.</p><a href="https://devth.thethaiger.com/th/news/pattaya/pattaya-visa-scam-leaves-hundreds-of-tourists-out-of-pocket-and-overstaying" target="_blank" rel="noopener">Source: The Thaiger</a></div></li>
+        <li><span class="x">×</span><div><strong>Property rules trip people up.</strong><p>Foreigners can own up to 49% of a condo building. Your money must arrive from abroad in foreign currency. Using a Thai “nominee” to own land is illegal.</p><a href="https://pearlpropertythailand.com/blog/avoid-3-common-pitfalls-buying-condo-thailand" target="_blank" rel="noopener">Source: Pearl Property</a></div></li>
+        <li><span class="x">×</span><div><strong>The agent may be working for the seller.</strong><p>In Thailand the seller usually pays the agent. So who is checking the deal for you?</p><a href="https://rumavi.com/en/property-guides/thailand-property-buying-mistakes" target="_blank" rel="noopener">Source: Rumavi</a></div></li>
+        <li><span class="x">×</span><div><strong>The dates never stop.</strong><p>90-day reports, address reports, yearly extensions, re-entry permits. Miss one and you can pay a fine.</p></div></li>
+      </ol>
+      <div class="pp-compare rv">
+        <figure>
+          <svg class="mesh" viewBox="0 0 420 250" role="img" aria-label="Doing it alone: you in the middle, connected to five helpers who are also connected to each other with dashed lines">
+            <line x1="210" y1="125" x2="70" y2="40"/><line x1="210" y1="125" x2="350" y2="40"/><line x1="210" y1="125" x2="55" y2="200"/><line x1="210" y1="125" x2="365" y2="200"/><line x1="210" y1="125" x2="210" y2="225"/>
+            <line x1="70" y1="40" x2="350" y2="40"/><line x1="70" y1="40" x2="55" y2="200"/><line x1="350" y1="40" x2="365" y2="200"/><line x1="55" y1="200" x2="210" y2="225"/><line x1="365" y1="200" x2="210" y2="225"/><line x1="70" y1="40" x2="365" y2="200"/><line x1="350" y1="40" x2="55" y2="200"/>
+            <g class="node"><rect x="22" y="26" width="96" height="28"/><text x="70" y="44" text-anchor="middle">Visa agent</text></g>
+            <g class="node"><rect x="296" y="26" width="108" height="28"/><text x="350" y="44" text-anchor="middle">Property agent</text></g>
+            <g class="node"><rect x="10" y="186" width="90" height="28"/><text x="55" y="204" text-anchor="middle">Lawyer</text></g>
+            <g class="node"><rect x="320" y="186" width="90" height="28"/><text x="365" y="204" text-anchor="middle">Mover</text></g>
+            <g class="node"><rect x="150" y="211" width="120" height="28"/><text x="210" y="229" text-anchor="middle">Your calendar</text></g>
+            <g class="node you"><rect x="176" y="111" width="68" height="28"/><text x="210" y="129" text-anchor="middle">You</text></g>
+          </svg>
+          <figcaption><span>Doing it alone</span><b>5 helpers · 0 plan</b></figcaption>
+        </figure>
+        <figure>
+          <svg class="mesh" viewBox="0 0 420 130" role="img" aria-label="With Second Home Thailand: you connect to one desk, and the desk handles visa, home, arrival and dates">
+            <line class="spoke" x1="70" y1="65" x2="200" y2="65"/><line class="spoke" x1="240" y1="65" x2="340" y2="20"/><line class="spoke" x1="240" y1="65" x2="340" y2="50"/><line class="spoke" x1="240" y1="65" x2="340" y2="80"/><line class="spoke" x1="240" y1="65" x2="340" y2="110"/>
+            <g class="node you"><rect x="20" y="51" width="68" height="28"/><text x="54" y="69" text-anchor="middle">You</text></g>
+            <g class="node desk"><rect x="150" y="47" width="120" height="36"/><text x="210" y="69" text-anchor="middle">One desk</text></g>
+            <g class="node"><rect x="330" y="8" width="82" height="24"/><text x="371" y="24" text-anchor="middle">Visa</text></g>
+            <g class="node"><rect x="330" y="38" width="82" height="24"/><text x="371" y="54" text-anchor="middle">Home</text></g>
+            <g class="node"><rect x="330" y="68" width="82" height="24"/><text x="371" y="84" text-anchor="middle">Arrival</text></g>
+            <g class="node"><rect x="330" y="98" width="82" height="24"/><text x="371" y="114" text-anchor="middle">Dates</text></g>
+          </svg>
+          <figcaption><span>With one desk</span><b>1 contact · 1 written plan</b></figcaption>
+        </figure>
+        <div class="tally" aria-label="Alone versus one desk">
+          <div><span>People to manage</span><strong><s>5</s>1</strong></div>
+          <div><span>Separate bills</span><strong><s>4+</s>1</strong></div>
+          <div><span>Written plan</span><strong><s>0</s>1</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHAPTER 3 · Solution / USP + value equation -->
+<section id="desk">
+  <div class="wrap usp">
+    <div class="usp-photo rv"><img src="{{ asset('photos/pool-living-800.webp') }}" alt="A bright living room opening onto a private pool"><p class="stamp"><span class="pp-mono">Our one big idea</span><strong>The One-Desk Move</strong></p></div>
+    <div class="stack rv">
+      <p class="pp-ch"><b>03</b><span class="pp-mono">The answer</span></p>
+      <h2 class="h2">One desk. One plan. <em>In writing.</em></h2>
+      <p class="pull">We plan your <mark>visa, your home and your arrival as one move</mark>, not three separate jobs. Then we stay with you after you land.</p>
+      <p>Most helpers do one piece. A visa agent does visas. A property agent sells homes. Nobody checks that the pieces fit. We do, from the first call to your first renewal.</p>
+      <div class="equation" aria-label="How we make your move worth more">
+        <div><span class="arrow">↑</span><strong>What you get</strong><p>A legal, long stay in a home you love.</p></div>
+        <div><span class="arrow">↑</span><strong>Chance it works</strong><p>The right route first. Complete papers. Ownership checked.</p></div>
+        <div><span class="arrow down">↓</span><strong>Time it takes</strong><p>Visa, home and paperwork run side by side, not one after another.</p></div>
+        <div><span class="arrow down">↓</span><strong>Work for you</strong><p>One talk, one checklist, one person to message.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHAPTER 4 · The offer (value stack) -->
+<section id="offer" style="padding-top:0">
+  <div class="wrap stack" style="gap:40px">
+    <div class="stack read rv">
+      <p class="pp-ch"><b>04</b><span class="pp-mono">The offer</span></p>
+      <h2 class="h2">Everything you need, <em>on one page.</em></h2>
+      <p class="pp-lede">This is the Second Home Plan. Read it like a checklist. Each line is something you would otherwise have to find, pay for and manage yourself.</p>
+    </div>
+    <article class="sheet rv" aria-labelledby="sheet-title">
+      <div class="sheet-head">
+        <div class="stack" style="gap:8px"><span class="pp-mono">For <span data-name>you</span> · Fixed scope</span><h3 class="h2" id="sheet-title">The Second Home Plan</h3></div>
+        <div class="boon-say" style="grid-template-columns:64px 1fr;max-width:300px">{{ boon('notes') }}<p class="bubble" style="font-size:14px">Watch the boxes tick as you read.</p></div>
+      </div>
+      <ol class="stack-list" data-ticks>
+        <li><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>Route Review</strong><p>We compare the visas that fit your age, income and plans, then write down the best one and why.</p></div><span class="tag"><b>Replaces</b>weeks of forums</span></li>
+        <li><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>Your document pack</strong><p>One checklist of every paper you need, in the right order. We check it before anything is sent.</p></div><span class="tag"><b>Replaces</b>a visa agent</span></li>
+        <li><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>Application, handled</strong><p>Forms, appointments and follow-ups, from documents to decision.</p></div><span class="tag"><b>Replaces</b>chasing offices</span></li>
+        <li><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>Home shortlist, checked</strong><p>Homes to rent or buy that match your visa and budget. Ownership questions answered before you fall in love.</p></div><span class="tag"><b>Replaces</b>a seller’s agent</span></li>
+        <li><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>Arrival week set-up</strong><p>Bank account, insurance, driving licence and your address report (TM30).</p></div><span class="tag"><b>Replaces</b>a relocation helper</span></li>
+        <li><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>First year of Residency Care</strong><p>90-day reports tracked and prepared, your yearly extension and re-entry permits.</p></div><span class="tag"><b>Replaces</b>your own calendar</span></li>
+        <li><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>An honest first-year budget</strong><p>Rent, fees, insurance and living costs, written down, so there are no surprises.</p></div><span class="tag"><b>Replaces</b>guesswork</span></li>
+        <li class="bonus"><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>Khun Boon’s date keeper</strong><p>Enter your arrival date and see your next 90-day report date in seconds.</p></div><span class="tag"><b>Yours to keep</b>forever</span></li>
+        <li class="bonus"><span class="tick"><svg viewBox="0 0 16 16"><path d="M2 8.5l4 4 8-9"/></svg></span><div><strong>The full guide library</strong><p>Every visa and moving guide from our sister site, Move In Thailand, each linked to the official source.</p></div><span class="tag"><b>Yours to keep</b>forever</span></li>
+      </ol>
+      <div class="price" id="price">
+        <div>
+          <span class="pp-mono">Doing it piece by piece</span>
+          <ul class="alone">
+            <li><span>Retirement visa agent, Pattaya</span><span>~12,500–37,500 THB*</span></li>
+            <li><span>Law firm, retirement visa only</span><span>~20,000 THB*</span></li>
+            <li><span>Relocation package, 90 days</span><span>from ~US$2,500*</span></li>
+            <li><span>Property checks</span><span>separate fee</span></li>
+            <li><span>Your time, managing all of it</span><span>weeks</span></li>
+          </ul>
+          <p class="pp-sources">*Typical market prices reported online, for comparison only: <a href="https://ask.in.th/question/how-much-does-it-cost-to-hire-an-agent-for-a-retirement-visa-in-thailand" target="_blank" rel="noopener">ask.in.th</a>, <a href="https://www.visamind.com/en/thailand/visa-help/pattaya-retirement-visa-agents" target="_blank" rel="noopener">VisaMind</a>, <a href="https://www.thailandstarterkit.com/relocation-service/" target="_blank" rel="noopener">Thailand Starter Kit</a>.</p>
+        </div>
+        <div>
+          <span class="pp-mono">The Second Home Plan</span>
+          <p class="fee">One fixed fee</p>
+          <p>One price for everything above. The amount depends on your route and your home search, so we quote it in writing after your first conversation, before you pay anything. Official government, visa and membership fees are separate and set by the authorities. You see them in your budget from day one.</p>
+          <p class="fine">Only need advice? Ask for the <a href="/concierge/">Route Review</a> on its own. Already living here? <a href="/concierge/">Residency Care</a> works on its own too.</p>
+          <a class="btn" href="#start">I want this plan <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a>
+        </div>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- CHAPTER 5 · Risk reversal + trust -->
+<section id="promise" style="padding-top:0">
+  <div class="wrap stack" style="gap:36px">
+    <div class="stack read rv">
+      <p class="pp-ch"><b>05</b><span class="pp-mono">The promise</span></p>
+      <h2 class="h2">You are <em>safe</em> with us. Here is why.</h2>
+      <p class="pp-lede">Moving your life is a big decision. So we take the risk off you, and we tell you the truth, even when it is not what you hoped to hear.</p>
+    </div>
+    <div class="promise rv">
+      <article><span class="seal">1</span><h3>No surprises</h3><p>What we do, what it costs and what is not included is agreed in writing before any paid work starts.</p></article>
+      <article><span class="seal">2</span><h3>Fit first</h3><p>If no visa route fits you, the Route Review says so plainly, before you commit to anything else.</p></article>
+      <article><span class="seal">3</span><h3>The plan is yours</h3><p>Your written plan is yours to keep. Follow it yourself or hand it to us. Either way, it works.</p></article>
+    </div>
+    <div class="honest rv">
+      <div class="stack" style="gap:12px">
+        <span class="pp-mono">What we will never say</span>
+        <p class="pull" style="font-size:clamp(22px,2.6vw,30px)">“Your visa is guaranteed.”</p>
+        <p>Nobody can honestly promise that. The Thai authorities decide. What we promise is the right route and complete, correct papers. If someone guarantees approval, treat it as a red flag.</p>
+      </div>
+      <div class="stack" style="gap:12px">
+        <span class="pp-mono">Check anyone before you pay, including us</span>
+        <ul class="checklist">
+          <li>Ask for the company registration number and check it with Thailand’s business registry (DBD).</li>
+          <li>Get the scope and the fee in writing.</li>
+          <li>Never hand over your passport without a signed receipt.</li>
+        </ul>
+        <ul class="checklist redflags">
+          <li>Cash only, no receipt.</li>
+          <li>“Approval guaranteed” or “no need to be in Thailand”.</li>
+        </ul>
+        <p class="pp-sources">Advice based on <a href="https://www.thailandstarterkit.com/visas/fake-scam-visa-agent-thailand/" target="_blank" rel="noopener">Thailand Starter Kit’s scam guide</a>. Ask us for our registration number before you pay.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STEPS -->
+<section id="steps" style="padding-top:0">
+  <div class="wrap stack" style="gap:36px">
+    <div class="stack read rv">
+      <p class="pp-ch"><b>06</b><span class="pp-mono">How it works</span></p>
+      <h2 class="h2">Four steps. <em>You only do a little.</em></h2>
+      <p class="pp-lede">Each step shows what you do and what we do. Your written plan gives you a date for every step.</p>
+    </div>
+    <ol class="pp-steps rv">
+      <li><span class="n">1</span><h3>Talk</h3><span class="time">First conversation</span><p class="you"><b>You</b>Tell us who is moving, when and why.</p><p class="we"><b>We</b>Listen, and rule out routes that do not fit.</p></li>
+      <li><span class="n">2</span><h3>Plan</h3><span class="time">In writing</span><p class="you"><b>You</b>Read the plan and say yes, or ask questions.</p><p class="we"><b>We</b>Write your route, checklist, budget and fee.</p></li>
+      <li><span class="n">3</span><h3>Prepare</h3><span class="time">Side by side</span><p class="you"><b>You</b>Collect papers from your checklist. View homes.</p><p class="we"><b>We</b>Check papers, book appointments, check homes.</p></li>
+      <li><span class="n">4</span><h3>Arrive</h3><span class="time">And stay</span><p class="you"><b>You</b>Land, unpack, enjoy the sea.</p><p class="we"><b>We</b>Set up bank, insurance and reports. Keep every date.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" style="padding-top:0">
+  <div class="wrap stack read" style="gap:24px">
+    <span class="pp-mono">Still wondering?</span>
+    <h2 class="h2">Your questions, <em>answered.</em></h2>
+    <div class="faq">
+      <details open><summary>Is it too early to talk?</summary><p>No, it is the best time. One conversation often removes the routes that do not fit and saves you months of reading. You do not need a visa or a home picked yet.</p></details>
+      <details><summary>Can you guarantee my visa?</summary><p>No one honestly can. The Thai authorities decide. We choose a route that fits your real situation and send complete, correct papers. That gives you the best chance.</p></details>
+      <details><summary>How long does it take?</summary><p>It depends on the route you choose. Your written plan lists every step with a date, so you always know what comes next.</p></details>
+      <details><summary>Do I have to buy a home through you?</summary><p>No. You can rent or buy anywhere. We still check that the home works with your visa and that the ownership is safe.</p></details>
+      <details><summary>I already live in Thailand. Can you still help?</summary><p>Yes. Many people come to us for a visa change, a first yearly extension, a property purchase or just to hand over their report dates.</p></details>
+      <details><summary>Should I send my documents now?</summary><p>Please do not. Keep passports and bank statements out of your first message. We will tell you exactly what we need, and how to send it safely, once there is a plan.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA · Action -->
+<section class="cta" id="start" aria-labelledby="start-title">
+  <div class="cta-img" style="background-image:url({{ asset('photos/coast-1600.webp') }})" role="img" aria-label="Clear water and a quiet beach on the Thai coast"></div>
+  <div class="wrap stack" style="gap:28px">
+    <p class="pp-ch"><b>GO</b><span class="pp-mono">Your next step</span></p>
+    <h2 class="pp-display" id="start-title" style="font-size:clamp(40px,6.5vw,76px)">It starts with <em>one conversation.</em></h2>
+    <ol class="go">
+      <li><div><strong>Tap the blue button.</strong><p>It opens our short consultation form.</p></div></li>
+      <li><div><strong>Tell us three things.</strong><p>Who is moving, roughly when, and which part of Thailand you like.</p></div></li>
+      <li><div><strong>Wait for our reply.</strong><p>We book your first talk. No documents, no payment yet.</p></div></li>
+    </ol>
+    <div class="row">
+      <a class="btn" href="/contact/?interest=other">Book my first conversation <svg viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9h12M10 4l5 5-5 5"/></svg></a>
+    </div>
+    <p class="url"><span>Prefer to read more first? See our <a href="/faq/">answers to common questions</a> or <a href="/properties/">homes for sale and rent</a>.</span></p>
+    <div class="boon-say">{{ boon('goodbye') }}<p class="bubble">That’s everything, <b data-name>friend</b>. When you are ready, I’ll keep the door open.</p></div>
+  </div>
+</section>
+</div>
+</div>
+{% endblock %}

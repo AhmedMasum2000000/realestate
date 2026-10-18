@@ -1,0 +1,47 @@
+{% macro mono(text, tag='p') %}<{{ tag }} class="mono">{{ text }}</{{ tag }}>{% endmacro %}
+
+{% macro display(text, tag='h2', cls='') %}<{{ tag }} class="display {{ cls }}" data-reveal-words>{{ text|safe }}</{{ tag }}>{% endmacro %}
+
+{% macro crumbs(page) %}
+{% set parent = page.slug.rsplit('/', 1)[0] if '/' in page.slug else '' %}<nav class="crumbs mono" aria-label="Breadcrumb"><a href="{{ url('') }}">Home</a><span>/</span>{% if page.shared and not parent and not page.slug.startswith('visas') %}<a href="{{ url('library/') }}">Library</a><span>/</span>{% endif %}{% if parent and parent in by_slug %}<a href="{{ url(parent ~ '/') }}">{{ label(by_slug[parent]) }}</a><span>/</span>{% endif %}<span aria-current="page">{{ label(page) }}</span></nav>
+{% endmacro %}
+
+{% macro faq(items, title='Questions, <em>answered.</em>') %}
+{% if items %}<section class="section faq" aria-labelledby="faq-title"><div class="frame faq-grid"><div class="faq-head">{{ mono('Before you decide') }}<h2 id="faq-title" class="display" data-reveal-words>{{ title|safe }}</h2></div><div class="faq-list">{% for question, answer in items %}<details>
+<summary>{{ question }}<span class="faq-plus" aria-hidden="true"></span></summary>
+<p>{{ answer }}</p>
+</details>{% endfor %}</div></div></section>{% endif %}
+{% endmacro %}
+
+{% macro sources(keys) %}
+{% if keys %}<aside class="sources">{{ mono('Official sources · checked ' ~ checked) }}<p>A planning overview. Check the requirements for your own circumstances with the responsible authority; legal and tax questions need qualified advice.</p><ul>{% for key in keys %}<li><a href="{{ source_map[key][1] }}" target="_blank" rel="noopener">{{ source_map[key][0] }} {{ icon('external') }}</a></li>{% endfor %}</ul></aside>{% endif %}
+{% endmacro %}
+
+{% macro rich_sections(sections) %}
+{% for item in sections %}{% set extra = item[2] if item|length > 2 else {} %}<section class="prose-block">{% if item[0] %}<h2>{{ item[0] }}</h2>{% endif %}{% if item[1] %}<p>{{ item[1]|md }}</p>{% endif %}{% for para in extra.get('paras') or [] %}<p>{{ para|md }}</p>{% endfor %}{% if extra.get('list') %}<ul class="ticks">{% for entry in extra.list %}<li>{{ entry|md }}</li>{% endfor %}</ul>{% endif %}{% if extra.get('steps') %}<ol class="steps">{% for entry in extra.steps %}<li>{{ entry|md }}</li>{% endfor %}</ol>{% endif %}{% if extra.get('table') %}<div class="table" role="region" aria-label="{{ item[0] or 'Table' }}" tabindex="0"><table><thead><tr>{% for head in extra.table.head %}<th>{{ head }}</th>{% endfor %}</tr></thead><tbody>{% for row in extra.table.rows %}<tr>{% for cell in row %}<td data-label="{{ extra.table.head[loop.index0] }}">{{ cell|md }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>{% endif %}{% for para in extra.get('after') or [] %}<p>{{ para|md }}</p>{% endfor %}{% if extra.get('note') %}<div class="note">{{ extra.note|md }}</div>{% endif %}{% if extra.get('warn') %}<div class="note note-warn">{{ extra.warn|md }}</div>{% endif %}</section>{% endfor %}
+{% endmacro %}
+
+{% macro button(text, href, cls='') %}<a class="button {{ cls }}" href="{{ href }}"><span>{{ text }}</span>{{ icon('arrow') }}</a>{% endmacro %}
+
+{% macro cta(eyebrow='The next step', title='Schedule <em>consultation.</em>', text='Tell us where you are now and the move you have in mind. A first conversation about your route, your home and your timeline. No obligation.') %}
+<section class="cta-band"><div class="frame cta-grid"><div>{{ mono(eyebrow) }}<h2 class="display" data-reveal-words>{{ title|safe }}</h2></div><div class="cta-side"><p>{{ text }}</p>{{ button('Schedule consultation', url('contact/')) }}</div></div></section>
+{% endmacro %}
+
+{% macro related(items) %}
+{% if items %}<section class="section related"><div class="frame">{{ mono('Keep reading') }}<div class="related-grid">{% for title, text, href in items %}<a class="related-card" href="{{ url(href) }}"><span class="related-index mono">{{ '%02d'|format(loop.index) }}</span><h3>{{ title }}</h3><p>{{ text }}</p><span class="link-arrow">{{ icon('arrow') }}</span></a>{% endfor %}</div></div></section>{% endif %}
+{% endmacro %}
+
+{# Generated geometry in place of photography. Each form is drawn from simple shapes. #}
+{% macro form(kind) %}
+<svg class="form form-{{ kind }}" viewBox="0 0 400 400" aria-hidden="true" focusable="false">
+{% if kind == 'thailand-privilege' %}{% for r in range(40, 200, 20) %}<circle cx="200" cy="200" r="{{ r }}" fill="none" stroke="currentColor" stroke-width="{{ 1.5 if loop.last else 1 }}"/>{% endfor %}<circle class="spin" cx="200" cy="200" r="180" fill="none" stroke="#4a90c2" stroke-width="2" stroke-dasharray="80 1051"/>
+{% elif kind == 'ltr' %}{% for i in range(10) %}<rect class="col" style="--i:{{ i }}" x="{{ 40 + i * 33 }}" y="{{ 340 - 26 * (i + 1) }}" width="20" height="{{ 26 * (i + 1) }}" fill="{{ '#4a90c2' if loop.last else 'none' }}" stroke="currentColor" stroke-width="1"/>{% endfor %}<path d="M30 340h340" stroke="currentColor" stroke-width="1.5"/>
+{% elif kind == 'retirement' %}<path d="M20 260h360" stroke="currentColor" stroke-width="1.5"/>{% for y in range(280, 380, 16) %}<path d="M{{ 20 + (y - 260) }} {{ y }}h{{ 360 - 2 * (y - 260) }}" stroke="currentColor" stroke-width="1"/>{% endfor %}<g class="sun"><circle cx="200" cy="260" r="110" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M90 260a110 110 0 0 1 220 0" fill="none" stroke="#4a90c2" stroke-width="2"/></g>
+{% elif kind == 'dtv' %}{% for i in range(5) %}<rect class="pane" style="--i:{{ i }}" x="{{ 50 + i * 22 }}" y="{{ 70 + i * 22 }}" width="210" height="150" fill="#e7e2d8" stroke="currentColor" stroke-width="1"/>{% endfor %}<path d="M138 300h210" stroke="#4a90c2" stroke-width="2"/><circle cx="348" cy="300" r="5" fill="#4a90c2"/>
+{% else %}<rect x="40" y="40" width="320" height="320" fill="none" stroke="currentColor"/><path d="M40 360 360 40" stroke="#4a90c2" stroke-width="2"/>{% endif %}
+</svg>
+{% endmacro %}
+
+{% macro hero_photo(name, caption='') %}
+{% if name %}<figure class="hero-photo" data-film><div class="hero-photo-frame">{{ photo(name, 'film-img', sizes='100vw', eager=True) }}</div>{% if caption %}<figcaption class="mono">{{ caption }}</figcaption>{% endif %}</figure>{% endif %}
+{% endmacro %}

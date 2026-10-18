@@ -1,0 +1,77 @@
+name: Go live on pattayahomepro.com
+
+# Runs bin/go-live from GitHub's servers, which can reach cPanel on its own port
+# (2083) with a certificate that matches. Manual only — this replaces a live
+# site, so it never runs on a push.
+#
+# Secrets (Settings -> Secrets and variables -> Actions):
+#   CPANEL_HOST       e.g. premium329.web-hosting.com
+#   CPANEL_USER       the cPanel username
+#   CPANEL_API_TOKEN  a cPanel API token (Security -> Manage API Tokens)
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run shows every step and changes nothing; apply goes live; undo restores WordPress"
+        type: choice
+        options: [dry-run, probe, apply, undo]
+        default: dry-run
+
+concurrency:
+  group: go-live
+  cancel-in-progress: false
+
+jobs:
+  go-live:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Go live (${{ inputs.mode }})
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+        run: |
+          case "${{ inputs.mode }}" in
+            apply) bin/go-live --apply ;;
+            undo)  bin/go-live --apply --undo ;;
+            probe) bin/go-live --apply --probe ;;
+            *)     bin/go-live ;;
+          esac
+
+      - name: Confirm the live site
+        if: inputs.mode == 'apply'
+        run: |
+          sleep 5
+          code=$(curl -s -o page.html -w '%{http_code}' https://pattayahomepro.com/)
+          echo "HTTP $code"
+          grep -o '<title>[^<]*' page.html | head -1
+          for p in /for-sale/ /properties/ /property/chivani-pattaya/; do
+            printf '%-30s ' "$p"; curl -s -o /dev/null -w '%{http_code} -> %{redirect_url}\n' "https://pattayahomepro.com$p"
+          done
+          grep -q 'page--hero' page.html || { echo "::error::the new site is not being served"; exit 1; }
+
+      # New and changed pages reach Google through the sitemap. Never fails the
+      # deploy: the site is already live by now.
+      - name: Tell Google the sitemap changed
+        if: inputs.mode == 'apply'
+        continue-on-error: true
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ] || ! bin/gsc status; then
+            echo "Search Console not connected yet; skipping"
+            exit 0
+          fi
+          bin/gsc submit
+

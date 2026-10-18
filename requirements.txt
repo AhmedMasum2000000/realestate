@@ -1,0 +1,9 @@
+# Runtime dependencies for the provisioning toolkit.
+PyYAML>=6.0
+requests>=2.31
+Jinja2>=3.1            # static site templating for the property catalog
+google-auth>=2.30      # Search Console API (bin/gsc)
+paramiko>=3.4          # SSH/SFTP; without it we shell out to `ssh`/`scp`
+
+# Development only
+pytest>=8.0
