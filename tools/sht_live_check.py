@@ -11,7 +11,7 @@ Screenshots go to .cache/live-check/. Exits non-zero if a check fails.
 import os
 import sys
 import time
-import requests
+import urllib.request
 from pathlib import Path
 
 from playwright.sync_api import sync_playwright
@@ -81,9 +81,11 @@ def check(context, url, tag, problems):
         print(f'{tag}: film={film}')
         if not film or film['src'] or film['playing'] or not film['offer']:
             problems.append(f'film offer missing or loading on its own ({film})')
-        clip = requests.head(url + 'wp-content/sht-site/assets/film/the-door-opens-16x9.mp4', timeout=30)
-        if clip.status_code != 200:
-            problems.append(f'film file answers {clip.status_code}')
+        try:
+            with urllib.request.urlopen(urllib.request.Request(url + 'wp-content/sht-site/assets/film/the-door-opens-16x9.mp4', method='HEAD'), timeout=30) as clip:
+                print(f'{tag}: film file status={clip.status} type={clip.headers.get("Content-Type")}')
+        except Exception as error:
+            problems.append(f'film file not reachable ({error})')
         page.goto(url + 'faq/', wait_until='load', timeout=60000)
         faq = page.evaluate("(() => ({items: document.querySelectorAll('[data-faq-item]').length, schema: [...document.querySelectorAll('script[type=\"application/ld+json\"]')].some(s => s.textContent.includes('FAQPage'))}))()")
         print(f'{tag}: faq={faq}')
