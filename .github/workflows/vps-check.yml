@@ -17,6 +17,7 @@ jobs:
           SSHPASS: ${{ secrets.VPS_PASSWORD }}
           HOST: 187.127.141.173
         run: |
+          set -o pipefail
           sudo apt-get install -y -qq sshpass >/dev/null
           sshpass -e ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 root@$HOST '
             echo "== System"; . /etc/os-release; echo "$PRETTY_NAME"; uptime -p
