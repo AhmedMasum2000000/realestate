@@ -1,0 +1,28 @@
+name: VPS check (read-only)
+
+# Logs in to the new Hostinger VPS and reports what it runs. Changes nothing.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          HOST: 187.127.141.173
+        run: |
+          sudo apt-get install -y -qq sshpass >/dev/null
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 root@$HOST '
+            echo "== System"; . /etc/os-release; echo "$PRETTY_NAME"; uptime -p
+            echo "== Disk"; df -h / | tail -1
+            echo "== Memory"; free -h | sed -n 2p
+            echo "== Panel"; ls -d /usr/local/webuzo 2>/dev/null && echo "Webuzo installed" || echo "No Webuzo folder"
+            echo "== Web servers"; for s in httpd nginx lsws openlitespeed mysqld mariadb php-fpm; do systemctl is-active --quiet $s 2>/dev/null && echo "$s running"; done
+            echo "== Sites"; ls /home 2>/dev/null
+          ' | tee -a "$GITHUB_STEP_SUMMARY"
