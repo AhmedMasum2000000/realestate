@@ -29,11 +29,12 @@ jobs:
           python mit/build.py
           node --check mit/assets/site.js
           php -l mit/wordpress/mit-experience.php
-      - name: Publish to the existing cPanel WordPress site
+      - name: Publish to the site's WordPress on the VPS
         env:
           CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
           CPANEL_USER: ${{ secrets.CPANEL_USER }}
           CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+          VPS_PASSWORD: ${{ secrets.VPS_PASSWORD }}
         run: python tools/mit_deploy.py --release "${GITHUB_SHA::12}-${GITHUB_RUN_ATTEMPT}"
       - uses: actions/upload-artifact@v4
         with:

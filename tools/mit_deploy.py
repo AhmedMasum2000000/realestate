@@ -29,6 +29,36 @@ def ensure_dir(client,parent,name):
     if not client.exists(path): client.mkdir(parent or client.home,name)
     return path
 
+def verify_public(build,release,manifest,config,prefix,DOMAIN):
+    """Read the published release over the public internet; raise if anything is missing."""
+    # Read the published release. GETs do not create an enquiry or send email.
+    public='https://'+DOMAIN
+    expected=manifest['version']
+    response=requests.get(public+'/wp-content/'+prefix+'-site/release.json',params={'release':release},timeout=45)
+    response.raise_for_status()
+    if response.json().get('version')!=expected: raise RuntimeError('The public release version did not match.')
+    homepage=requests.get(public+'/',params={prefix+'_release':release},headers={'Cache-Control':'no-cache'},timeout=60)
+    homepage.raise_for_status()
+    if config['home_marker'] not in homepage.text or prefix+'-config' not in homepage.text:
+        raise RuntimeError('The published homepage did not show the editorial experience.')
+    guide=requests.get(public+'/tools/visa-finder/',params={prefix+'_release':release},timeout=45)
+    guide.raise_for_status()
+    if 'id="visa-finder"' not in guide.text: raise RuntimeError('The Visa Finder page was not served by WordPress.')
+    bootstrap=requests.get(public+'/wp-json/'+prefix+'/v1/bootstrap',headers={'Cache-Control':'no-cache'},timeout=45)
+    bootstrap.raise_for_status()
+    if not bootstrap.json().get('token'): raise RuntimeError('The secure enquiry bootstrap was unavailable.')
+    sitemap=requests.get(public+'/'+prefix+'-sitemap.xml',params={'release':release},timeout=45)
+    sitemap.raise_for_status()
+    expected_locs=json.loads((build/'release.json').read_text())[config['sitemap_listed']] if config['sitemap_listed'] else len(manifest['routes'])
+    if sitemap.text.count('<loc>')!=expected_locs: raise RuntimeError('The website sitemap was incomplete.')
+    index=requests.get(public+'/sitemap.xml',params={'release':release},timeout=45)
+    index.raise_for_status()
+    if public+'/'+prefix+'-sitemap.xml' not in index.text: raise RuntimeError('The existing SEO sitemap index did not include the rebuilt pages.')
+    for path in config['gone']:
+        # Pages left over from the previous template must no longer be public.
+        old_page=requests.get(public+path,params={prefix+'_release':release},timeout=45,allow_redirects=False)
+        if old_page.status_code not in (301,404,410): raise RuntimeError(f'An old template page is still public: {path} ({old_page.status_code})')
+
 def deploy(build,release,site='mit'):
     config=SITES[site];DOMAIN=config['domain'];prefix=config['prefix']
     if not release or not all(char.isalnum() or char=='-' for char in release):
@@ -75,33 +105,7 @@ def deploy(build,release,site='mit'):
         move(new_site,live_site);switched_site=True
         if had_plugin: move(live_plugin,previous_plugin)
         move(new_plugin,live_plugin);switched_plugin=True
-        # Read the published release. GETs do not create an enquiry or send email.
-        public='https://'+DOMAIN
-        expected=manifest['version']
-        response=requests.get(public+'/wp-content/'+prefix+'-site/release.json',params={'release':release},timeout=45)
-        response.raise_for_status()
-        if response.json().get('version')!=expected: raise RuntimeError('The public release version did not match.')
-        homepage=requests.get(public+'/',params={prefix+'_release':release},headers={'Cache-Control':'no-cache'},timeout=60)
-        homepage.raise_for_status()
-        if config['home_marker'] not in homepage.text or prefix+'-config' not in homepage.text:
-            raise RuntimeError('The published homepage did not show the editorial experience.')
-        guide=requests.get(public+'/tools/visa-finder/',params={prefix+'_release':release},timeout=45)
-        guide.raise_for_status()
-        if 'id="visa-finder"' not in guide.text: raise RuntimeError('The Visa Finder page was not served by WordPress.')
-        bootstrap=requests.get(public+'/wp-json/'+prefix+'/v1/bootstrap',headers={'Cache-Control':'no-cache'},timeout=45)
-        bootstrap.raise_for_status()
-        if not bootstrap.json().get('token'): raise RuntimeError('The secure enquiry bootstrap was unavailable.')
-        sitemap=requests.get(public+'/'+prefix+'-sitemap.xml',params={'release':release},timeout=45)
-        sitemap.raise_for_status()
-        expected_locs=json.loads((build/'release.json').read_text())[config['sitemap_listed']] if config['sitemap_listed'] else len(manifest['routes'])
-        if sitemap.text.count('<loc>')!=expected_locs: raise RuntimeError('The website sitemap was incomplete.')
-        index=requests.get(public+'/sitemap.xml',params={'release':release},timeout=45)
-        index.raise_for_status()
-        if public+'/'+prefix+'-sitemap.xml' not in index.text: raise RuntimeError('The existing SEO sitemap index did not include the rebuilt pages.')
-        for path in config['gone']:
-            # Pages left over from the previous template must no longer be public.
-            old_page=requests.get(public+path,params={prefix+'_release':release},timeout=45,allow_redirects=False)
-            if old_page.status_code not in (301,404,410): raise RuntimeError(f'An old template page is still public: {path} ({old_page.status_code})')
+        verify_public(build,release,manifest,config,prefix,DOMAIN)
     except Exception:
         if switched_plugin: move(live_plugin,staging+'/failed-'+prefix+'-experience.php')
         if had_plugin and client.exists(previous_plugin): move(previous_plugin,live_plugin)
@@ -112,5 +116,52 @@ def deploy(build,release,site='mit'):
     (ROOT/'.cache'/(prefix+'-deploy-report.json')).write_text(json.dumps(report,indent=2),encoding='utf-8')
     print(json.dumps(report,indent=2))
 
+VPS_HOST='187.127.141.173'
+
+def deploy_vps(build,release,site='mit'):
+    """Publish to the site's WordPress on the VPS: upload over SFTP, stage beside the live folders,
+    swap in, then run the same public checks. The previous release is kept for a rollback."""
+    import paramiko
+    config=SITES[site];DOMAIN=config['domain'];prefix=config['prefix']
+    if not release or not all(char.isalnum() or char=='-' for char in release):
+        raise SystemExit('A safe release name is required.')
+    manifest=json.loads((build/'routes.json').read_text(encoding='utf-8'))
+    if manifest['domain']!=DOMAIN or len(manifest['routes'])<config['min_routes']:
+        raise SystemExit('Unexpected site manifest.')
+    package=ROOT/'.cache'/(prefix+'-'+release+'.zip');package.parent.mkdir(exist_ok=True)
+    with zipfile.ZipFile(package,'w',zipfile.ZIP_DEFLATED) as archive:
+        for file in sorted(build.rglob('*')):
+            if file.is_file(): archive.write(file,prefix+'-site/'+file.relative_to(build).as_posix())
+        archive.write(config['plugin'],'mu-plugins/'+prefix+'-experience.php')
+    user='s_'+DOMAIN.replace('.','_').replace('-','_')[:28]
+    content=f'/home/{user}/public_html/wp-content'
+    stage=f'/home/{user}/{prefix}-deployments/{release}'
+    ssh=paramiko.SSHClient();ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(VPS_HOST,username='root',password=os.environ['VPS_PASSWORD'],timeout=30)
+    def run(cmd):
+        _,out,err=ssh.exec_command(cmd);code=out.channel.recv_exit_status()
+        if code: raise RuntimeError(f'VPS command failed ({code}): {err.read().decode()[-400:]}')
+        return out.read().decode()
+    run(f'command -v unzip >/dev/null || dnf install -y -q unzip; test -f {content}/../wp-config.php && mkdir -p {stage}')
+    sftp=ssh.open_sftp();sftp.put(str(package),f'{stage}/{package.name}');sftp.close()
+    run(f'cd {stage} && unzip -q -o {package.name} && test -f {prefix}-site/index.html && test -f {prefix}-site/routes.json && test -f mu-plugins/{prefix}-experience.php')
+    swap=(f'set -e; mkdir -p {content}/mu-plugins; '
+          f'if [ -d {content}/{prefix}-site ]; then mv {content}/{prefix}-site {stage}/previous-{prefix}-site; fi; '
+          f'if [ -f {content}/mu-plugins/{prefix}-experience.php ]; then mv {content}/mu-plugins/{prefix}-experience.php {stage}/previous-{prefix}-experience.php; fi; '
+          f'mv {stage}/{prefix}-site {content}/{prefix}-site; mv {stage}/mu-plugins/{prefix}-experience.php {content}/mu-plugins/; '
+          f'chown -R {user}:{user} {content}/{prefix}-site {content}/mu-plugins; rm -f {stage}/{package.name}')
+    rollback=(f'set -e; [ -d {stage}/previous-{prefix}-site ] && rm -rf {content}/{prefix}-site && mv {stage}/previous-{prefix}-site {content}/{prefix}-site; '
+              f'[ -f {stage}/previous-{prefix}-experience.php ] && mv {stage}/previous-{prefix}-experience.php {content}/mu-plugins/{prefix}-experience.php; true')
+    run(swap)
+    try:
+        verify_public(build,release,manifest,config,prefix,DOMAIN)
+    except Exception:
+        run(rollback);raise
+    finally:
+        ssh.close()
+    report={'domain':DOMAIN,'release':release,'version':manifest['version'],'pages':len(manifest['routes']),'target':'vps '+VPS_HOST,'retained_previous_release':stage,'published_at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime())}
+    (ROOT/'.cache'/(prefix+'-deploy-report.json')).write_text(json.dumps(report,indent=2),encoding='utf-8')
+    print(json.dumps(report,indent=2))
+
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('--site',choices=sorted(SITES),default='mit');parser.add_argument('--build',type=Path);parser.add_argument('--release',required=True);args=parser.parse_args();deploy((args.build or ROOT/'.cache'/(args.site+'-build')).resolve(),args.release,args.site)
+    parser=argparse.ArgumentParser();parser.add_argument('--site',choices=sorted(SITES),default='mit');parser.add_argument('--build',type=Path);parser.add_argument('--release',required=True);parser.add_argument('--target',choices=['vps','cpanel'],default='vps');args=parser.parse_args();(deploy_vps if args.target=='vps' else deploy)((args.build or ROOT/'.cache'/(args.site+'-build')).resolve(),args.release,args.site)
