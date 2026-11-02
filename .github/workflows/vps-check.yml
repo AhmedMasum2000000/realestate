@@ -26,4 +26,7 @@ jobs:
             echo "== Panel"; ls -d /usr/local/webuzo 2>/dev/null && echo "Webuzo installed" || echo "No Webuzo folder"
             echo "== Web servers"; for s in httpd nginx lsws openlitespeed mysqld mariadb php-fpm; do systemctl is-active --quiet $s 2>/dev/null && echo "$s running"; done
             echo "== Sites"; ls /home 2>/dev/null
+            echo "== Disk by folder (top level)"; du -xhd1 / 2>/dev/null | sort -rh | head -12
+            echo "== Biggest folders two levels down"; du -xh --max-depth=2 /usr /var /home /opt /root 2>/dev/null | sort -rh | head -20
+            echo "== Package cache and logs"; du -sh /var/cache/dnf /var/log /var/lib/mysql /usr/local/webuzo /usr/local/apps 2>/dev/null
           ' | tee -a "$GITHUB_STEP_SUMMARY"
