@@ -1,0 +1,34 @@
+name: Hostinger hosting check (read-only)
+
+# Logs in to a Hostinger shared hosting plan over SSH and reports its sites and their sizes.
+
+on:
+  workflow_dispatch:
+    inputs:
+      plan:
+        description: "A or B"
+        required: true
+        default: "A"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        env:
+          PASS_A: ${{ secrets.HOSTINGER_A_PASSWORD }}
+          PASS_B: ${{ secrets.HOSTINGER_B_PASSWORD }}
+          PLAN: ${{ inputs.plan }}
+        run: |
+          set -o pipefail
+          sudo apt-get install -y -qq sshpass >/dev/null
+          if [ "$PLAN" = "B" ]; then export SSHPASS="$PASS_B" HUSER=u463099719; else export SSHPASS="$PASS_A" HUSER=u261783896; fi
+          sshpass -e ssh -p 65002 -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 $HUSER@82.180.171.217 '
+            echo "== Logged in as $(whoami) on $(hostname)"
+            echo "== Total"; du -sh ~ 2>/dev/null
+            echo "== Sites"; du -sh ~/domains/* 2>/dev/null | sort -rh
+            echo "== Tools"; which mysqldump wp rsync tar 2>/dev/null
+          ' | tee -a "$GITHUB_STEP_SUMMARY"
