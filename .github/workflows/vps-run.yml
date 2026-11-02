@@ -1,0 +1,41 @@
+name: Run a VPS script
+
+# Runs one script from the repo's vps/ folder on the VPS as root, with optional arguments.
+# Every change made on the server is therefore a reviewed file in this repository.
+
+on:
+  workflow_dispatch:
+    inputs:
+      script:
+        description: "Script in vps/, e.g. inspect.sh"
+        required: true
+      args:
+        description: "Arguments (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vps-run
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          SCRIPT: ${{ inputs.script }}
+          ARGS: ${{ inputs.args }}
+        run: |
+          set -o pipefail
+          case "$SCRIPT" in */*|..*|"") echo "Script must be a file name in vps/"; exit 1;; esac
+          test -f "vps/$SCRIPT"
+          sudo apt-get install -y -qq sshpass >/dev/null
+          sshpass -e scp -q -o StrictHostKeyChecking=accept-new -r vps root@187.127.141.173:/root/migration/
+          sshpass -e ssh -o ServerAliveInterval=30 root@187.127.141.173 "bash /root/migration/vps/$SCRIPT $ARGS" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
