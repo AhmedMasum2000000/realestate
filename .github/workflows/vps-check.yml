@@ -28,5 +28,12 @@ jobs:
             echo "== Sites"; ls /home 2>/dev/null
             echo "== Disk by folder (top level)"; du -xhd1 / 2>/dev/null | sort -rh | head -12
             echo "== Biggest folders two levels down"; du -xh --max-depth=2 /usr /var /home /opt /root 2>/dev/null | sort -rh | head -20
+            echo "== Migration copies"; du -sh /root/migration/* 2>/dev/null; ls /root/migration/hostinger-a /root/migration/hostinger-b 2>/dev/null | wc -l
+            echo "== Namecheap backup integrity"; for f in /root/migration/namecheap/*.tar.gz; do ls -l "$f" | awk "{print \$5}"; gzip -t "$f" && echo "gzip OK" || echo "gzip BROKEN"; done
+            echo "== Apache"; ls -d /usr/local/apps/apache2* /etc/httpd 2>/dev/null; httpd -v 2>/dev/null | head -1; /usr/local/apps/apache2/bin/httpd -v 2>/dev/null | head -1; ps -o args= -C httpd | sort -u | head -3
+            echo "== Apache vhost includes"; grep -rhi "^\s*Include" /usr/local/apps/apache2/etc/httpd.conf 2>/dev/null | head; ls /usr/local/apps/apache2/etc/conf.d 2>/dev/null | head
+            echo "== PHP"; ls -d /usr/local/apps/php* 2>/dev/null; php -v 2>/dev/null | head -1
+            echo "== MariaDB"; mysql -V 2>/dev/null; ls /usr/local/apps/mysql/bin/mysql 2>/dev/null
+            echo "== Webuzo users / domains"; ls /var/webuzo/users 2>/dev/null | head; ls /usr/local/webuzo/conf 2>/dev/null | head
             echo "== Package cache and logs"; du -sh /var/cache/dnf /var/log /var/lib/mysql /usr/local/webuzo /usr/local/apps 2>/dev/null
           ' | tee -a "$GITHUB_STEP_SUMMARY"
