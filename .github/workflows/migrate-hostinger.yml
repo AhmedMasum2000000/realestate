@@ -54,14 +54,22 @@ jobs:
           REMOTE=$HUSER@$HHOST
           echo "| Domain | Files | Database | Size on VPS |"; echo "|---|---|---|---|"
           for d in $DOMAINS; do
+            mkdir -p $DEST/$d
             db="none"
             if $SSHC $REMOTE "test -f domains/$d/public_html/wp-config.php"; then
-              if $SSHC $REMOTE "mkdir -p migration_dumps && cd domains/$d/public_html && wp db export ~/migration_dumps/$d.sql --quiet --skip-plugins --skip-themes" 2>/dev/null; then db="exported"; else db="FAILED"; fi
+              # wp-cli first; if it cannot run, read the four DB_ settings from wp-config.php and use mysqldump.
+              if $SSHC $REMOTE "mkdir -p migration_dumps && cd domains/$d/public_html && wp db export ~/migration_dumps/$d.sql --quiet --skip-plugins --skip-themes" 2>$DEST/$d/db.err; then
+                db="exported"
+              elif $SSHC $REMOTE 'cd domains/'$d'/public_html && v(){ sed -n "s/.*define( *[\x27\"]$1[\x27\"] *, *[\x27\"]\([^\x27\"]*\)[\x27\"].*/\1/p" wp-config.php | head -1; }; MYSQL_PWD="$(v DB_PASSWORD)" mysqldump --single-transaction --quick --no-tablespaces -h "$(v DB_HOST)" -u "$(v DB_USER)" "$(v DB_NAME)" > ~/migration_dumps/'$d'.sql' 2>>$DEST/$d/db.err; then
+                db="exported (mysqldump)"
+              else
+                db="FAILED: $(tail -1 $DEST/$d/db.err)"
+              fi
             fi
             if rsync -a --delete -e "$SSHC" $REMOTE:domains/$d/ $DEST/$d/files/ 2>/tmp/rsync.err; then files="copied"; else files="FAILED: $(tail -1 /tmp/rsync.err)"; fi
-            if [ "$db" = "exported" ]; then
-              rsync -a -e "$SSHC" $REMOTE:migration_dumps/$d.sql $DEST/$d/database.sql && $SSHC $REMOTE "rm -f migration_dumps/$d.sql" || db="copy FAILED"
-            fi
+            case "$db" in exported*)
+              rsync -a -e "$SSHC" $REMOTE:migration_dumps/$d.sql $DEST/$d/database.sql && $SSHC $REMOTE "rm -f migration_dumps/$d.sql" || db="copy FAILED";;
+            esac
             echo "| $d | $files | $db | $(du -sh $DEST/$d 2>/dev/null | cut -f1) |"
           done
           $SSHC $REMOTE "rmdir migration_dumps 2>/dev/null" || true
