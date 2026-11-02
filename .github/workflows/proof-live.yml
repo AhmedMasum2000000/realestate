@@ -37,3 +37,14 @@ jobs:
           echo; echo "Serial of the certificate the public saw:"; echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null | openssl x509 -noout -serial
           echo '```'
           } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Screenshot from the public internet
+        env:
+          D: ${{ inputs.domain }}
+        run: |
+          google-chrome --headless=new --no-sandbox --hide-scrollbars --window-size=1366,900 --screenshot=/tmp/site.png "https://$D/" 2>/dev/null || chromium --headless --no-sandbox --window-size=1366,900 --screenshot=/tmp/site.png "https://$D/"
+          ls -la /tmp/site.png
+      - uses: actions/upload-artifact@v4
+        with:
+          name: proof-screenshot
+          path: /tmp/site.png
+          retention-days: 7
