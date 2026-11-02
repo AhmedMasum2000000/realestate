@@ -11,7 +11,7 @@ firewall-cmd -q --permanent --add-service=ssh
 firewall-cmd -q --permanent --add-service=http
 firewall-cmd -q --permanent --add-service=https
 firewall-cmd -q --permanent --add-port=2002-2005/tcp
-for s in mysql dns ftp smtp; do firewall-cmd -q --permanent --remove-service=$s 2>/dev/null; done
+for s in mysql dns ftp smtp cockpit; do firewall-cmd -q --permanent --remove-service=$s 2>/dev/null; done
 for p in 3306/tcp 53/tcp 53/udp 21/tcp 25/tcp; do firewall-cmd -q --permanent --remove-port=$p 2>/dev/null; done
 firewall-cmd -q --reload
 echo "open: $(firewall-cmd --list-services) $(firewall-cmd --list-ports)"
