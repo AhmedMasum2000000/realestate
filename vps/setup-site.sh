@@ -54,7 +54,8 @@ if [ -n "$DUMP" ] && [ -f "$DUMP" ] && [ -f "$WEB/wp-config.php" ]; then
             CREATE USER IF NOT EXISTS '$(q "$DB_USER")'@'localhost' IDENTIFIED BY '$(q "$DB_PASSWORD")';
             ALTER USER '$(q "$DB_USER")'@'localhost' IDENTIFIED BY '$(q "$DB_PASSWORD")';
             GRANT ALL PRIVILEGES ON \`$DB_NAME\`.* TO '$(q "$DB_USER")'@'localhost'; FLUSH PRIVILEGES;"
-  sed -E 's/DEFINER=`[^`]+`@`[^`]+`//g' "$DUMP" | mysql "$DB_NAME"
+  # Newer mysqldump starts with a "sandbox mode" line that MariaDB 10.9 rejects; drop it, and any DEFINER.
+  sed -E '/^\/\*M?!999999\\- enable the sandbox mode/d; s/DEFINER=`[^`]+`@`[^`]+`//g' "$DUMP" | mysql "$DB_NAME"
   if [ "$DB_HOST" != "localhost" ]; then
     $PHPDIR/bin/php -r '$f=$argv[1];$c=file_get_contents($f);$c=preg_replace("/(define\\(\\s*[\x27\"]DB_HOST[\x27\"]\\s*,\\s*)[\x27\"].*?[\x27\"]/","\\1\x27localhost\x27",$c,1);file_put_contents($f,$c);' "$WEB/wp-config.php"
   fi

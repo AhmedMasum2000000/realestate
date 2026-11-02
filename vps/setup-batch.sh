@@ -14,7 +14,7 @@ for d in "$@"; do
   RESULT[$d]=$(echo "$out" | sed 's/.*SETUP [^|]*| //')
 done
 bash /root/migration/vps/php-service.sh >/dev/null
-if $APACHE/bin/apachectl -t 2>/tmp/apache-test.txt; then systemctl reload httpd; else echo "APACHE CONFIG ERROR:"; cat /tmp/apache-test.txt; fi
+if $APACHE/bin/apachectl -t 2>/tmp/apache-test.txt; then $APACHE/bin/apachectl -k graceful; else echo "APACHE CONFIG ERROR:"; cat /tmp/apache-test.txt; fi
 sleep 2
 for d in "$@"; do
   r=$(curl -sk -m 30 -o /tmp/page.html -w "%{http_code} %{redirect_url}" --resolve "$d:443:127.0.0.1" "https://$d/")
