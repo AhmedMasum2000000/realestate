@@ -20,6 +20,7 @@ jobs:
         env:
           DOMAINS: ${{ inputs.domains }}
         run: |
+          set +e
           VPS=187.127.141.173
           echo "| Domain | DNS (1.1.1.1 / 8.8.8.8) | On VPS | https | Title |" | tee -a "$GITHUB_STEP_SUMMARY"
           echo "|---|---|---|---|---|" | tee -a "$GITHUB_STEP_SUMMARY"
