@@ -4,6 +4,11 @@ name: Domain registrars (read-only)
 
 on:
   workflow_dispatch:
+    inputs:
+      domains:
+        description: "Domains to look up, space-separated (optional)"
+        required: false
+        default: ""
 
 permissions:
   contents: read
@@ -13,10 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Look up
+        env:
+          DOMAINS: ${{ inputs.domains }}
         run: |
           echo "| Domain | Registrar | Expires | Nameservers |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
-          for d in pattayahomespro.com pattayahomepro.com moveinthailand.com secondhomethailand.com thaihomespro.com microgigger.com; do
+          for d in ${DOMAINS:-pattayahomespro.com pattayahomepro.com moveinthailand.com secondhomethailand.com thaihomespro.com microgigger.com}; do
             curl -s -L -m 30 "https://rdap.org/domain/$d" | python3 -c "
           import sys,json
           j=json.load(sys.stdin)
@@ -24,5 +31,5 @@ jobs:
           name=reg[0]['vcardArray'][1][1][3] if reg else '?'
           ev={e['eventAction']:e['eventDate'][:10] for e in j.get('events',[])}
           ns=', '.join(n['ldhName'].lower() for n in j.get('nameservers',[]))
-          print(f'| $d | {name} | {ev.get(\"expiration\")} | {ns} |')" | tee -a "$GITHUB_STEP_SUMMARY"
+          print(f'| $d | {name} | {ev.get(\"expiration\")} | {ns} |')" 2>/dev/null | tee -a "$GITHUB_STEP_SUMMARY" || echo "| $d | no public record | | |" | tee -a "$GITHUB_STEP_SUMMARY"
           done
