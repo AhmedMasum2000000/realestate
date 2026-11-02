@@ -24,12 +24,22 @@ jobs:
           echo "| Domain | Registrar | Expires | Nameservers |" >> "$GITHUB_STEP_SUMMARY"
           echo "|---|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
           for d in ${DOMAINS:-pattayahomespro.com pattayahomepro.com moveinthailand.com secondhomethailand.com thaihomespro.com microgigger.com}; do
-            curl -s -L -m 30 "https://rdap.org/domain/$d" | python3 -c "
+            row=""
+            for attempt in 1 2 3 4; do
+              row=$(curl -s -L -m 30 "https://rdap.org/domain/$d" | python3 -c "
           import sys,json
           j=json.load(sys.stdin)
           reg=[e for e in j.get('entities',[]) if 'registrar' in e.get('roles',[])]
           name=reg[0]['vcardArray'][1][1][3] if reg else '?'
           ev={e['eventAction']:e['eventDate'][:10] for e in j.get('events',[])}
           ns=', '.join(n['ldhName'].lower() for n in j.get('nameservers',[]))
-          print(f'| $d | {name} | {ev.get(\"expiration\")} | {ns} |')" 2>/dev/null | tee -a "$GITHUB_STEP_SUMMARY" || echo "| $d | no public record | | |" | tee -a "$GITHUB_STEP_SUMMARY"
+          print(f'| $d | {name} | {ev.get(\"expiration\")} | {ns} |')" 2>/dev/null) && [ -n "$row" ] && break
+              sleep $((attempt * 5))
+            done
+            if [ -z "$row" ]; then
+              ns=$(dig +short NS "$d" | tr '\n' ' ')
+              row="| $d | no public registry record | | ${ns:-none} |"
+            fi
+            echo "$row" | tee -a "$GITHUB_STEP_SUMMARY"
+            sleep 3
           done
