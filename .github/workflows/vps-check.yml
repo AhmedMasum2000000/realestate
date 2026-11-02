@@ -35,6 +35,6 @@ jobs:
             echo "== PHP"; ls -d /usr/local/apps/php* 2>/dev/null; php -v 2>/dev/null | head -1
             echo "== MariaDB"; mysql -V 2>/dev/null; ls /usr/local/apps/mysql/bin/mysql 2>/dev/null
             echo "== Webuzo users / domains"; ls /var/webuzo/users 2>/dev/null | head; ls /usr/local/webuzo/conf 2>/dev/null | head
-            echo "== Webuzo license"; ls /usr/local/webuzo | grep -i lic; for f in /usr/local/webuzo/license2.php /usr/local/webuzo/license.php; do [ -f $f ] && /usr/local/emps/bin/php -r "include \"$f\"; foreach(get_defined_vars() as \$k=>\$v){ if(is_array(\$v)){ foreach(['license','lictype','active','expires','status','licexpires','last_edit'] as \$x) if(isset(\$v[\$x])) echo \"\$k.\$x=\".(is_array(\$v[\$x])?json_encode(\$v[\$x]):\$v[\$x]).\"\\n\"; } }" 2>&1 | head -20; done
+            echo "== Webuzo license"; grep -rhi "licen" /usr/local/webuzo/log* /var/log/webuzo* 2>/dev/null | tail -5; curl -sk https://api.webuzo.com/license2.php?ip=$(curl -s ifconfig.me) 2>/dev/null | head -c 300; echo; curl -sk "https://www.webuzo.com/licensecheck?ip=$(curl -s ifconfig.me)" 2>/dev/null | grep -io "active\|expired\|not found\|invalid" | head -3
             echo "== Package cache and logs"; du -sh /var/cache/dnf /var/log /var/lib/mysql /usr/local/webuzo /usr/local/apps 2>/dev/null
           ' | tee -a "$GITHUB_STEP_SUMMARY"
