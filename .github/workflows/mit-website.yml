@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install site build dependencies
-        run: pip install -r mit/requirements.txt
+        run: pip install -r mit/requirements.txt paramiko
       - name: Compile the website
         run: |
           python mit/build.py
