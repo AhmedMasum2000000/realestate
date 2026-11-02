@@ -25,8 +25,8 @@ jobs:
         run: |
           set -o pipefail
           sudo apt-get install -y -qq sshpass >/dev/null
-          if [ "$PLAN" = "B" ]; then export SSHPASS="$PASS_B" HUSER=u463099719; else export SSHPASS="$PASS_A" HUSER=u261783896; fi
-          sshpass -e ssh -p 65002 -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 $HUSER@82.180.171.217 '
+          if [ "$PLAN" = "B" ]; then export SSHPASS="$PASS_B" HUSER=u463099719 HHOST=195.35.39.84; else export SSHPASS="$PASS_A" HUSER=u261783896 HHOST=82.180.171.217; fi
+          sshpass -e ssh -p 65002 -o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 $HUSER@$HHOST '
             echo "== Logged in as $(whoami) on $(hostname)"
             echo "== Total"; du -sh ~ 2>/dev/null
             echo "== Sites"; du -sh ~/domains/* 2>/dev/null | sort -rh

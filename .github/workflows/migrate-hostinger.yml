@@ -44,14 +44,14 @@ jobs:
           DOMAINS: ${{ inputs.domains }}
         run: |
           set -o pipefail
-          if [ "$PLAN" = "B" ]; then HUSER=u463099719; else HUSER=u261783896; fi
-          sshpass -e ssh -o ServerAliveInterval=30 root@$VPS "PLAN=$PLAN HUSER=$HUSER DOMAINS='$DOMAINS' bash -s" <<'SCRIPT' | tee -a "$GITHUB_STEP_SUMMARY"
+          if [ "$PLAN" = "B" ]; then HUSER=u463099719 HHOST=195.35.39.84; else HUSER=u261783896 HHOST=82.180.171.217; fi
+          sshpass -e ssh -o ServerAliveInterval=30 root@$VPS "PLAN=$PLAN HUSER=$HUSER HHOST=$HHOST DOMAINS='$DOMAINS' bash -s" <<'SCRIPT' | tee -a "$GITHUB_STEP_SUMMARY"
           set -u
           PASSFILE=/root/migration/.hostinger-$PLAN
           DEST=/root/migration/hostinger-$(echo $PLAN | tr A-Z a-z)
           mkdir -p $DEST
           SSHC="sshpass -f $PASSFILE ssh -p 65002 -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30"
-          REMOTE=$HUSER@82.180.171.217
+          REMOTE=$HUSER@$HHOST
           echo "| Domain | Files | Database | Size on VPS |"; echo "|---|---|---|---|"
           for d in $DOMAINS; do
             db="none"
