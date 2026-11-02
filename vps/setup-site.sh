@@ -83,6 +83,10 @@ CERT=/etc/sites/ssl/$D.pem; [ -f "$CERT" ] || CERT=/etc/sites/ssl/selfsigned.pem
 BLOCK="  ServerName $D
   ServerAlias www.$D
   DocumentRoot $WEB
+  Alias /.well-known/acme-challenge/ /var/www/acme/.well-known/acme-challenge/
+  <Directory /var/www/acme>
+    Require all granted
+  </Directory>
   DirectoryIndex index.php index.html index.htm
   <Directory $WEB>
     Options -Indexes +FollowSymLinks

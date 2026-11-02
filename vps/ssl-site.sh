@@ -19,7 +19,12 @@ for d in "$@"; do
   names=(-d "$d"); dns="@"
   [ "$(dig +short A $d @1.1.1.1 | tail -1)" = "$IP" ] || { echo "| $d | not pointing here yet | skipped | |"; continue; }
   [ "$(dig +short A www.$d @1.1.1.1 | tail -1)" = "$IP" ] && { names+=(-d "www.$d"); dns="@ + www"; }
-  if certbot certonly --webroot -w "$web" "${names[@]}" --cert-name "$d" --non-interactive --agree-tos --register-unsafely-without-email --keep-until-expiring -q; then
+  # Serve the Let's Encrypt check from one shared folder, so app rewrites (Laravel etc.) cannot block it.
+  mkdir -p /var/www/acme/.well-known/acme-challenge
+  vh=$APACHE/etc/conf.d/site-$d.conf
+  grep -q "acme-challenge" $vh || sed -i "s#^  DocumentRoot .*#&\n  Alias /.well-known/acme-challenge/ /var/www/acme/.well-known/acme-challenge/\n  <Directory /var/www/acme>\n    Require all granted\n  </Directory>#" $vh
+  $APACHE/bin/apachectl -t 2>/dev/null && $APACHE/bin/apachectl -k graceful; sleep 1
+  if certbot certonly --webroot -w /var/www/acme "${names[@]}" --cert-name "$d" --non-interactive --agree-tos --register-unsafely-without-email --keep-until-expiring -q; then
     cat /etc/letsencrypt/live/$d/fullchain.pem /etc/letsencrypt/live/$d/privkey.pem > /etc/sites/ssl/$d.pem; chmod 600 /etc/sites/ssl/$d.pem
     sed -i "s#SSLCertificateFile .*#SSLCertificateFile /etc/sites/ssl/$d.pem#" $APACHE/etc/conf.d/site-$d.conf
     cert="issued"
