@@ -1,0 +1,74 @@
+name: Migrate Hostinger sites to VPS
+
+# Copies each named site (files + WordPress database) from a Hostinger shared plan to the VPS,
+# into /root/migration/hostinger-<plan>/<domain>/. The VPS pulls over SSH with rsync, so a rerun
+# only copies what changed. On Hostinger it only reads, apart from a temporary database export in
+# ~/migration_dumps, which it removes afterwards. Nothing is switched live by this workflow.
+
+on:
+  workflow_dispatch:
+    inputs:
+      plan:
+        description: "A or B"
+        required: true
+        default: "A"
+      domains:
+        description: "Domains, space-separated"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  copy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    env:
+      SSHPASS: ${{ secrets.VPS_PASSWORD }}
+      VPS: 187.127.141.173
+    steps:
+      - name: Prepare the VPS
+        env:
+          PASS_A: ${{ secrets.HOSTINGER_A_PASSWORD }}
+          PASS_B: ${{ secrets.HOSTINGER_B_PASSWORD }}
+          PLAN: ${{ inputs.plan }}
+        run: |
+          sudo apt-get install -y -qq sshpass >/dev/null
+          if [ "$PLAN" = "B" ]; then HP="$PASS_B"; else HP="$PASS_A"; fi
+          [ -n "$HP" ] || { echo "No Hostinger password saved for plan $PLAN"; exit 1; }
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new root@$VPS 'command -v sshpass >/dev/null || { dnf install -y -q epel-release && dnf install -y -q sshpass rsync; }; mkdir -p /root/migration && chmod 700 /root/migration'
+          printf '%s' "$HP" | sshpass -e ssh root@$VPS "umask 077; cat > /root/migration/.hostinger-$PLAN"
+      - name: Copy sites
+        env:
+          PLAN: ${{ inputs.plan }}
+          DOMAINS: ${{ inputs.domains }}
+        run: |
+          set -o pipefail
+          if [ "$PLAN" = "B" ]; then HUSER=u463099719; else HUSER=u261783896; fi
+          sshpass -e ssh -o ServerAliveInterval=30 root@$VPS "PLAN=$PLAN HUSER=$HUSER DOMAINS='$DOMAINS' bash -s" <<'SCRIPT' | tee -a "$GITHUB_STEP_SUMMARY"
+          set -u
+          PASSFILE=/root/migration/.hostinger-$PLAN
+          DEST=/root/migration/hostinger-$(echo $PLAN | tr A-Z a-z)
+          mkdir -p $DEST
+          SSHC="sshpass -f $PASSFILE ssh -p 65002 -o StrictHostKeyChecking=accept-new -o ServerAliveInterval=30"
+          REMOTE=$HUSER@82.180.171.217
+          echo "| Domain | Files | Database | Size on VPS |"; echo "|---|---|---|---|"
+          for d in $DOMAINS; do
+            db="none"
+            if $SSHC $REMOTE "test -f domains/$d/public_html/wp-config.php"; then
+              if $SSHC $REMOTE "mkdir -p migration_dumps && cd domains/$d/public_html && wp db export ~/migration_dumps/$d.sql --quiet --skip-plugins --skip-themes" 2>/dev/null; then db="exported"; else db="FAILED"; fi
+            fi
+            if rsync -a --delete -e "$SSHC" $REMOTE:domains/$d/ $DEST/$d/files/ 2>/tmp/rsync.err; then files="copied"; else files="FAILED: $(tail -1 /tmp/rsync.err)"; fi
+            if [ "$db" = "exported" ]; then
+              rsync -a -e "$SSHC" $REMOTE:migration_dumps/$d.sql $DEST/$d/database.sql && $SSHC $REMOTE "rm -f migration_dumps/$d.sql" || db="copy FAILED"
+            fi
+            echo "| $d | $files | $db | $(du -sh $DEST/$d 2>/dev/null | cut -f1) |"
+          done
+          $SSHC $REMOTE "rmdir migration_dumps 2>/dev/null" || true
+          echo; df -h / | tail -1
+          SCRIPT
+      - name: Remove the saved Hostinger password from the VPS
+        if: always()
+        env:
+          PLAN: ${{ inputs.plan }}
+        run: sshpass -e ssh root@$VPS "rm -f /root/migration/.hostinger-$PLAN"
