@@ -56,7 +56,10 @@ jobs:
           for d in $DOMAINS; do
             mkdir -p $DEST/$d
             db="none"
-            if $SSHC $REMOTE "test -f domains/$d/public_html/wp-config.php"; then
+            if $SSHC $REMOTE "test -f domains/$d/public_html/.env && ! test -f domains/$d/public_html/wp-config.php"; then
+              # Laravel: database settings live in .env.
+              if $SSHC $REMOTE 'cd domains/'$d'/public_html && e(){ sed -n "s/^$1=//p" .env | tail -1 | sed -E "s/^[\"\x27]|[\"\x27]\r?$//g"; }; mkdir -p ~/migration_dumps && MYSQL_PWD="$(e DB_PASSWORD)" mysqldump --single-transaction --quick --no-tablespaces -h "$(e DB_HOST)" -u "$(e DB_USERNAME)" "$(e DB_DATABASE)" > ~/migration_dumps/'$d'.sql' 2>$DEST/$d/db.err; then db="exported (laravel)"; else db="FAILED: $(tail -1 $DEST/$d/db.err)"; fi
+            elif $SSHC $REMOTE "test -f domains/$d/public_html/wp-config.php"; then
               # wp-cli first; if it cannot run, read the four DB_ settings from wp-config.php and use mysqldump.
               if $SSHC $REMOTE "mkdir -p migration_dumps && cd domains/$d/public_html && wp db export ~/migration_dumps/$d.sql --quiet --skip-plugins --skip-themes" 2>$DEST/$d/db.err; then
                 db="exported"
