@@ -43,6 +43,8 @@ jobs:
         run: |
           google-chrome --headless=new --no-sandbox --hide-scrollbars --window-size=1366,900 --screenshot=/tmp/site.png "https://$D/" 2>/dev/null || chromium --headless --no-sandbox --window-size=1366,900 --screenshot=/tmp/site.png "https://$D/"
           ls -la /tmp/site.png
+          convert /tmp/site.png -resize 1100x -quality 70 /tmp/site.jpg
+          echo "SHOT-BEGIN"; base64 -w0 /tmp/site.jpg; echo; echo "SHOT-END"
       - uses: actions/upload-artifact@v4
         with:
           name: proof-screenshot
