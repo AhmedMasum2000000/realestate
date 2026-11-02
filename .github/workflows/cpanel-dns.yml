@@ -1,0 +1,36 @@
+name: Point cPanel-hosted domains at the VPS
+
+# Changes only the @ and www web records of the named domains in the Namecheap cPanel DNS zone.
+
+on:
+  workflow_dispatch:
+    inputs:
+      domains:
+        description: "Domains, space-separated"
+        required: true
+      ip:
+        description: "New IP"
+        required: true
+        default: "187.127.141.173"
+
+permissions:
+  contents: read
+
+jobs:
+  dns:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Update records
+        env:
+          CPANEL_HOST: ${{ secrets.CPANEL_HOST }}
+          CPANEL_USER: ${{ secrets.CPANEL_USER }}
+          CPANEL_API_TOKEN: ${{ secrets.CPANEL_API_TOKEN }}
+          IP: ${{ inputs.ip }}
+          DOMAINS: ${{ inputs.domains }}
+        run: bin/cpanel-dns "$IP" $DOMAINS | tee -a "$GITHUB_STEP_SUMMARY"

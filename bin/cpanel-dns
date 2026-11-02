@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+"""Point a domain's web records (@ and www) at a new IP in the cPanel DNS zone. Mail records are left alone.
+
+    bin/cpanel-dns 187.127.141.173 example.com other.com
+
+Only A records named exactly the domain or www.domain change, plus any AAAA on those names, which is
+removed so visitors are not sent to the old server over IPv6. TTL drops to 300 so a rollback is quick.
+"""
+import os
+import sys
+from pathlib import Path
+from urllib.parse import urlparse
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+from rep.cpanel import CpanelClient  # noqa: E402
+
+ip, domains = sys.argv[1], sys.argv[2:]
+host = os.environ["CPANEL_HOST"].strip()
+if host.startswith("https://"):
+    host = urlparse(host).hostname
+c = CpanelClient(host, os.environ["CPANEL_USER"], os.environ["CPANEL_API_TOKEN"], dry_run=False)
+print("| Domain | Record | Was | Now |"); print("|---|---|---|---|")
+for d in domains:
+    zone = c._api2("ZoneEdit", "fetchzone_records", {"domain": d}, mutating=False).get("data") or []
+    names = {d + ".", "www." + d + "."}
+    # Edit from the bottom up so line numbers stay valid after a removal.
+    for rec in sorted(zone, key=lambda r: -int(r.get("line", 0))):
+        if rec.get("name") not in names:
+            continue
+        if rec.get("type") == "A":
+            if rec.get("address") != ip:
+                c._api2("ZoneEdit", "edit_zone_record", {"domain": d, "line": rec["line"], "type": "A", "name": rec["name"], "address": ip, "ttl": 300, "class": "IN"}, mutating=True)
+            print(f"| {d} | {rec['name']} A | {rec.get('address')} | {ip} |")
+        elif rec.get("type") == "AAAA":
+            c._api2("ZoneEdit", "remove_zone_record", {"domain": d, "line": rec["line"]}, mutating=True)
+            print(f"| {d} | {rec['name']} AAAA | {rec.get('address')} | removed |")
+        elif rec.get("type") == "CNAME" and rec["name"].startswith("www."):
+            print(f"| {d} | {rec['name']} CNAME | {rec.get('cname')} | unchanged (follows @) |")
