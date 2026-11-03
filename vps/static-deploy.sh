@@ -12,6 +12,6 @@ NEW="$R/.$SUB.new"; rm -rf "$NEW"; cp -r "$SRC" "$NEW"
 chown -R "$U:$U" "$NEW"; find "$NEW" -type d -exec chmod 755 {} +; find "$NEW" -type f -exec chmod 644 {} +
 rm -rf "$R/.$SUB.old"; [ -d "$R/$SUB" ] && mv "$R/$SUB" "$R/.$SUB.old"; mv "$NEW" "$R/$SUB"; rm -rf "$R/.$SUB.old"
 echo "Published $SRC -> $R/$SUB"; ls -la "$R/$SUB"
-code=$(curl -s -o /dev/null -w '%{http_code}' --resolve "$D:443:127.0.0.1" "https://$D/$SUB/")
+code=$(curl -s --max-time 15 -o /dev/null -w '%{http_code}' --resolve "$D:443:127.0.0.1" "https://$D/$SUB/")
 echo "Local check https://$D/$SUB/ -> HTTP $code"
-for f in style.css main.js; do echo "$f -> $(curl -s -o /dev/null -w '%{http_code}' --resolve "$D:443:127.0.0.1" "https://$D/$SUB/$f")"; done
+for f in style.css main.js; do echo "$f -> $(curl -s --max-time 15 -o /dev/null -w '%{http_code}' --resolve "$D:443:127.0.0.1" "https://$D/$SUB/$f")"; done
