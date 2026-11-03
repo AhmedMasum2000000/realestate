@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=7">
+<link rel="stylesheet" href="style.css?v=8">
 </head>
 <body>
 
@@ -32,6 +32,7 @@
     <a href="#about"><span>About us</span></a>
     <a href="#services"><span>Services</span></a>
     <a href="#locations"><span>Locations</span></a>
+    <a href="#static"><span>Billboards</span></a>
     <a href="#work"><span>Campaigns</span></a>
     <a href="#contact"><span>Contact</span></a>
   </nav>
@@ -42,14 +43,15 @@
   <!-- Hero -->
   <section class="hero">
     <div class="slides">
-      <div class="slide" data-word="Your event" data-cap="Event screens | Dhaka"><img src="/wp-content/uploads/2025/01/DSC02194-scaled.jpg" alt="LED event screen by LED AD PRO"></div>
-      <div class="slide" data-word="Gulshan" data-cap="Gulshan 2 | LED billboard"><img src="/wp-content/uploads/2023/08/Gulshan-2-G1-facing-upper.png" alt="LED screen at Gulshan 2"></div>
-      <div class="slide" data-word="Dhaka" data-cap="Digital billboards | Dhaka"><img src="/wp-content/uploads/2025/10/Generated-Image-October-19-2025-12_03PM-e1760855394667.png" alt="Digital billboard campaign"></div>
-      <div class="slide" data-word="Your brand" data-cap="Custom LED displays"><img src="/wp-content/uploads/2025/12/image-5.png" alt="LED display advertising"></div>
+      <div class="slide" data-word="Gulshan" data-cap="Gulshan Circle-2 | LED screen"><img src="img/loc/gulshan-circle-2-north-side-lower-screen-1200.webp" alt="LED screen at Gulshan Circle-2, Dhaka"></div>
+      <div class="slide" data-word="Mirpur" data-cap="Mirpur-10 Circle | 4 LED screens"><img src="img/loc/mirpur-10-circle-4-screens-1200.webp" alt="Four LED screens at Mirpur-10 Circle"></div>
+      <div class="slide" data-word="Dhanmondi" data-cap="Shimanto Square | 6 LED screens"><img src="img/loc/shimanto-square-6-led-screens-1200.webp" alt="Six LED screens at Shimanto Square, Dhanmondi"></div>
+      <div class="slide" data-word="Mohakhali" data-cap="SKS Tower, Mohakhali | LED screen"><img src="img/loc/sks-tower-entrance-mohakhali-1200.webp" alt="LED screen at SKS Tower entrance, Mohakhali"></div>
+      <div class="slide" data-word="Your event" data-cap="Event screens | LED stage"><img src="img/event-stage-night-2400.webp" alt="LED event stage at night"></div>
     </div>
     <div class="wrap hero-in">
-      <h1 class="display hero-h"><span class="h-fixed">Light up</span><span class="h-rot" aria-hidden="true">Your event</span><span class="sr-only">LED AD PRO: LED billboards and screens in Dhaka</span></h1>
-      <p class="hero-tag">The busiest places in Dhaka, on the brightest screens.</p>
+      <h1 class="display hero-h"><span class="h-fixed">Light up</span><span class="h-rot" aria-hidden="true">Gulshan</span><span class="sr-only">LED AD PRO: LED billboards and screens in Dhaka</span></h1>
+      <p class="hero-tag">LED screens at the busiest roads, circles and stations in Bangladesh.</p>
       <div class="hero-links"><a href="#locations">Locations <i>&#9656;</i></a><a href="#work">Campaigns <i>&#9656;</i></a></div>
     </div>
     <div class="hero-cap"><span class="slide-cap">Event screens | Dhaka</span><div class="dashes" role="tablist" aria-label="Hero slides"></div></div>
@@ -64,16 +66,17 @@
   <!-- Think big: words cut out of the navy, zooming into the photo on scroll -->
   <section class="think" id="about">
     <div class="think-pin">
-      <img class="think-img" src="/wp-content/uploads/2023/08/Gulshan-2-G1-facing-upper.png" alt="LED screen at Gulshan 2, Dhaka">
+      <img class="think-img" src="img/loc/gulshan-circle-2-1200.webp" alt="LED screen at Gulshan Circle-2, Dhaka">
       <svg class="think-svg" aria-hidden="true">
         <defs><mask id="tbm" maskUnits="userSpaceOnUse">
           <rect class="tb-bg" fill="#fff"/>
           <g class="tb-g"><text class="tb-t1" text-anchor="middle" fill="#000">THINK</text><text class="tb-t2" text-anchor="middle" fill="#000">BIG</text></g>
         </mask></defs>
-        <rect class="tb-cover" fill="#07122b" mask="url(#tbm)"/>
+        <rect class="tb-cover" fill="#ffffff" mask="url(#tbm)"/>
       </svg>
       <h2 class="sr-only">Think big</h2>
-      <p class="think-cap">Big screens. Busy roads. <span class="pink">Your brand.</span></p>
+      <div class="think-shade"></div>
+      <div class="think-cap"><h2 class="display">Locations</h2><p><span data-count="led">56</span> LED screens and <span data-count="static">8</span> static billboards in <span data-count="cities">10</span> cities.</p><a href="#locations">Our locations <i>&#9656;</i></a></div>
     </div>
   </section>
 
@@ -118,36 +121,59 @@
     <div class="svc-peek" aria-hidden="true"><img alt=""></div>
   </section>
 
-  <!-- Locations -->
+  <!-- Locations directory -->
   <section class="locations" id="locations">
-    <div class="wrap loc-grid">
-      <div>
-        <p class="eyebrow">Where you'll be seen</p>
-        <h2 class="display rv" style="margin-top:18px">Prime<br><span class="cyan">locations</span></h2>
-        <ul class="loc-list">
-          <li data-lon="90.4152" data-lat="23.7925">Gulshan <small>LED billboards</small></li>
-          <li data-lon="90.3742" data-lat="23.7461">Dhanmondi <small>LED billboards</small></li>
-          <li data-lon="90.3978" data-lat="23.8433">Dhaka Airport <small>LED billboards</small></li>
-          <li data-lon="90.4170" data-lat="23.7740">Niketon, Gulshan 1 <small>Our office</small></li>
-        </ul>
+    <div class="wrap">
+      <div class="loc-intro rv">
+        <p>A growing network of LED screens and billboards at the busiest roads, circles and stations in Bangladesh.</p>
+        <div class="loc-filter" role="group" aria-label="Show locations">
+          <button data-f="dhaka" class="on">Dhaka <i>&#9656;</i></button><button data-f="city">Other cities <i>&#9656;</i></button><button data-f="all">All <i>&#9656;</i></button>
+        </div>
       </div>
-      <div class="map rv"><canvas id="map" aria-label="Map of Bangladesh with LED AD PRO locations in Dhaka" role="img"></canvas></div>
+      <div class="loc-dir">
+        <ul class="loc-list" aria-label="Areas"></ul>
+        <div class="map"><canvas id="map" role="img" aria-label="Dotted map of Bangladesh with LED AD PRO locations"></canvas></div>
+        <aside class="loc-card" aria-live="polite">
+          <div class="loc-photo"><img alt=""></div>
+          <p class="eyebrow loc-kind"></p>
+          <h3 class="display loc-name"></h3>
+          <p class="loc-count"></p>
+          <ul class="loc-sample"></ul>
+          <button class="loc-open">See all screens <i>&#9656;</i></button>
+        </aside>
+      </div>
+    </div>
+    <div class="area" id="area" hidden>
+      <div class="wrap">
+        <button class="area-back">&lsaquo; Back to locations</button>
+        <h3 class="display area-h"></h3>
+        <div class="area-grid"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Static billboards -->
+  <section class="static" id="static">
+    <div class="wrap">
+      <h2 class="display static-h rv">Static billboards</h2>
+      <p class="static-sub rv">Printed billboards on main roads, flyovers and approaches in Dhaka.</p>
+      <div class="static-grid"></div>
     </div>
   </section>
 
   <!-- Campaigns -->
   <section class="work" id="work">
     <div class="wrap">
-      <h2 class="display work-h rv">Latest campaigns</h2>
+      <h2 class="display work-h rv">On screen now</h2>
       <div class="camps">
-        <figure class="camp rv"><div class="camp-img"><img loading="lazy" src="/wp-content/uploads/2025/01/DSC02194-scaled.jpg" alt="Event screen, Dhaka"></div><figcaption><b>Event screen</b><span>Dhaka</span></figcaption></figure>
-        <figure class="camp rv"><div class="camp-img"><img loading="lazy" src="/wp-content/uploads/2023/08/Gulshan-2-G1-facing-upper.png" alt="LED billboard, Gulshan 2"></div><figcaption><b>LED billboard</b><span>Gulshan 2</span></figcaption></figure>
-        <figure class="camp rv"><div class="camp-img"><img loading="lazy" src="/wp-content/uploads/2025/02/WhatsApp-Image-2025-02-11-at-12.32.30_99e55ef4.jpg" alt="LED billboard, Dhaka"></div><figcaption><b>LED billboard</b><span>Dhaka</span></figcaption></figure>
-        <figure class="camp rv"><div class="camp-img"><img loading="lazy" src="/wp-content/uploads/2025/05/f56ca3f8-1766-441b-9d26-577a20040622.jpg" alt="Indoor LED display, Dhaka"></div><figcaption><b>Indoor LED display</b><span>Dhaka</span></figcaption></figure>
-        <figure class="camp rv"><div class="camp-img"><img loading="lazy" src="/wp-content/uploads/2025/01/65f907f7-0a29-456f-bc86-86f782de7b66.jpg" alt="Digital screen, Dhaka"></div><figcaption><b>Digital screen</b><span>Dhaka</span></figcaption></figure>
-        <figure class="camp rv"><div class="camp-img"><img loading="lazy" src="/wp-content/uploads/2025/05/3aeaa387-a859-40fa-9eac-78ab86cd041c.jpg" alt="LED campaign, Dhaka"></div><figcaption><b>LED campaign</b><span>Dhaka</span></figcaption></figure>
+        <figure class="camp rv" style="transition-delay:0ms"><div class="camp-img"><img loading="lazy" src="img/loc/police-plaza-entry-gate-north-side-1200.webp" alt="Police Plaza entry gate, Gulshan"></div><figcaption><b>Police Plaza entry gate</b><span>Gulshan</span></figcaption></figure>
+        <figure class="camp rv" style="transition-delay:110ms"><div class="camp-img"><img loading="lazy" src="img/loc/rajshahi-shaheb-bazar-2-screens-both-sides-1200.webp" alt="Shaheb Bazar, 2 screens, Rajshahi"></div><figcaption><b>Shaheb Bazar, 2 screens</b><span>Rajshahi</span></figcaption></figure>
+        <figure class="camp rv" style="transition-delay:220ms"><div class="camp-img"><img loading="lazy" src="img/loc/sylhet-chowkideki-point-1200.webp" alt="Chowkideki Point, Sylhet"></div><figcaption><b>Chowkideki Point</b><span>Sylhet</span></figcaption></figure>
+        <figure class="camp rv" style="transition-delay:0ms"><div class="camp-img"><img loading="lazy" src="img/loc/golpahar-mor-chattogram-1200.webp" alt="Golpahar Mor, Chattogram"></div><figcaption><b>Golpahar Mor</b><span>Chattogram</span></figcaption></figure>
+        <figure class="camp rv" style="transition-delay:110ms"><div class="camp-img"><img loading="lazy" src="img/loc/sughondha-circle-coxs-bazar-1200.webp" alt="Sughondha Circle, Cox&#39;s Bazar"></div><figcaption><b>Sughondha Circle</b><span>Cox&#39;s Bazar</span></figcaption></figure>
+        <figure class="camp rv" style="transition-delay:220ms"><div class="camp-img"><img loading="lazy" src="img/loc/hatirjheel-bridge-gulshan-shooting-club-1200.webp" alt="Hatirjheel Bridge, Tejgaon"></div><figcaption><b>Hatirjheel Bridge</b><span>Tejgaon</span></figcaption></figure>
       </div>
-      <a class="more-link" href="#contact">Plan your campaign <i>&#9656;</i></a>
+      <a class="more-link" href="#locations">View all locations <i>&#9656;</i></a>
     </div>
   </section>
 
@@ -163,7 +189,7 @@
   <section class="contact" id="contact">
     <div class="wrap">
       <p class="eyebrow" style="margin-bottom:24px">We'd love to hear from you</p>
-      <a class="big-cta display" href="mailto:info@ledadpro.com">Contact us <span class="chev">&rsaquo;</span></a>
+      <a class="big-cta display" href="mailto:info@ledadpro.com"><span>Contact us</span> <span class="chev">&rsaquo;</span></a>
       <div class="contact-cols">
         <div><h4>Call</h4><a href="tel:+8801316743003">+880 1316-743003</a></div>
         <div><h4>Email</h4><a href="mailto:info@ledadpro.com">info@ledadpro.com</a></div>
@@ -183,6 +209,7 @@
   </div>
 </footer>
 
-<script src="main.js?v=7"></script>
+<script src="locations.js?v=1"></script>
+<script src="main.js?v=8"></script>
 </body>
 </html>

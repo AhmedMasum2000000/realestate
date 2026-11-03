@@ -74,7 +74,7 @@
   // THINK BIG: words cut out of a navy layer (SVG mask). Scrolling zooms into the "I" of BIG
   // until the photo fills the screen, then a caption comes in.
   const think = $('.think'), svg = $('.think-svg'), g = $('.tb-g'), t1 = $('.tb-t1'), t2 = $('.tb-t2'),
-        timg = $('.think-img'), cap = $('.think-cap'), cover = $('.tb-cover');
+        timg = $('.think-img'), cap = $('.think-cap'), cover = $('.tb-cover'), shade = $('.think-shade');
   let tw, th, origin = [0, 0];
   function thinkLayout() {
     tw = innerWidth; th = think.querySelector('.think-pin').clientHeight;
@@ -95,7 +95,7 @@
     g.setAttribute('transform', `translate(${origin[0]} ${origin[1]}) scale(${s}) translate(${-origin[0]} ${-origin[1]})`);
     cover.style.opacity = 1 - Math.min(1, Math.max(0, (z - .45) / .5));
     timg.style.transform = `scale(${1.25 - .25 * p})`;
-    cap.classList.toggle('in', reduce || p > .8);
+    cap.classList.toggle('in', reduce || p > .8); shade.classList.toggle('in', reduce || p > .8);
   }
   thinkLayout(); thinkTick();
   document.fonts && document.fonts.ready.then(() => { thinkLayout(); thinkTick(); });
@@ -110,15 +110,25 @@
   });
   addEventListener('mousemove', e => { peek.style.left = e.clientX + 'px'; peek.style.top = e.clientY + 'px'; });
 
-  // Dotted map of Bangladesh with pulsing pins
-  const cv = $('#map'), ctx = cv.getContext('2d');
-  // Rough outline of Bangladesh as [lon, lat], enough for a dot-matrix silhouette.
+  // Locations directory: area list, dotted map with pins, side card, and an area detail grid.
+  const LOCS = window.LOCS || [], STATIC = window.STATIC || [];
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const ledCount = LOCS.reduce((n, a) => n + a.p.length, 0);
+  const cities = new Set(LOCS.map(a => a.kind === 'dhaka' ? 'Dhaka' : a.name)).size;
+  $$('[data-count]').forEach(el => el.textContent = { led: ledCount, static: STATIC.length, cities }[el.dataset.count]);
+
+  const cv = $('#map'), ctx = cv.getContext('2d'), list = $('.loc-list');
   const SHAPE = [[88.03,24.66],[88.14,24.92],[88.45,25.17],[88.68,25.22],[88.95,25.18],[89.01,25.29],[88.83,25.48],[88.56,25.53],[88.44,25.85],[88.65,26.13],[88.95,26.29],[89.12,26.03],[89.33,26.02],[89.55,26.23],[89.84,25.97],[89.86,25.42],[90.12,25.26],[90.6,25.17],[91.1,25.2],[91.66,25.14],[92.04,25.18],[92.47,24.98],[92.22,24.5],[91.92,24.33],[91.73,24.15],[91.37,24.1],[91.16,23.62],[91.37,23.19],[91.6,22.95],[91.82,23.36],[92.15,23.73],[92.29,23.68],[92.36,22.95],[92.58,22.04],[92.66,21.32],[92.33,20.67],[92.08,21.19],[92.03,21.7],[91.82,22.18],[91.47,22.47],[91.03,22.68],[90.6,22.39],[90.27,21.84],[89.84,21.86],[89.6,22.14],[89.03,22.06],[88.89,22.88],[88.53,23.63],[88.7,24.23],[88.03,24.66]];
   const B = { x0: 86.1, x1: 92.9, y0: 20.4, y1: 26.7 };
-  // Dhaka inset: a zoomed circle over the Bay of Bengal, so the city pins don't overlap.
-  const DK = { x0: 90.33, x1: 90.47, y0: 23.70, y1: 23.88 }, DHAKA = [90.40, 23.78];
-  let pins = [], W, H, dots = [], idots = [], active = 0, inset;
+  const DK = { x0: 90.33, x1: 90.47, y0: 23.69, y1: 23.87 };
+  let W, H, dots = [], idots = [], inset, filter = 'dhaka', shown = [], active = null;
   const proj = (lon, lat) => [(lon - B.x0) / (B.x1 - B.x0) * W, (B.y1 - lat) / (B.y1 - B.y0) * H];
+  const inDhaka = a => a.kind === 'dhaka';
+  function pinXY(a) {
+    if (!inDhaka(a)) return proj(a.lon, a.lat);
+    const k = inset.r * 2 / (DK.x1 - DK.x0);
+    return [inset.x + (a.lon - (DK.x0 + DK.x1) / 2) * k, inset.y - (a.lat - (DK.y0 + DK.y1) / 2) * k];
+  }
   function inside(x, y, poly) {
     let c = false;
     for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -130,51 +140,83 @@
   function layout() {
     const dpr = devicePixelRatio || 1, r = cv.getBoundingClientRect();
     W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const poly = SHAPE.map(([a, b]) => proj(a, b)), step = Math.max(7, W / 62);
+    const poly = SHAPE.map(([a, b]) => proj(a, b)), step = Math.max(6, W / 60);
     dots = [];
     for (let y = step / 2; y < H; y += step) for (let x = step / 2; x < W; x += step) if (inside(x, y, poly)) dots.push([x, y]);
     inset = { x: W * .19, y: H * .8, r: W * .165 };
-    const k = inset.r * 2 / (DK.x1 - DK.x0);
-    const ip = (lon, lat) => [inset.x + (lon - (DK.x0 + DK.x1) / 2) * k, inset.y - (lat - (DK.y0 + DK.y1) / 2) * k];
     idots = []; const s2 = step * .8;
     for (let y = inset.y - inset.r; y < inset.y + inset.r; y += s2) for (let x = inset.x - inset.r; x < inset.x + inset.r; x += s2)
       if (Math.hypot(x - inset.x, y - inset.y) < inset.r - 6) idots.push([x, y]);
-    pins = $$('.loc-list li').map(li => ({ li, p: ip(+li.dataset.lon, +li.dataset.lat) }));
   }
   function draw(t) {
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = 'rgba(143,163,196,.35)';
-    for (const [x, y] of dots) { ctx.beginPath(); ctx.arc(x, y, 1.7, 0, 7); ctx.fill(); }
-    // Dhaka on the country map, linked to the inset
-    const [dx, dy] = proj(...DHAKA);
+    for (const [x, y] of dots) { ctx.beginPath(); ctx.arc(x, y, 1.6, 0, 7); ctx.fill(); }
+    const [dx, dy] = proj(90.40, 23.78);
     ctx.strokeStyle = 'rgba(255,31,110,.5)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
     ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(inset.x + inset.r * .7, inset.y - inset.r * .7); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#ff1f6e'; ctx.beginPath(); ctx.arc(dx, dy, 6, 0, 7); ctx.fill();
-    ctx.fillStyle = '#fff'; ctx.font = '800 12px Inter, sans-serif'; ctx.fillText('DHAKA', dx + 12, dy + 4);
-    // Inset
-    ctx.fillStyle = 'rgba(7,18,43,.92)'; ctx.strokeStyle = 'rgba(255,31,110,.6)'; ctx.lineWidth = 1.5;
+    ctx.fillStyle = 'rgba(7,18,43,.94)'; ctx.strokeStyle = 'rgba(255,31,110,.6)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(inset.x, inset.y, inset.r, 0, 7); ctx.fill(); ctx.stroke();
     ctx.fillStyle = 'rgba(143,163,196,.18)';
-    for (const [x, y] of idots) { ctx.beginPath(); ctx.arc(x, y, 1.2, 0, 7); ctx.fill(); }
-    pins.forEach(({ p: [x, y], li }, i) => {
-      const on = i === active, ph = ((t / 1600) + i * .37) % 1;
-      if (!reduce) { ctx.strokeStyle = `rgba(255,31,110,${(1 - ph) * .8})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 5 + ph * (on ? 26 : 14), 0, 7); ctx.stroke(); }
-      ctx.fillStyle = on ? '#ff1f6e' : 'rgba(255,31,110,.7)'; ctx.beginPath(); ctx.arc(x, y, on ? 7 : 4.5, 0, 7); ctx.fill();
+    for (const [x, y] of idots) { ctx.beginPath(); ctx.arc(x, y, 1.1, 0, 7); ctx.fill(); }
+    ctx.fillStyle = '#fff'; ctx.font = '800 11px Inter, sans-serif'; ctx.fillText('DHAKA', inset.x - 20, inset.y + inset.r + 16);
+    LOCS.forEach((a, i) => {
+      const [x, y] = pinXY(a), on = a === active, vis = shown.includes(a), ph = ((t / 1600) + i * .29) % 1;
+      if (!vis && !on) { ctx.fillStyle = 'rgba(255,31,110,.35)'; ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill(); return; }
+      if (!reduce) { ctx.strokeStyle = `rgba(255,31,110,${(1 - ph) * .8})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 5 + ph * (on ? 26 : 12), 0, 7); ctx.stroke(); }
+      ctx.fillStyle = on ? '#ffd60a' : '#ff1f6e'; ctx.beginPath(); ctx.arc(x, y, on ? 7 : 4.5, 0, 7); ctx.fill();
       if (on) {
-        const label = li.firstChild.textContent.trim().toUpperCase();
-        ctx.font = '800 12px Inter, sans-serif';
-        const w = ctx.measureText(label).width, lx = Math.min(x + 12, inset.x + inset.r - w - 4);
+        const label = a.name.toUpperCase(); ctx.font = '800 12px Inter, sans-serif';
+        const w = ctx.measureText(label).width, lx = Math.max(4, Math.min(x + 12, W - w - 4));
         ctx.fillStyle = '#fff'; ctx.fillText(label, lx, y - 12);
       }
     });
     requestAnimationFrame(draw);
   }
-  $$('.loc-list li').forEach((li, i) => {
-    if (i === 0) li.classList.add('on');
-    li.addEventListener('mouseenter', () => { active = i; $$('.loc-list li').forEach(l => l.classList.toggle('on', l === li)); });
-    li.addEventListener('click', () => { active = i; $$('.loc-list li').forEach(l => l.classList.toggle('on', l === li)); });
-  });
-  addEventListener('resize', layout); layout(); requestAnimationFrame(draw);
+  const card = $('.loc-card'), cimg = $('.loc-photo img', card);
+  function setActive(a) {
+    if (!a || a === active) return;
+    active = a;
+    $$('li', list).forEach(li => li.classList.toggle('on', li.dataset.id === a.id));
+    card.classList.remove('in'); void card.offsetWidth; card.classList.add('in');
+    cimg.src = a.img; cimg.alt = a.name;
+    $('.loc-kind', card).textContent = inDhaka(a) ? 'Dhaka' : 'Bangladesh';
+    $('.loc-name', card).textContent = a.name;
+    $('.loc-count', card).textContent = `${a.p.length} LED ${a.p.length === 1 ? 'screen' : 'screens'}`;
+    $('.loc-sample', card).innerHTML = a.p.slice(0, 3).map(p => `<li>${esc(p.n)}</li>`).join('') + (a.p.length > 3 ? `<li class="more">+ ${a.p.length - 3} more</li>` : '');
+  }
+  function renderList() {
+    shown = LOCS.filter(a => filter === 'all' || a.kind === filter);
+    list.innerHTML = shown.map(a => `<li data-id="${a.id}" tabindex="0" role="button"><span>${esc(a.name)}</span><small>${a.p.length}</small></li>`).join('');
+    $$('li', list).forEach((li, i) => {
+      li.style.animationDelay = (i * 35) + 'ms';
+      const a = LOCS.find(x => x.id === li.dataset.id);
+      li.addEventListener('mouseenter', () => setActive(a));
+      li.addEventListener('focus', () => setActive(a));
+      li.addEventListener('click', () => openArea(a));
+      li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openArea(a); } });
+    });
+    active = null; setActive(shown.find(a => a.id === 'gulshan') || shown[0]);
+  }
+  $$('.loc-filter button').forEach(b => b.addEventListener('click', () => {
+    filter = b.dataset.f; $$('.loc-filter button').forEach(x => x.classList.toggle('on', x === b)); renderList();
+  }));
+  // Area detail: every screen in the area as a photo card, fading in one after another
+  const area = $('#area');
+  function openArea(a) {
+    setActive(a);
+    $('.area-h', area).innerHTML = `${esc(a.name)} <span>${a.p.length} LED ${a.p.length === 1 ? 'screen' : 'screens'}</span>`;
+    $('.area-grid', area).innerHTML = a.p.map((p, i) => `<figure class="pcard" style="animation-delay:${i * 70}ms"><div class="pimg"><img loading="lazy" src="${p.i}" alt="${esc(p.n)}"></div><figcaption><b>${esc(p.n)}</b>${p.f ? `<span>Facing: ${esc(p.f)}</span>` : ''}${p.ref ? '<em>Area photo</em>' : ''}</figcaption></figure>`).join('');
+    area.hidden = false; area.classList.remove('in'); void area.offsetWidth; area.classList.add('in');
+    area.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+  $('.loc-open').addEventListener('click', () => active && openArea(active));
+  $('.area-back').addEventListener('click', () => { area.hidden = true; $('#locations').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+  addEventListener('resize', layout); layout(); renderList(); requestAnimationFrame(draw);
+
+  // Static billboards grid, revealed one card after another
+  $('.static-grid').innerHTML = STATIC.map((s, i) => `<figure class="pcard rv" style="transition-delay:${(i % 4) * 90}ms"><div class="pimg"><img loading="lazy" src="${s.i}" alt="${esc(s.n)}"></div><figcaption><b>${esc(s.n)}</b><span>Static billboard</span></figcaption></figure>`).join('');
+  $$('.static-grid .rv').forEach(el => io.observe(el));
 
   $('#yr').textContent = new Date().getFullYear();
 })();
