@@ -8,8 +8,17 @@
   const hdr = $('.hdr');
   const onScroll = () => hdr.classList.toggle('solid', scrollY > 40);
   addEventListener('scroll', onScroll, { passive: true }); onScroll();
-  $('.burger').addEventListener('click', () => hdr.classList.toggle('open'));
-  $$('.nav a').forEach(a => a.addEventListener('click', () => hdr.classList.remove('open')));
+  // Full-screen menu
+  const menu = $('#menu'), burger = $('.burger');
+  function setMenu(open) {
+    menu.classList.toggle('open', open); menu.setAttribute('aria-hidden', !open);
+    burger.setAttribute('aria-expanded', open); document.body.classList.toggle('locked', open);
+    if (open) setTimeout(() => $('.menu-x').focus(), 300); else burger.focus({ preventScroll: true });
+  }
+  burger.addEventListener('click', () => setMenu(true));
+  $('.menu-x').addEventListener('click', () => setMenu(false));
+  $$('.menu a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) setMenu(false); });
 
   // Hero crossfade slider with dash progress
   const slides = $$('.slide'), dashes = $('.dashes'), DUR = 6000;
@@ -48,6 +57,37 @@
     words.forEach((w, i) => w.classList.toggle('on', i < n));
   }
   addEventListener('scroll', () => requestAnimationFrame(tick), { passive: true }); tick();
+
+  // THINK BIG: words cut out of a navy layer (SVG mask). Scrolling zooms into the "I" of BIG
+  // until the photo fills the screen, then a caption comes in.
+  const think = $('.think'), svg = $('.think-svg'), g = $('.tb-g'), t1 = $('.tb-t1'), t2 = $('.tb-t2'),
+        timg = $('.think-img'), cap = $('.think-cap'), cover = $('.tb-cover');
+  let tw, th, origin = [0, 0];
+  function thinkLayout() {
+    tw = innerWidth; th = think.querySelector('.think-pin').clientHeight;
+    svg.setAttribute('viewBox', `0 0 ${tw} ${th}`);
+    $$('rect', svg).forEach(r => { r.setAttribute('width', tw); r.setAttribute('height', th); });
+    const fs = Math.min(tw * .27, th * .36);
+    [t1, t2].forEach(t => { t.setAttribute('x', tw / 2); t.style.fontSize = fs + 'px'; t.style.letterSpacing = (-fs * .02) + 'px'; });
+    t1.setAttribute('y', th / 2 - fs * .06); t2.setAttribute('y', th / 2 + fs * .78);
+    try { const b = t2.getExtentOfChar(1); origin = [b.x + b.width / 2, b.y + b.height * .55]; }
+    catch (e) { origin = [tw / 2, th / 2 + fs * .45]; }
+  }
+  function thinkTick() {
+    const r = think.getBoundingClientRect(), span = think.offsetHeight - th;
+    const p = reduce ? 0 : Math.min(1, Math.max(0, -r.top / span));
+    // Text that is scaled very large inside a mask stops rendering in some browsers, so the zoom
+    // is capped at 9x and the navy layer fades out over the second half instead.
+    const z = Math.min(1, p / .78), s = 1 + Math.pow(z, 2) * 8;
+    g.setAttribute('transform', `translate(${origin[0]} ${origin[1]}) scale(${s}) translate(${-origin[0]} ${-origin[1]})`);
+    cover.style.opacity = 1 - Math.min(1, Math.max(0, (z - .45) / .5));
+    timg.style.transform = `scale(${1.25 - .25 * p})`;
+    cap.classList.toggle('in', reduce || p > .8);
+  }
+  thinkLayout(); thinkTick();
+  document.fonts && document.fonts.ready.then(() => { thinkLayout(); thinkTick(); });
+  addEventListener('resize', () => { thinkLayout(); thinkTick(); });
+  addEventListener('scroll', () => requestAnimationFrame(thinkTick), { passive: true });
 
   // Service rows: image follows the pointer
   const peek = $('.svc-peek'), pimg = $('img', peek);

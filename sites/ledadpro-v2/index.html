@@ -10,21 +10,33 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
 <header class="hdr">
   <a class="logo" href="#top" aria-label="LED AD PRO home">LED AD <b>PRO</b></a>
-  <nav class="nav" aria-label="Main">
-    <a href="#services">Services</a>
-    <a href="#locations">Locations</a>
-    <a href="#work">Work</a>
-    <a href="#contact">Contact</a>
-  </nav>
-  <a class="btn" href="tel:+8801316743003">Call us</a>
-  <button class="burger" aria-label="Menu"><span></span><span></span></button>
+  <div class="hdr-r">
+    <a class="btn" href="tel:+8801316743003">Call us</a>
+    <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
+  </div>
 </header>
+
+<div class="menu" id="menu" aria-hidden="true">
+  <div class="menu-top">
+    <a class="logo" href="#top">LED AD PRO</a>
+    <button class="menu-x" aria-label="Close menu"><span></span><span></span></button>
+  </div>
+  <nav class="menu-links" aria-label="Main">
+    <a href="#top"><span>Home</span></a>
+    <a href="#about"><span>About us</span></a>
+    <a href="#services"><span>Services</span></a>
+    <a href="#locations"><span>Locations</span></a>
+    <a href="#work"><span>Campaigns</span></a>
+    <a href="#contact"><span>Contact</span></a>
+  </nav>
+  <div class="menu-foot"><a href="tel:+8801316743003">+880 1316-743003</a><a href="mailto:info@ledadpro.com">info@ledadpro.com</a></div>
+</div>
 
 <main id="top">
   <!-- Hero -->
@@ -55,7 +67,23 @@
     <span>LED Billboards</span><span>Custom LED Displays</span><span>Billboard Rental</span><span>Event Screens</span><span>Digital Signage</span><span>Kiosk Branding</span>
   </div></div>
 
-  <!-- Statement -->
+  <!-- Think big: words cut out of the navy, zooming into the photo on scroll -->
+  <section class="think" id="about">
+    <div class="think-pin">
+      <img class="think-img" src="/wp-content/uploads/2023/08/Gulshan-2-G1-facing-upper.png" alt="LED screen at Gulshan 2, Dhaka">
+      <svg class="think-svg" aria-hidden="true">
+        <defs><mask id="tbm" maskUnits="userSpaceOnUse">
+          <rect class="tb-bg" fill="#fff"/>
+          <g class="tb-g"><text class="tb-t1" text-anchor="middle" fill="#000">THINK</text><text class="tb-t2" text-anchor="middle" fill="#000">BIG</text></g>
+        </mask></defs>
+        <rect class="tb-cover" fill="#07122b" mask="url(#tbm)"/>
+      </svg>
+      <h2 class="sr-only">Think big</h2>
+      <p class="think-cap">Big screens. Busy roads. <span class="cyan">Your brand.</span></p>
+    </div>
+  </section>
+
+  <!-- About -->
   <section class="statement">
     <div class="wrap">
       <p class="eyebrow">Who we are</p>
@@ -159,6 +187,6 @@
   </div>
 </footer>
 
-<script src="main.js?v=2"></script>
+<script src="main.js?v=5"></script>
 </body>
 </html>
