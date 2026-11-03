@@ -12,7 +12,9 @@ test -f "$CFG" || { echo "No wp-config.php in $R"; exit 1; }
 val() { grep -E "define\(\s*['\"]$1['\"]" "$CFG" | head -1 | sed -E "s/.*define\(\s*['\"]$1['\"]\s*,\s*['\"]([^'\"]*)['\"].*/\1/"; }
 DB=$(val DB_NAME); DU=$(val DB_USER); DP=$(val DB_PASSWORD)
 PFX=$(grep -E '^\s*\$table_prefix' "$CFG" | sed -E "s/.*['\"]([^'\"]+)['\"].*/\1/")
-Q() { MYSQL_PWD="$DP" mysql -u"$DU" -h localhost "$DB" -N -B -e "$1"; }
+# Root socket access first (read-only queries); fall back to the site's own user.
+if mysql -N -B -e "SELECT 1" "$DB" >/dev/null 2>&1; then Q() { mysql -N -B -e "$1" "$DB"; }
+else Q() { MYSQL_PWD="$DP" mysql -u"$DU" -h 127.0.0.1 "$DB" -N -B -e "$1"; }; fi
 
 echo "== site"
 Q "SELECT option_name, option_value FROM ${PFX}options WHERE option_name IN ('blogname','blogdescription','siteurl','page_on_front','template','stylesheet','admin_email')" | sed 's/admin_email.*/admin_email (hidden)/'
