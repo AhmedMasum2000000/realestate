@@ -21,7 +21,19 @@
   addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) setMenu(false); });
 
   // Hero crossfade slider with dash progress
-  const slides = $$('.slide'), dashes = $('.dashes'), DUR = 6000;
+  const slides = $$('.slide'), dashes = $('.dashes'), DUR = 6000, rot = $('.h-rot'), capEl = $('.slide-cap');
+  // The second hero word changes with each photo: old letters leave, new ones come in one by one.
+  let swapT;
+  function swapWord(w) {
+    if (rot.dataset.w === w) return;
+    const put = () => {
+      rot.classList.remove('out'); rot.dataset.w = w;
+      rot.innerHTML = [...w].map((c, i) => `<span class="ch" style="animation-delay:${reduce ? 0 : i * 45}ms">${c === ' ' ? ' ' : c}</span>`).join('');
+    };
+    clearTimeout(swapT);
+    if (!rot.dataset.w || reduce) return put();
+    rot.classList.add('out'); swapT = setTimeout(put, 330);
+  }
   let cur = 0, timer;
   slides.forEach((_, i) => {
     const b = document.createElement('button');
@@ -35,6 +47,7 @@
     slides[cur].classList.remove('on'); ds[cur].classList.remove('on');
     cur = (i + slides.length) % slides.length;
     slides[cur].classList.add('on');
+    swapWord(slides[cur].dataset.word || ''); capEl.textContent = slides[cur].dataset.cap || '';
     void ds[cur].offsetWidth; ds[cur].classList.add('on');
     clearTimeout(timer); if (!reduce) timer = setTimeout(() => go(cur + 1), DUR);
   }
@@ -134,19 +147,19 @@
     for (const [x, y] of dots) { ctx.beginPath(); ctx.arc(x, y, 1.7, 0, 7); ctx.fill(); }
     // Dhaka on the country map, linked to the inset
     const [dx, dy] = proj(...DHAKA);
-    ctx.strokeStyle = 'rgba(0,209,255,.5)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = 'rgba(255,31,110,.5)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
     ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(inset.x + inset.r * .7, inset.y - inset.r * .7); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = '#00d1ff'; ctx.beginPath(); ctx.arc(dx, dy, 6, 0, 7); ctx.fill();
+    ctx.fillStyle = '#ff1f6e'; ctx.beginPath(); ctx.arc(dx, dy, 6, 0, 7); ctx.fill();
     ctx.fillStyle = '#fff'; ctx.font = '800 12px Inter, sans-serif'; ctx.fillText('DHAKA', dx + 12, dy + 4);
     // Inset
-    ctx.fillStyle = 'rgba(7,18,43,.92)'; ctx.strokeStyle = 'rgba(0,209,255,.6)'; ctx.lineWidth = 1.5;
+    ctx.fillStyle = 'rgba(7,18,43,.92)'; ctx.strokeStyle = 'rgba(255,31,110,.6)'; ctx.lineWidth = 1.5;
     ctx.beginPath(); ctx.arc(inset.x, inset.y, inset.r, 0, 7); ctx.fill(); ctx.stroke();
     ctx.fillStyle = 'rgba(143,163,196,.18)';
     for (const [x, y] of idots) { ctx.beginPath(); ctx.arc(x, y, 1.2, 0, 7); ctx.fill(); }
     pins.forEach(({ p: [x, y], li }, i) => {
       const on = i === active, ph = ((t / 1600) + i * .37) % 1;
-      if (!reduce) { ctx.strokeStyle = `rgba(0,209,255,${(1 - ph) * .8})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 5 + ph * (on ? 26 : 14), 0, 7); ctx.stroke(); }
-      ctx.fillStyle = on ? '#00d1ff' : 'rgba(0,209,255,.7)'; ctx.beginPath(); ctx.arc(x, y, on ? 7 : 4.5, 0, 7); ctx.fill();
+      if (!reduce) { ctx.strokeStyle = `rgba(255,31,110,${(1 - ph) * .8})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 5 + ph * (on ? 26 : 14), 0, 7); ctx.stroke(); }
+      ctx.fillStyle = on ? '#ff1f6e' : 'rgba(255,31,110,.7)'; ctx.beginPath(); ctx.arc(x, y, on ? 7 : 4.5, 0, 7); ctx.fill();
       if (on) {
         const label = li.firstChild.textContent.trim().toUpperCase();
         ctx.font = '800 12px Inter, sans-serif';
