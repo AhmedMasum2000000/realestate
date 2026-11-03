@@ -158,6 +158,7 @@ a{color:inherit;text-decoration:none}
   .scroll-cue{display:none}
   .svc-peek{display:none}
 }
+@media (max-width:440px){.contact-cols{grid-template-columns:1fr;gap:24px}}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important}
   .hero h1 .line span{transform:none}
