@@ -205,7 +205,7 @@
   }
   function renderList() {
     shown = LOCS.filter(a => filter === 'all' || a.kind === filter);
-    list.innerHTML = shown.map(a => `<li data-id="${a.id}" tabindex="0" role="button"><span>${esc(a.name)}</span><small>${a.p.length}</small></li>`).join('');
+    list.innerHTML = shown.map(a => `<li data-id="${a.id}" tabindex="0" role="button"><span>${esc(a.name)}</span><small>${a.p.length}</small><a class="sr-only" href="/locations/${a.id}/">${esc(a.name)} LED billboards</a></li>`).join('');
     $$('li', list).forEach((li, i) => {
       li.style.animationDelay = (i * 35) + 'ms';
       const a = LOCS.find(x => x.id === li.dataset.id);
@@ -223,7 +223,7 @@
   const area = $('#area');
   function openArea(a) {
     setActive(a);
-    $('.area-h', area).innerHTML = `${esc(a.name)} <span>${a.p.length} LED ${a.p.length === 1 ? 'screen' : 'screens'}</span>`;
+    $('.area-h', area).innerHTML = `${esc(a.name)} <span>${a.p.length} LED ${a.p.length === 1 ? 'screen' : 'screens'} · <a href="/locations/${a.id}/">Open the ${esc(a.name)} page &#9656;</a></span>`;
     $('.area-grid', area).innerHTML = a.p.map((p, i) => `<figure class="pcard" style="animation-delay:${i * 70}ms"><div class="pimg"><img loading="lazy" src="${p.i}" alt="${esc(p.n)}"></div><figcaption><b>${esc(p.n)}</b>${p.f ? `<span>Facing: ${esc(p.f)}</span>` : ''}${p.ref ? '<em>Area photo</em>' : ''}</figcaption></figure>`).join('');
     area.hidden = false; area.classList.remove('in'); void area.offsetWidth; area.classList.add('in');
     area.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });

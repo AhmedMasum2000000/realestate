@@ -181,6 +181,7 @@ body.locked{overflow:hidden}
 .area.in{animation:fadeup .6s var(--ease) both}
 .area-back{background:none;border:0;color:var(--pink);cursor:pointer;font:800 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
 .area-h{color:var(--pink);font-size:clamp(40px,6.4vw,104px);margin-bottom:28px}
+.area-h span a{color:var(--pink)}
 .area-h span{display:block;font:800 14px/1.4 var(--body);letter-spacing:.1em;color:var(--ink);margin-top:10px}
 .area-grid,.static-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
 .area-grid .pcard{opacity:0;animation:fadeup .6s var(--ease) both}
@@ -282,3 +283,5 @@ body.locked{overflow:hidden}
   *,*::before,*::after{animation:none!important;transition:none!important}
     .rv{opacity:1;transform:none}
 }
+.foot-locs{display:flex;justify-content:center;flex-wrap:wrap;gap:6px 18px;margin-top:22px;font:600 12px/1.4 var(--body);color:#c7d4ea}
+.foot-locs a:hover{color:var(--yellow)}
