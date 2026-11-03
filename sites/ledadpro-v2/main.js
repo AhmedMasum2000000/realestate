@@ -53,6 +53,24 @@
   }
   go(0);
 
+  // Fit the hero words to the screen: size the heading so the longest word (fixed or
+  // swapping) fits the available width, so nothing is cut off on phones.
+  const heroH = $('.hero-h');
+  function fitHero() {
+    heroH.style.fontSize = '';
+    const box = $('.hero-in'), cs = getComputedStyle(box);
+    const avail = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const probe = document.createElement('span');
+    probe.className = 'display'; probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:' + getComputedStyle(heroH).fontSize;
+    document.body.appendChild(probe);
+    let widest = 0;
+    [$('.h-fixed').textContent, ...slides.map(s => s.dataset.word || '')].forEach(w => { probe.textContent = w; widest = Math.max(widest, probe.getBoundingClientRect().width); });
+    probe.remove();
+    if (widest > avail) heroH.style.fontSize = (parseFloat(getComputedStyle(heroH).fontSize) * avail / widest * .97) + 'px';
+  }
+  fitHero(); addEventListener('resize', fitHero);
+  document.fonts && document.fonts.ready.then(fitHero);
+
   // Reveal on scroll
   const io = new IntersectionObserver(es => es.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
@@ -215,7 +233,7 @@
   addEventListener('resize', layout); layout(); renderList(); requestAnimationFrame(draw);
 
   // Static billboards grid, revealed one card after another
-  $('.static-grid').innerHTML = STATIC.map((s, i) => `<figure class="pcard rv" style="transition-delay:${(i % 4) * 90}ms"><div class="pimg"><img loading="lazy" src="${s.i}" alt="${esc(s.n)}"></div><figcaption><b>${esc(s.n)}</b><span>Static billboard</span></figcaption></figure>`).join('');
+  $('.static-grid').innerHTML = STATIC.map((s, i) => `<figure class="pcard rv" style="transition-delay:${(i % 4) * 90}ms"><div class="pimg"><img src="${s.i}" alt="${esc(s.n)}"></div><figcaption><b>${esc(s.n)}</b><span>Static billboard</span></figcaption></figure>`).join('');
   $$('.static-grid .rv').forEach(el => io.observe(el));
 
   $('#yr').textContent = new Date().getFullYear();
