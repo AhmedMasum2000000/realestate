@@ -37,5 +37,5 @@ jobs:
           case "$SCRIPT" in */*|..*|"") echo "Script must be a file name in vps/"; exit 1;; esac
           test -f "vps/$SCRIPT"
           sudo apt-get install -y -qq sshpass >/dev/null
-          sshpass -e scp -q -o StrictHostKeyChecking=accept-new -r vps root@187.127.141.173:/root/migration/
+          sshpass -e scp -q -o StrictHostKeyChecking=accept-new -r vps sites root@187.127.141.173:/root/migration/
           sshpass -e ssh -o ServerAliveInterval=30 root@187.127.141.173 "bash /root/migration/vps/$SCRIPT $ARGS" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
