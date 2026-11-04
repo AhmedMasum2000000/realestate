@@ -134,6 +134,7 @@ body.locked{overflow:hidden}
 .sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:48px;flex-wrap:wrap}
 .sec-head h2{font-size:clamp(44px,7vw,120px)}
 .svc{border-top:1px solid var(--line)}
+a.svc-row{color:inherit;cursor:pointer}
 .svc-row{display:grid;grid-template-columns:80px 1fr 1.2fr 60px;gap:24px;align-items:center;padding:30px 0;border-bottom:1px solid var(--line);position:relative;cursor:default;transition:padding .4s var(--ease)}
 .svc-row .n{font:800 14px/1 var(--body);color:var(--muted)}
 .svc-row h3{font:900 clamp(26px,3.4vw,52px)/1 var(--display);text-transform:uppercase;transition:color .3s,transform .4s var(--ease)}

@@ -19,6 +19,7 @@ SRC = ROOT / 'sites/ledadpro-v2'
 OUT = ROOT / 'sites/ledadpro-live'
 sys.path.insert(0, str(ROOT / 'tools'))
 from ledadpro_areas import AREA, STATIC_AREA  # noqa: E402
+from ledadpro_extra import CLIENTS, CASES, SERVICES  # noqa: E402
 
 SITE = 'https://ledadpro.com'
 PHONE, PHONE_TXT, EMAIL = '+8801316743003', '+880 1316-743003', 'info@ledadpro.com'
@@ -108,7 +109,7 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og
 </head>
 <body>
 <header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
-<nav aria-label="Main"><a href="/#services">Services</a><a href="/locations/">Locations</a><a href="/#static">Billboards</a><a href="/#contact">Contact</a></nav>
+<nav aria-label="Main"><a href="/#services">Services</a><a href="/locations/">Locations</a><a href="/services/metro-rail-led-advertising/">Metro LED</a><a href="/services/led-caravan/">LED Caravan</a><a href="/clients/">Clients</a><a href="/#contact">Contact</a></nav>
 <a class="btn" href="tel:{PHONE}">Call {PHONE_TXT}</a></header>
 <main>
 <div class="wrap"><nav class="bc" aria-label="Breadcrumb">{bc}</nav>
@@ -122,7 +123,7 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og
 <footer class="pf"><div class="wrap">
 <a class="wm" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
 <nav aria-label="Locations">{''.join(f'<a href="/locations/{x["id"]}/">{e(x["short"])}</a>' for x in LOCS)}</nav>
-<p>&copy; {date.today().year} LED AD PRO · Digital Out of Home advertising in Bangladesh · <a href="/">Home</a> · <a href="/locations/">All locations</a></p>
+<p>&copy; {date.today().year} LED AD PRO · Official LED partner to AD Pro · <a href="/">Home</a> · <a href="/locations/">All locations</a> · <a href="/services/metro-rail-led-advertising/">Metro Rail LED</a> · <a href="/services/led-caravan/">LED Caravan</a> · <a href="/clients/">Our clients</a></p>
 </div></footer>
 <script>(function(){{if(matchMedia("(prefers-reduced-motion: reduce)").matches||!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){{es.forEach(function(e){{if(!e.isIntersecting)return;var i=e.target,b=i.dataset.src||(i.dataset.src=i.getAttribute("src"));i.src=b+"#r"+Date.now();}});}},{{threshold:.6}});document.querySelectorAll("img[data-replay]").forEach(function(i){{io.observe(i);}});}})();</script>
 <div class="sticky-cta"><a href="tel:{PHONE}">Call now</a><a href="mailto:{EMAIL}">Get a quote</a></div>
@@ -279,6 +280,41 @@ def build_hub():
          'LED billboard locations in Bangladesh', body, [('Home', '/'), ('Locations', '/locations/')], (org(), il))
 
 
+def client_wall():
+    return '<div class="wall">' + ''.join(f'<span>{e(c)}</span>' for c in CLIENTS) + '</div>'
+
+
+def build_services():
+    for slug, s in SERVICES.items():
+        steps = s['how']
+        howto = {'@type': 'HowTo', 'name': f'How to book {s["name"]}', 'step': [{'@type': 'HowToStep', 'position': i + 1, 'name': t, 'text': d} for i, (t, d) in enumerate(steps)]}
+        svc = {'@type': 'Service', 'name': s['name'], 'serviceType': 'Digital out-of-home advertising', 'provider': {'@id': SITE + '/#business'}, 'areaServed': {'@type': 'Country', 'name': 'Bangladesh'}}
+        qas = [(q, a) for q, a in s['faq']]
+        other = [x for x in SERVICES if x != slug][0]
+        body = f'''<section class="wrap two"><div><p class="answer">{s['answer']}</p>
+<h2 class="display">Who it reaches</h2><ul class="ticks">{''.join(f'<li>{e(w)}</li>' for w in s['who'])}</ul></div>
+<figure class="hero-ph"><img src="/assets/{s['img']}" alt="{e(s['name'])}" width="1200" height="800"></figure></section>
+<section class="wrap"><h2 class="display">Brands our team has delivered for</h2>{client_wall()}<p class="small-note">LED AD PRO is the official LED partner to AD Pro. <a href="/clients/">See campaigns &#9656;</a></p></section>
+<section class="wrap prose"><h2 class="display">How it works</h2><ol class="steps">{''.join(f'<li><b>{e(t)}</b><p>{e(d)}</p></li>' for t, d in steps)}</ol></section>
+{f'<section class="wrap"><figure class="hero-ph wide"><img loading="lazy" src="/assets/{s["img2"]}" alt="{e(s["name"])} in Dhaka" width="1200" height="640"></figure></section>' if s.get('img2') else ''}
+<section class="wrap prose"><h2 class="display">Questions answered</h2>{''.join(f'<h2 class="q">{e(q)}</h2><p>{e(a)}</p>' for q, a in qas)}
+<p>Also see: <a href="/services/{other}/">{e(SERVICES[other]['name'])}</a> · <a href="/locations/">LED billboard locations</a> · <a href="/clients/">Our clients</a></p></section>'''
+        page(f'/services/{slug}/', s['title'], s['desc'], s['name'], body, [('Home', '/'), ('Services', '/#services'), (s['short'], f'/services/{slug}/')], (org(), svc, howto, faq_ld(qas)))
+
+
+def build_clients():
+    cases = ''.join(f'''<figure class="sc"><img loading="lazy" src="/assets/img/work/{f}" alt="{e(b)}: {e(w)}, {e(l)}" width="1200" height="800"><figcaption><b>{e(b)}</b><span>{e(w)} · {e(l)}</span></figcaption></figure>''' for f, b, w, l in CASES)
+    body = f'''<section class="wrap"><p class="answer">Our team has planned and delivered outdoor and LED campaigns for <strong>400+ brands</strong> in Bangladesh, from international names such as BMW, Emirates and Malaysia Airlines to Aarong, Royal Enfield, Haier and Singer Beko. LED AD PRO is the <strong>official LED partner to AD Pro</strong>.</p>
+<div class="stats"><div><b>400+</b><span>brands served by our team</span></div><div><b>{sum(len(a['p']) for a in LOCS)}</b><span>LED screens in our network</span></div><div><b>{len(LOCS)}</b><span>areas</span></div><div><b>10</b><span>cities</span></div></div></section>
+<section class="wrap"><h2 class="display">Brands we have delivered for</h2>{client_wall()}</section>
+<section class="wrap"><h2 class="display">Campaigns on the street</h2><div class="grid">{cases}</div></section>
+<section class="wrap prose"><h2 class="display">What we deliver</h2><ul class="ticks"><li><a href="/locations/">LED billboards</a> in {len(LOCS)} areas across Bangladesh</li><li><a href="/services/metro-rail-led-advertising/">Metro Rail LED</a> screens inside Dhaka Metro coaches</li><li><a href="/services/led-caravan/">LED Caravan</a> mobile screens for roadshows and district tours</li><li>Static billboards, custom LED displays, event screens and store-launch branding</li></ul></section>'''
+    il = {'@type': 'ItemList', 'name': 'Brands LED AD PRO\'s team has delivered for', 'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'name': c} for i, c in enumerate(CLIENTS)]}
+    page('/clients/', 'Our Clients: BMW, Emirates, Aarong, Royal Enfield & 400+ Brands | LED AD PRO',
+         'Brands our team has delivered outdoor and LED campaigns for: BMW, Emirates, Malaysia Airlines, Aarong, Royal Enfield, Haier, Singer Beko, ACI and 400+ more.',
+         'Brands that trust our team', body, [('Home', '/'), ('Clients', '/clients/')], (org(), il))
+
+
 def build_home():
     s = (SRC / 'index.html').read_text()
     s = s.replace('<meta name="robots" content="noindex">', '<meta name="robots" content="index,follow,max-image-preview:large">\n<link rel="canonical" href="https://ledadpro.com/">')
@@ -287,7 +323,7 @@ def build_home():
     s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=9"', s)
     s = re.sub(r'src="locations\.js\?v=\d+"', 'src="/assets/locations.js?v=2"', s)
     s = re.sub(r'src="main\.js\?v=\d+"', 'src="/assets/main.js?v=9"', s)
-    s = s.replace('src="img/', 'src="/assets/img/').replace('src="brand/', 'src="/assets/brand/').replace('href="brand/', 'href="/assets/brand/')
+    s = s.replace('src="img/', 'src="/assets/img/').replace('src="brand/', 'src="/assets/brand/').replace('data-img="img/', 'data-img="/assets/img/').replace('href="brand/', 'href="/assets/brand/')
     og = f'<meta property="og:type" content="website"><meta property="og:title" content="LED AD PRO | LED Billboard Advertising in Bangladesh"><meta property="og:url" content="{SITE}/"><meta property="og:image" content="{SITE}/assets/brand/og-image.png"><meta name="twitter:card" content="summary_large_image">'
     web = {'@type': 'WebSite', 'name': 'LED AD PRO', 'url': SITE + '/'}
     s = s.replace('</head>', og + ld(org(), web) + '\n</head>', 1)
@@ -308,7 +344,7 @@ def main():
         shutil.copy(SRC / f, OUT / 'assets' / f)
     shutil.copy(ROOT / 'sites/ledadpro-pages.css', OUT / 'assets/pages.css')
     (OUT / 'assets/locations.js').write_text(data.replace('"img/', '"/assets/img/'))
-    build_home(); build_hub()
+    build_home(); build_hub(); build_services(); build_clients()
     for a in LOCS:
         build_area(a)
     sm = ''.join(f'<url><loc>{SITE}{p}</loc><lastmod>{TODAY}</lastmod></url>' for p, _ in PAGES)
