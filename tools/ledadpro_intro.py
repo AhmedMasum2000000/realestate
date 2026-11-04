@@ -11,7 +11,7 @@ from pathlib import Path
 SVG = Path(__file__).resolve().parent.parent / 'sites/ledadpro-v2/brand/logo-classic-dark-animated.svg'
 
 CSS = '''<style>
-.intro{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(120% 90% at 50% 40%,#0d2550 0%,#07122b 70%);transition:opacity .35s ease,visibility 0s linear .35s}
+.intro{position:fixed;inset:0;z-index:9999;overflow:hidden;display:grid;place-items:center;background:radial-gradient(120% 90% at 50% 40%,#0d2550 0%,#07122b 70%);transition:opacity .35s ease,visibility 0s linear .35s}
 .intro .iw{width:min(560px,78vw);position:relative}
 .intro svg{width:100%;height:auto;display:block;overflow:visible}
 .intro .il,.intro #board{opacity:0;transform-box:fill-box;transform-origin:50% 60%}

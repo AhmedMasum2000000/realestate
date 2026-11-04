@@ -357,7 +357,7 @@ def logo_strip():
     logos = [(c, client_logo(c)) for c in CLIENTS if client_logo(c)]
     if not logos:
         return ''
-    imgs = ''.join(f'<img src="{src}" alt="{e(c)}" loading="lazy">' for c, src in logos)
+    imgs = ''.join(f'<img src="{src}" alt="{e(c)}" loading="eager" width="170" height="54">' for c, src in logos)  # eager: the band scrolls sideways, lazy images off to the right would never load
     return (f'<section class="trusted" aria-label="Brands our team has delivered campaigns for">'
             f'<p>Trusted by brands like these · <a href="/clients/">see the work</a></p>'
             f'<div class="logo-row">{imgs}<span aria-hidden="true" style="display:contents">{imgs}</span></div></section>')
