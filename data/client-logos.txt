@@ -1,12 +1,9 @@
-# Name|Wikipedia page or File:<commons file>|simple-icons slug|website
-BMW|File:BMW.svg|bmw|
-Malaysia Airlines|||www.malaysiaairlines.com
-ACI|||www.aci-bd.com
-New Zealand Dairy|||
-IFY Shop|||
-Study in Bangladesh|||
-Mediacom|||
-Paramount|||
+# Name|Wikipedia page or File:<commons file>|simple-icons slug or 'search'|website
+Malaysia Airlines|Malaysia Airlines||www.malaysiaairlines.com
+ACI|ACI Limited||www.aci-bd.com
+Mediacom|Mediacom Limited||
+New Zealand Dairy|||www.newzealanddairy.com.bd
 Aziz & Company|||
 Mega Builders|||
 Sencillo|||
+Paramount|||

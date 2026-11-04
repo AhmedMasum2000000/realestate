@@ -30,7 +30,8 @@ jobs:
               m = re.search(r'\|\s*logo\s*=\s*(?:\[\[)?(?:File:|Image:)?([^|\]\n{}]+\.(?:svg|png|jpg|jpeg|webp))', t, re.I)
               if not m: return None
               f = m.group(1).strip()
-              return f, 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
+              # non-free logos live on en.wikipedia, free ones on Commons; this path serves both
+              return f, 'https://en.wikipedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
           def commons_file(f):
               return f, 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
           def commons_search(q):
@@ -53,7 +54,7 @@ jobs:
               tries = []
               if page.startswith('File:'): tries.append(('commons-file', lambda: commons_file(page[5:])))
               elif page: tries.append(('wikipedia', lambda: wiki(page)))
-              tries.append(('commons-search', lambda: commons_search(name)))
+              if slug == 'search': tries.append(('commons-search', lambda: commons_search(name))); slug = ''
               if slug: tries.append(('simple-icons', lambda: (slug, f'https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/{slug}.svg')))
               if dom: tries.append(('site', lambda: site(dom)))
               ok = False
