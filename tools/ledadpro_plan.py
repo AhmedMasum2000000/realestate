@@ -61,14 +61,14 @@ def logo(c):
 
 
 CSS = (ROOT / 'tools/ledadpro_doc.css').read_text()
+CREDITS = (PI / 'CREDITS.txt').read_text().strip() if (PI / 'CREDITS.txt').exists() else ''
 
 
 def build(client):
     LOGO_W = uri(ROOT / 'brand/ledadpro/logo/logo-horizontal-reverse.svg')
     MARK = uri(ROOT / 'brand/ledadpro/logo/mark.svg')
-    img = {k: uri(PI / f'{k}.jpg') for k in [s[0] for s in SITES] + ['expressway-led', 'airport-belt', 'metro-coach-screens', 'outlet-opening', 'event-stage', 'building-facade']}
-    work = {k: uri(V2 / 'img/work' / f'{k}.jpg', 900) for k in ['royal-enfield-gulshan-2', 'haier-gulshan-2', 'aarong-noakhali', 'aarong-kushtia']}
-    metro_in = uri(PI / 'metro-interior.jpg')
+    hr = {k: uri(PI / f'hr-{k}.jpg', 2400) for k in ('cover', 'metro', 'formats')}   # high-res only (>= 2400 px source)
+    work = {k: uri(V2 / 'img/work' / f'{k}.jpg', 1600) for k in ['royal-enfield-gulshan-2', 'haier-gulshan-2', 'aarong-noakhali']}
     today = date.today().strftime('%B %Y')
     who = e(client) if client else '________________________'
     pages = []
@@ -81,7 +81,7 @@ def build(client):
 <p class="kick" style="margin-top:auto">360° Visibility Plan</p>
 <h1>Own the<br>city’s<br><em>attention.</em></h1>
 <div class="for"><span>Prepared for</span><b>{who}</b><span>{today} · Official LED partner to AD Pro</span></div></div>
-<div class="cov-r" style="background-image:linear-gradient(90deg,#0B1B3F 0%,rgba(11,27,63,.35) 28%,rgba(11,27,63,0) 60%),url({img['building-facade']})"></div></section>''')
+<div class="cov-r" style="background-image:linear-gradient(90deg,#0B1B3F 0%,rgba(11,27,63,.35) 28%,rgba(11,27,63,0) 60%),url({hr['cover']})"></div></section>''')
 
     # 2 proof
     wall = ''.join(f'<span><img alt="{e(c)}" src="{logo(c)}"></span>' for c in CLIENTS if logo(c)) + '<span class="more"><b>400+</b>brands served</span>'
@@ -91,8 +91,8 @@ def build(client):
 
     # 3 real work
     cases = [('royal-enfield-gulshan-2', 'Royal Enfield', 'Bullet 350 launch, 7 LED boards · Gulshan-2'), ('haier-gulshan-2', 'Haier', 'LED billboard campaign · Gulshan-2'),
-             ('aarong-noakhali', 'Aarong', 'Store launch & illuminated signage · Noakhali'), ('aarong-kushtia', 'Aarong', 'Billboard campaign · Kushtia')]
-    P(f'''<section class="pg">{eb('Real work')}<h2>Real campaigns. Real streets.</h2><div class="cases">''' +
+             ('aarong-noakhali', 'Aarong', 'Store launch & illuminated signage · Noakhali')]
+    P(f'''<section class="pg">{eb('Real work')}<h2>Real campaigns. Real streets.</h2><div class="cases c3">''' +
       ''.join(f'<figure><img src="{work[k]}"><figcaption><b>{b}</b><span>{s}</span></figcaption></figure>' for k, b, s in cases) + '</div></section>')
 
     # 5 the stack
@@ -104,15 +104,13 @@ def build(client):
       ''.join(f'<div class="st"><i style="background:{c}"></i><small>0{i + 1}</small><h3>{h}</h3><p>{s}</p><ul>' + ''.join(f'<li>{x}</li>' for x in xs) + '</ul></div>'
               for i, (h, s, c, xs) in enumerate(stack)) + '</div><div class="band"><div><b>No skip button.</b>No ad-blockers, no feed, no scrolling past.</div><div><b>Size = trust.</b>Big physical presence says “big, safe brand”.</div><div><b>Daily repetition.</b>Same route, same screen, until you are the one they remember.</div><div><b>Fuels digital.</b>People search what they saw on the street.</div></div></section>')
 
-    # 6 services
-    tiles = [('LED billboards', work['royal-enfield-gulshan-2']), ('Static billboards', img['expressway-chairman-bari']), ('Metro Rail LED', img['metro-coach-screens']),
-             ('LED caravan', None), ('Airport branding', img['airport-belt']), ('Building branding', img['building-facade']),
-             ('Bus branding', None), ('Outlet opening', img['outlet-opening']), ('Events & activations', img['event-stage']),
-             ('Printing & packaging', None), ('Newspaper ads', None), ('Digital marketing', None)]
-    cols = ['var(--n)', 'var(--p)', '#13264f', 'var(--c)', 'var(--n)', 'var(--p)']
-    P(f'''<section class="pg">{eb('Anywhere in Bangladesh')}<h2>Any format. Any district.<br><em>One contract.</em></h2><p class="lead slim">We cover all over Bangladesh. Send us your areas and dates, we send back the sites.</p><div class="tiles">''' +
-      ''.join((f'<div class="tl" style="background-image:url({u})"><b>{t}</b></div>' if u else f'<div class="tl solid" style="background:{cols[i % 6]}"><b>{t}</b></div>') for i, (t, u) in enumerate(tiles)) +
-      '</div></section>')
+    # 6 formats, nationwide
+    fm = ['LED billboards', 'Static billboards', 'Metro Rail LED', 'LED caravan', 'Airport branding', 'Building branding',
+          'Bus branding', 'Outlet opening', 'Events & activations', 'Printing & packaging', 'Newspaper ads', 'Digital marketing']
+    P(f'''<section class="pg split fm">{''}<div>{eb('Anywhere in Bangladesh')}<h2>Any format. Any district.<br><em>One contract.</em></h2>
+<ol class="fmt">''' + ''.join(f'<li><small>{i + 1:02d}</small>{t}</li>' for i, t in enumerate(fm)) + f'''</ol>
+<p class="cta-line">We cover all over Bangladesh. <b>Send us your areas and dates, we send back the sites.</b></p></div>
+<div class="ph" style="background-image:url({hr['formats']})"></div></section>''')
 
     # 7 plays
     plays = [('Launch', '4–6 weeks', 'New product, store or brand', ['LED billboards in 3–5 key areas', 'Metro Rail LED for 1 month', 'LED caravan roadshow', 'Opening event or activation', 'Digital boost on launch week']),
@@ -130,13 +128,13 @@ def build(client):
 <p><span>× 30 days</span><b>{bdt(m['min_month'])} min / month</b></p>
 <p><span>× from BDT {m['per_min']} per minute</span><b>BDT {bdt(m['month'])} / month</b></p></div>
 <p class="note">Approx. rider figure from the operator. Content due 5 days before airing · 100% advance · monthly exposure report included · excl. VAT, Tax &amp; AIT.</p></div>
-<div class="ph" style="background-image:url({metro_in})"></div></section>''')
+<div class="ph" style="background-image:url({hr['metro']})"></div></section>''')
 
     # 14 end
     P(f'''<section class="pg end"><img class="mk" src="{MARK}"><h2>Let’s light up<br><em>your brand.</em></h2>
 <div class="next"><div><b>1</b><h3>Send your requirement</h3><p>Goal, areas, dates, budget. One call or WhatsApp.</p></div><div><b>2</b><h3>Get your plan</h3><p>Shortlisted sites and a written quote, fast.</p></div><div><b>3</b><h3>Go live</h3><p>We install, run and send you photo proof.</p></div></div>
 <div class="ct"><div><span>Sales &amp; marketing</span><b>{SALES}</b></div><div><span>Office</span><b>{OFFICE}</b></div><div><span>Email</span><b>{EMAIL}</b></div><div><span>Web</span><b>{WEB}</b></div><div><span>Address</span><b>{ADDRESS}</b></div></div>
-<p class="fine">Quotes valid 10 days · rates exclude VAT, Tax &amp; AIT · prime sites and festive slots are limited</p><img class="lg" src="{LOGO_W}"></section>''')
+<p class="fine">{CREDITS}<br>Quotes valid 10 days · rates exclude VAT, Tax &amp; AIT · prime sites and festive slots are limited</p><img class="lg" src="{LOGO_W}"></section>''')
 
     return f'<!doctype html><html><head><meta charset="utf-8"><title>LED AD PRO · 360° Visibility Plan</title><style>{CSS}</style></head><body>{"".join(pages)}</body></html>'
 

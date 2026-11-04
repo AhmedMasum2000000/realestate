@@ -57,3 +57,10 @@ h2{font-weight:900;font-size:27pt;line-height:1.02;letter-spacing:-.5px;margin-b
 .band{position:absolute;left:0;right:0;bottom:0;background:var(--n);color:#cfdaf0;display:grid;grid-template-columns:repeat(4,1fr);gap:6mm;padding:6mm 15mm 7mm;font-size:8.8pt;line-height:1.4}
 .band b{display:block;color:#fff;font-size:12pt;margin-bottom:1mm}.band div{border-left:.8mm solid var(--p);padding-left:3mm}
 .st{padding-top:5mm;padding-bottom:4mm}
+.cases.c3{grid-template-columns:repeat(3,1fr);gap:4mm}
+.fm{grid-template-columns:1.25fr 1fr}
+.fmt{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:0 7mm;margin:1mm 0 6mm}
+.fmt li{display:flex;align-items:baseline;gap:3mm;padding:2.1mm 0;border-bottom:.3mm solid #e3e8f1;font:800 11.5pt "Inter Display",Inter;letter-spacing:-.1px}
+.fmt small{font:800 7pt Inter;color:var(--p);letter-spacing:.1em}
+.cta-line{font-size:10.5pt;color:#26324f}.cta-line b{display:block;color:var(--n);font-size:12pt;margin-top:1mm}
+.fine{line-height:1.6}
