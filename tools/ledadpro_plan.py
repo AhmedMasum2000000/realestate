@@ -67,7 +67,7 @@ CREDITS = (PI / 'CREDITS.txt').read_text().strip() if (PI / 'CREDITS.txt').exist
 def build(client):
     LOGO_W = uri(ROOT / 'brand/ledadpro/logo/logo-horizontal-reverse.svg')
     MARK = uri(ROOT / 'brand/ledadpro/logo/mark.svg')
-    hr = {k: uri(PI / f'hr-{k}.jpg', 2400) for k in ('cover', 'metro', 'formats')}   # high-res only (>= 2400 px source)
+    hr = {k: uri(PI / f'hr-{k}.jpg', 2400) for k in ('cover', 'formats')}   # high-res only (>= 2400 px source)
     work = {k: uri(V2 / 'img/work' / f'{k}.jpg', 1600) for k in ['royal-enfield-gulshan-2', 'haier-gulshan-2', 'aarong-noakhali']}
     today = date.today().strftime('%B %Y')
     who = e(client) if client else '________________________'
@@ -104,31 +104,36 @@ def build(client):
       ''.join(f'<div class="st"><i style="background:{c}"></i><small>0{i + 1}</small><h3>{h}</h3><p>{s}</p><ul>' + ''.join(f'<li>{x}</li>' for x in xs) + '</ul></div>'
               for i, (h, s, c, xs) in enumerate(stack)) + '</div><div class="band"><div><b>No skip button.</b>No ad-blockers, no feed, no scrolling past.</div><div><b>Size = trust.</b>Big physical presence says “big, safe brand”.</div><div><b>Daily repetition.</b>Same route, same screen, until you are the one they remember.</div><div><b>Fuels digital.</b>People search what they saw on the street.</div></div></section>')
 
-    # 6 formats, nationwide
-    fm = ['LED billboards', 'Static billboards', 'Metro Rail LED', 'LED caravan', 'Airport branding', 'Building branding',
-          'Bus branding', 'Outlet opening', 'Events & activations', 'Printing & packaging', 'Newspaper ads', 'Digital marketing']
-    P(f'''<section class="pg split fm">{''}<div>{eb('Anywhere in Bangladesh')}<h2>Any format. Any district.<br><em>One contract.</em></h2>
-<ol class="fmt">''' + ''.join(f'<li><small>{i + 1:02d}</small>{t}</li>' for i, t in enumerate(fm)) + f'''</ol>
-<p class="cta-line">We cover all over Bangladesh. <b>Send us your areas and dates, we send back the sites.</b></p></div>
+    # 6 every service, nationwide
+    fm = [('LED billboards', 'Moving, bright ads at the busiest junctions'), ('Static billboards', 'Giant, always-on presence on main roads'),
+          ('Metro Rail LED', 'In-coach screens, 840 of them, every train'), ('LED caravan', 'A moving screen that goes to your audience'),
+          ('Airport branding', 'Premium travellers at arrival and departure'), ('Building branding', 'Whole-facade wraps and signage'),
+          ('Bus branding', 'Your brand riding every major route'), ('Outlet opening', 'Store launches that draw a crowd'),
+          ('Events & activations', 'Stages, roadshows and live experiences'), ('Printing & packaging', 'Everything printed, on brand, on time'),
+          ('Newspaper ads', 'Trusted reach in national dailies'), ('Digital marketing', 'Online reach that follows the street')]
+    P(f'''<section class="pg split fm">{''}<div>{eb('Everything we do')}<h2>Every way to be seen.<br><em>One team.</em></h2>
+<ol class="fmt">''' + ''.join(f'<li><small>{i + 1:02d}</small><div><b>{t}</b><span>{d}</span></div></li>' for i, (t, d) in enumerate(fm)) + f'''</ol>
+<p class="cta-line">We cover all over Bangladesh. <b>Send us your areas and dates, we send back the plan.</b></p></div>
 <div class="ph" style="background-image:url({hr['formats']})"></div></section>''')
 
     # 7 plays
-    plays = [('Launch', '4–6 weeks', 'New product, store or brand', ['LED billboards in 3–5 key areas', 'Metro Rail LED for 1 month', 'LED caravan roadshow', 'Opening event or activation', 'Digital boost on launch week']),
-             ('Dominate', '3–12 months', 'Category leadership', ['A flagship Expressway or 300 Feet billboard', 'LED network rotation across Dhaka', 'Metro Rail LED, 3+ months', 'Bus or airport branding', 'Monthly review and refresh']),
-             ('Season surge', '2–6 weeks', 'Eid, Puja, Boishakh, winter sales', ['Metro Rail LED in festive weeks', 'LED billboards near shopping hubs', 'LED caravan in markets', 'In-store and outlet branding', 'Offer-led creative updates'])]
+    plays = [('Launch', '4–6 weeks', 'New product, store or brand', ['LED billboards in key areas', 'LED caravan roadshow', 'Outlet opening or launch event', 'Printing & point-of-sale', 'Digital boost on launch week']),
+             ('Dominate', '3–12 months', 'Category leadership', ['Flagship static billboards', 'LED network across the city', 'Metro Rail LED', 'Bus, airport or building branding', 'Monthly review and refresh']),
+             ('Season surge', '2–6 weeks', 'Eid, Puja, Boishakh, winter sales', ['LED billboards near shopping hubs', 'Metro Rail LED in festive weeks', 'LED caravan in markets', 'In-store branding & packaging', 'Newspaper and digital offers'])]
     P(f'''<section class="pg">{eb('Pick your play')}<h2>Three proven plays. Pick the one<br>that matches your goal.</h2><div class="plays">''' +
       ''.join(f'<div class="play{" hot" if i == 1 else ""}"><small>{d}</small><h3>{t}</h3><p>{b}</p><ul class="ticks">' + ''.join(f'<li>{x}</li>' for x in xs) + '</ul></div>'
               for i, (t, d, b, xs) in enumerate(plays)) + '</div><p class="foot">Always-on option: keep one LED or Metro presence every month so your brand never disappears between campaigns.</p></section>')
 
-    # 8 metro spotlight
-    m = METRO
-    P(f'''<section class="pg split">{''}<div>{eb('Spotlight · Metro Rail LED')}<h2>Ride with <em>5.5 lakh</em><br>commuters a day.</h2>
-<div class="nums"><div><b>{m['screens']}</b><span>screens</span></div><div><b>{m['trains']}</b><span>trains</span></div><div><b>{m['hours']} h</b><span>daily</span></div><div><b>{m['riders']}</b><span>riders / day</span></div></div>
-<div class="calc"><p><span>1 min every hour × {m['hours']} h × {m['trains']} trains</span><b>{m['min_day']} min / day</b></p>
-<p><span>× 30 days</span><b>{bdt(m['min_month'])} min / month</b></p>
-<p><span>× from BDT {m['per_min']} per minute</span><b>BDT {bdt(m['month'])} / month</b></p></div>
-<p class="note">Approx. rider figure from the operator. Content due 5 days before airing · 100% advance · monthly exposure report included · excl. VAT, Tax &amp; AIT.</p></div>
-<div class="ph" style="background-image:url({hr['metro']})"></div></section>''')
+    # 8 goal -> mix
+    goals = [('Launch a new product', ['LED billboards', 'Metro Rail LED', 'LED caravan', 'Digital marketing']),
+             ('Open a store or branch', ['Outlet opening', 'Building branding', 'LED caravan', 'Printing']),
+             ('Win festive sales', ['LED billboards', 'Metro Rail LED', 'Newspaper ads', 'In-store branding']),
+             ('Build trust and authority', ['Static billboards', 'Airport branding', 'Building branding', 'Newspaper ads']),
+             ('Reach a new city or district', ['Static billboards', 'LED caravan', 'Bus branding', 'Events']),
+             ('Get people to try it', ['Events & activations', 'LED caravan', 'Printing & packaging', 'Digital marketing'])]
+    P(f'''<section class="pg">{eb('Pick your goal')}<h2>Tell us the goal.<br>We bring the <em>right mix.</em></h2><div class="goals">''' +
+      ''.join(f'<div class="gl"><b>{g}</b><p>' + ''.join(f'<span>{x}</span>' for x in xs) + '</p></div>' for g, xs in goals) +
+      '</div><p class="foot">Not on the list? Send us your requirement. Every plan is built for your brand, areas and budget.</p></section>')
 
     # 14 end
     P(f'''<section class="pg end"><img class="mk" src="{MARK}"><h2>Let’s light up<br><em>your brand.</em></h2>
