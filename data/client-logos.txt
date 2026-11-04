@@ -1,4 +1,5 @@
-# Name|source|slug|site
-ph-hatirjheel|photo:Hatirjheel night||
-ph-expressway|photo:Dhaka Elevated Expressway||
-ph-gulshan|photo:Gulshan Dhaka skyline||
+# Name|source|slug|site   (name ending in ? = list photo candidates only)
+db1?|photo:digital billboard night||
+db2?|photo:LED billboard||
+db3?|photo:Times Square night billboards||
+db4?|photo:Piccadilly Circus lights||
