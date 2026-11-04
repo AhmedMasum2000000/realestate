@@ -6,7 +6,10 @@ name: Search Console (VPS sites)
 # already verified are simply re-checked and their sitemaps resubmitted.
 # Domains whose DNS does not point at the VPS yet are skipped and listed.
 #
-# Secrets: GSC_CLIENT_ID, GSC_CLIENT_SECRET, GSC_REFRESH_TOKEN, VPS_PASSWORD.
+# Google access: the repo's service account (GOOGLE_SERVICE_ACCOUNT_JSON), which
+# adds almasum5495@gmail.com as a verified owner of each site. If GSC_CLIENT_ID,
+# GSC_CLIENT_SECRET and GSC_REFRESH_TOKEN are all set, it acts as that account
+# directly instead. Also needs VPS_PASSWORD.
 
 on:
   workflow_dispatch:
@@ -33,6 +36,7 @@ jobs:
       GSC_CLIENT_ID: ${{ secrets.GSC_CLIENT_ID }}
       GSC_CLIENT_SECRET: ${{ secrets.GSC_CLIENT_SECRET }}
       GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
     steps:
       - uses: actions/checkout@v4
 

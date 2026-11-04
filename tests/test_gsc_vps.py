@@ -81,3 +81,15 @@ def test_prepare_then_verify(tmp_path, monkeypatch):
         "property": "https://www.example.com/", "file": "google0123abcd.html"}}))
     gv.prepare(["example.com"], tmp_path / "out2", gsc, http=web)
     assert len(google.calls) == before
+
+
+def test_service_account_adds_the_owner(tmp_path, monkeypatch):
+    monkeypatch.setattr(gv, "STATE", tmp_path / "state.json")
+    monkeypatch.setattr(gv, "resolves_to_vps", lambda h: True)
+    google = FakeGoogle()
+    gsc = SearchConsole(json.dumps({"client_email": "bot@p.iam.gserviceaccount.com"}), session=google)
+    web = FakeWeb()
+    gv.prepare(["example.com"], tmp_path / "out", gsc, http=web)
+    assert gv.verify_all(gsc, http=web, pause=0) == 0
+    puts = [j for m, u, j in google.calls if m == "PUT" and "/webResource/" in u]
+    assert puts and gv.OWNER in puts[-1]["owners"]

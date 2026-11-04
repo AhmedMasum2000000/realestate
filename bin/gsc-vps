@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Search Console for every site on the VPS, as almasum5495@gmail.com (OAuth).
+"""Search Console for every site on the VPS, owned by almasum5495@gmail.com.
 
 Ownership is proved with Google's HTML-file method, so it works whatever DNS
 provider a domain uses, as long as the domain already points at the VPS.
@@ -12,7 +12,9 @@ provider a domain uses, as long as the domain already points at the VPS.
                                           the sitemaps, record the result
 
 Credentials come from the environment, never the command line:
-  GSC_CLIENT_ID, GSC_CLIENT_SECRET, GSC_REFRESH_TOKEN
+  GOOGLE_SERVICE_ACCOUNT_JSON   verifies, then adds GSC_OWNER (default
+                                almasum5495@gmail.com) as a verified owner
+  or GSC_CLIENT_ID, GSC_CLIENT_SECRET, GSC_REFRESH_TOKEN to act as the owner
 
 State lives in data/gsc-vps.json, one entry per domain.
 """
@@ -33,6 +35,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from rep.gsc import GscError, SearchConsole  # noqa: E402
 
 VPS_IP = "187.127.141.173"
+OWNER = os.environ.get("GSC_OWNER", "almasum5495@gmail.com")
 STATE = ROOT / "data" / "gsc-vps.json"
 FILE_RE = re.compile(r"^google[0-9a-f]+\.html$")
 FALLBACK_SITEMAPS = ["/sitemap.xml", "/sitemap_index.xml", "/wp-sitemap.xml"]
@@ -47,12 +50,15 @@ def save_state(state: dict) -> None:
 
 
 def client() -> SearchConsole:
+    """OAuth as the owner when GSC_* are set, else the repo's service account
+    (which then adds OWNER as a verified owner of each site)."""
     env = os.environ
-    missing = [k for k in ("GSC_CLIENT_ID", "GSC_CLIENT_SECRET", "GSC_REFRESH_TOKEN") if not env.get(k)]
-    if missing:
-        raise SystemExit(f"error: secrets not set: {', '.join(missing)}")
-    return SearchConsole.from_refresh_token(env["GSC_CLIENT_ID"], env["GSC_CLIENT_SECRET"],
-                                            env["GSC_REFRESH_TOKEN"])
+    oauth = ("GSC_CLIENT_ID", "GSC_CLIENT_SECRET", "GSC_REFRESH_TOKEN")
+    if all(env.get(k) for k in oauth):
+        return SearchConsole.from_refresh_token(*(env[k] for k in oauth))
+    if env.get("GOOGLE_SERVICE_ACCOUNT_JSON"):
+        return SearchConsole(env["GOOGLE_SERVICE_ACCOUNT_JSON"])
+    raise SystemExit("error: set GOOGLE_SERVICE_ACCOUNT_JSON, or GSC_CLIENT_ID/SECRET/REFRESH_TOKEN")
 
 
 def resolves_to_vps(host: str) -> bool:
@@ -154,6 +160,8 @@ def verify_all(gsc: SearchConsole, http=None, attempts: int = 4, pause: int = 30
                         raise
                     time.sleep(pause)
             gsc.add_site(site)
+            if gsc.email.endswith("gserviceaccount.com"):
+                gsc.add_owner(resource.get("id", site), OWNER)
             submitted = []
             for sitemap in sitemaps_for(site, http):
                 gsc.submit_sitemap(site, sitemap)
