@@ -3,7 +3,7 @@ const fs = require('fs'), path = require('path');
 const d = require('docx');
 const S = path.join(__dirname, '../brand/ledadpro/stationery');
 const img = f => fs.readFileSync(path.join(S, f));
-const NAVY = '0B1B3F', PINK = 'FF1F6E', GREY = '5B6782', FONT = 'Arial';
+const NAVY = '0B1B3F', PINK = '0674BB', GREY = '5B6782', FONT = 'Arial';
 const mm = v => Math.round(v * 56.6929);      // mm -> twips
 const emu = v => Math.round(v * 36000);       // mm -> EMU
 const px = v => Math.round(v * 3.7795);       // mm -> px at 96 dpi
@@ -28,11 +28,11 @@ const cell = (children, w, align) => new d.TableCell({
 
 const header = new d.Header({
   children: [
-    new d.Paragraph({ children: [floating(img('strip.png'), 210, 2, 0, 0), floating(img('watermark.png'), 78, 78, 150, 168)] }),
+    new d.Paragraph({ children: [floating(img('strip.png'), 210, 2, 0, 0), floating(img('watermark.png'), 70, 70, 152, 176)] }),
     new d.Paragraph({
       tabStops: [{ type: d.TabStopType.RIGHT, position: TEXT_W }], spacing: { after: 0, line: 240, lineRule: d.LineRuleType.AUTO },
       children: [
-        new d.ImageRun({ type: 'png', data: img('logo-1200.png'), transformation: { width: px(52), height: px(52 * 300 / 1329) } }),
+        new d.ImageRun({ type: 'png', data: img('logo-classic-1600.png'), transformation: { width: px(46), height: px(46 * 629 / 1600) } }),
         t('\tSALES & MARKETING   ', { size: 12, bold: true, color: PINK, characterSpacing: 30 }), t('+880 1958-503753', { color: NAVY, bold: true, size: 17 }),
       ],
     }),

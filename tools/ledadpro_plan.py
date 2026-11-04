@@ -65,8 +65,8 @@ CREDITS = (PI / 'CREDITS.txt').read_text().strip() if (PI / 'CREDITS.txt').exist
 
 
 def build(client):
-    LOGO_W = uri(ROOT / 'brand/ledadpro/logo/logo-horizontal-reverse.svg')
-    MARK = uri(ROOT / 'brand/ledadpro/logo/mark.svg')
+    LOGO_W = uri(ROOT / 'brand/ledadpro/classic/assets/logo-classic-dark.svg')
+    MARK = uri(ROOT / 'brand/ledadpro/classic/assets/favicon-classic.svg')
     hr = {k: uri(PI / f'hr-{k}.jpg', 2400) for k in ('cover', 'formats')}   # high-res only (>= 2400 px source)
     work = {k: uri(V2 / 'img/work' / f'{k}.jpg', 1600) for k in ['royal-enfield-gulshan-2', 'haier-gulshan-2', 'aarong-noakhali']}
     today = date.today().strftime('%B %Y')
@@ -98,8 +98,8 @@ def build(client):
     # 5 the stack
     stack = [('See', 'Be impossible to miss', 'var(--p)', ['Static mega billboards', 'LED billboards', 'Building & airport branding']),
              ('Remember', 'Repeat until it sticks', 'var(--c)', ['Metro Rail LED, 1 min every hour', 'LED loops all day', 'Bus branding']),
-             ('Visit', 'Bring them to you', 'var(--y)', ['LED caravan roadshows', 'Outlet opening', 'Events & activations']),
-             ('Buy', 'Close at the shelf', '#7c5cff', ['Printing & packaging', 'Newspaper ads', 'Digital marketing'])]
+             ('Visit', 'Bring them to you', 'var(--g)', ['LED caravan roadshows', 'Outlet opening', 'Events & activations']),
+             ('Buy', 'Close at the shelf', 'var(--y)', ['Printing & packaging', 'Newspaper ads', 'Digital marketing'])]
     P(f'''<section class="pg">{eb('The plan on one page')}<h2>Nobody can scroll past a billboard.<br>We take you from <em>seen</em> to <em>sold.</em></h2><div class="stack">''' +
       ''.join(f'<div class="st"><i style="background:{c}"></i><small>0{i + 1}</small><h3>{h}</h3><p>{s}</p><ul>' + ''.join(f'<li>{x}</li>' for x in xs) + '</ul></div>'
               for i, (h, s, c, xs) in enumerate(stack)) + '</div><div class="band"><div><b>No skip button.</b>No ad-blockers, no feed, no scrolling past.</div><div><b>Size = trust.</b>Big physical presence says “big, safe brand”.</div><div><b>Daily repetition.</b>Same route, same screen, until you are the one they remember.</div><div><b>Fuels digital.</b>People search what they saw on the street.</div></div></section>')

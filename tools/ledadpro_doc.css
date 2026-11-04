@@ -1,6 +1,6 @@
 
 @page{size:297mm 167mm;margin:0}*{box-sizing:border-box;margin:0;padding:0}
-:root{--n:#0B1B3F;--p:#FF1F6E;--c:#00C2F2;--y:#FFD60A;--m:#5b6782}
+:root{--n:#0B1B3F;--p:#0674BB;--c:#3FC1F0;--s:#8AD5F2;--g:#5BBF6A;--y:#FFD60A;--m:#5b6782}
 body{font:10.5pt/1.5 Inter,sans-serif;color:var(--n)}
 .pg{width:297mm;height:167mm;padding:13mm 15mm;position:relative;overflow:hidden;page-break-after:always;background:#fff}
 h1,h2,h3,b{font-family:"Inter Display",Inter,sans-serif}
@@ -11,7 +11,7 @@ h2{font-weight:900;font-size:27pt;line-height:1.02;letter-spacing:-.5px;margin-b
 .cov-l{padding:16mm 15mm;display:flex;flex-direction:column} .cov-l .lg{height:15mm;width:auto;align-self:flex-start;margin:-3mm 0 0 -3mm}
 .cov-l h1{font-weight:900;font-size:44pt;line-height:.98;letter-spacing:-1px;margin-top:auto} .kick{margin-top:5mm;font:700 10.5pt Inter;color:var(--c)} .sm{margin-top:2mm;font-size:8.5pt;color:#9fb0d0}
 .cov-r{background-size:cover;background-position:center}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm;margin-bottom:5mm} .stats div{background:var(--n);color:#fff;padding:4mm 5mm} .stats b{display:block;font-size:26pt;line-height:1;color:var(--p)} .stats span{font:700 7.5pt Inter;letter-spacing:.06em;text-transform:uppercase}.wall img{max-width:82%;max-height:11mm;object-fit:contain}.wall .more{flex-direction:column;background:#FF1F6E;color:#fff;border-color:#FF1F6E;font-size:6pt;letter-spacing:.1em}.wall .more b{font-size:13pt}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:4mm;margin-bottom:5mm} .stats div{background:var(--n);color:#fff;padding:4mm 5mm} .stats b{display:block;font-size:26pt;line-height:1;color:var(--p)} .stats span{font:700 7.5pt Inter;letter-spacing:.06em;text-transform:uppercase}.wall img{max-width:82%;max-height:11mm;object-fit:contain}.wall .more{flex-direction:column;background:#0674BB;color:#fff;border-color:#0674BB;font-size:6pt;letter-spacing:.1em}.wall .more b{font-size:13pt}
 .wall{display:grid;grid-template-columns:repeat(8,1fr);gap:2mm} .wall span{display:flex;align-items:center;justify-content:center;text-align:center;height:16mm;border:.4mm solid #dfe5ef;font:900 8.5pt/1.1 "Inter Display";text-transform:uppercase}
 .foot{position:absolute;bottom:8mm;left:15mm;font-size:8pt;color:var(--m)}
 .cases{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;height:105mm} .cases figure{position:relative;overflow:hidden} .cases img{width:100%;height:100%;object-fit:cover}
@@ -69,3 +69,13 @@ h2{font-weight:900;font-size:27pt;line-height:1.02;letter-spacing:-.5px;margin-b
 .gl b{font:900 12pt/1.15 "Inter Display",Inter}
 .gl p{display:flex;flex-wrap:wrap;gap:1.6mm}.gl span{font:700 7.6pt Inter;padding:1.3mm 2.6mm;border-radius:10mm;background:#eef2f9;color:var(--n)}
 .gl span:first-child{background:var(--n);color:#fff}
+
+/* classic blue brand: light accents on navy, globe green as the third colour */
+.cover em,.end em,.end h2 em{color:var(--s)}
+.stats b,.next b,.end .ct span{color:var(--s)}
+.ticks li::before,.dot{background:var(--g)}
+.band div{border-left-color:var(--g)}
+.cov-l .lg{height:24mm;margin:-2mm 0 0 -2mm}
+.end .lg{height:19mm}
+.end .mk{height:30mm;border-radius:3mm}
+.end .fine{bottom:32mm}

@@ -47,7 +47,7 @@ const SPIN = `<style>#lands{animation:spin 7s linear infinite}@keyframes spin{fr
   files['logo-classic-white-animated.svg'] = withHead(whiten(light), SPIN).replace('</svg>', WHITELINE + '</svg>');
   for (const [f, c] of Object.entries(files)) fs.writeFileSync(path.join(OUT, f), c);
   // favicon: the O block with the globe
-  const fav = base.replace(/viewBox="[^"]*"/, 'viewBox="1011 318 223 186"');
+  const fav = base.replace(/viewBox="[^"]*"/, 'viewBox="1011 318 223 186"').replace(/<rect id="legL"[^>]*>(<\/rect>)?/, '').replace(/<rect id="legR"[^>]*>(<\/rect>)?/, '');
   fs.writeFileSync(path.join(OUT, 'favicon-classic.svg'), withHead(fav.replace(/<g id="board">[\s\S]*?<\/g>\s*<\/g>\s*<\/g>/, ''), ''));
   // PNGs
   const shot = async (svgFile, w, h, bg, out, pad = 0) => {

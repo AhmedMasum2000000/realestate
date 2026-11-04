@@ -18,8 +18,8 @@
 
 <!-- billboard (behind letters so the legs tuck into R and O) -->
 <g id="board">
-  <rect id="legL" x="882" y="205" width="10" height="112" fill="#0E2238" transform="translate(0 0)"></rect>
-  <rect id="legR" x="1096" y="190" width="10" height="127" fill="#0E2238" transform="translate(0 0)"></rect>
+  
+  
   <g id="screen">
     <path d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z" fill="url(#scr)" opacity="1"></path>
     <g clip-path="url(#scrclip)" id="scrcontent"></g>
