@@ -30,6 +30,7 @@ done
 cp "$SRC/index.html" "$SRC/sitemap-ledadpro.xml" "$SRC/llms.txt" "$R/"
 # Our .htaccess block, rewritten on every deploy and kept above WordPress' rules
 HOST_RE=${D//./\\.}
+REDIRECTS=$(cat "$SRC/redirects.conf" 2>/dev/null || true)  # old WordPress URLs -> new pages
 BLOCK=$(cat <<EOF
 # BEGIN LEDADPRO-STATIC
 DirectoryIndex index.html index.php
@@ -39,6 +40,7 @@ RewriteCond %{REQUEST_URI} !^/\.well-known/
 RewriteCond %{HTTPS} off [OR]
 RewriteCond %{HTTP_HOST} !^${HOST_RE}\$ [NC]
 RewriteRule ^ https://${D}%{REQUEST_URI} [L,R=301]
+${REDIRECTS}
 </IfModule>
 # END LEDADPRO-STATIC
 EOF
@@ -46,12 +48,14 @@ EOF
 touch "$R/.htaccess"
 { echo "$BLOCK"; echo; sed '/# BEGIN LEDADPRO-STATIC/,/# END LEDADPRO-STATIC/d' "$R/.htaccess" | sed '/./,$!d'; } > "$R/.htaccess.new"
 mv "$R/.htaccess.new" "$R/.htaccess"
-# robots.txt: keep WordPress' defaults and list both sitemaps
+# robots.txt: keep WordPress' defaults and list the static sitemap (the WordPress one now
+# answers 410 when redirects.conf is in use, so it is no longer listed)
 if [ ! -e "$BK/robots.txt" ]; then
-  printf 'User-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n\nSitemap: https://%s/sitemap-ledadpro.xml\nSitemap: https://%s/wp-sitemap.xml\n' "$D" "$D" > "$R/robots.txt"
+  printf 'User-agent: *\nDisallow: /wp-admin/\nAllow: /wp-admin/admin-ajax.php\n\nSitemap: https://%s/sitemap-ledadpro.xml\n' "$D" > "$R/robots.txt"
 elif ! grep -q sitemap-ledadpro "$R/robots.txt"; then
   printf '\nSitemap: https://%s/sitemap-ledadpro.xml\n' "$D" >> "$R/robots.txt"
 fi
+[ -n "$REDIRECTS" ] && sed -i '/wp-sitemap\.xml/d' "$R/robots.txt"
 for d in $DIRS; do
   chown -R "$U:$U" "$R/$d"; find "$R/$d" -type d -exec chmod 755 {} +; find "$R/$d" -type f -exec chmod 644 {} +
 done
@@ -65,3 +69,8 @@ r() { curl -s --max-time 15 -o /dev/null -w '%{http_code} %{redirect_url}' --res
 echo "http://$D/pricing/ -> $(r "$D" 80 "http://$D/pricing/")"
 echo "https://www.$D/ -> $(r "www.$D" 443 "https://www.$D/")"
 echo "static pages: $(for d in $DIRS; do find "$R/$d" -name index.html; done | wc -l)"
+if [ -s "$SRC/redirects.conf" ]; then
+  for p in /index.php/billboard-cost-in-dhaka/ /index.php/led-advertising-truck-rental-in-bangladesh/ /index.php/mirpur-10-led-advertising-billboard/ /index.php/some-unknown-post/ /index.php/tag/ooh-bangladesh/ /index.php/2024/05/ /index.php/my-properties/ /index.php/privacy-policy/ /wp-sitemap.xml; do
+    echo "old $p -> $(r "$D" 443 "https://$D$p")"
+  done
+fi

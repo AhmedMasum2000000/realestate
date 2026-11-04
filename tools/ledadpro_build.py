@@ -385,6 +385,8 @@ def main():
     build_home(); build_hub(); build_services(); build_clients()
     import ledadpro_guides
     ledadpro_guides.build(sys.modules[__name__])
+    import ledadpro_redirects
+    (OUT / 'redirects.conf').write_text(ledadpro_redirects.rules())  # read by vps/live-deploy.sh, not served
     for a in LOCS:
         build_area(a)
     sm = ''.join(f'<url><loc>{SITE}{p}</loc><lastmod>{TODAY}</lastmod></url>' for p, _ in PAGES)
