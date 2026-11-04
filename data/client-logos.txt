@@ -1,13 +1,12 @@
-# Name|Wikipedia page|simple-icons slug|website
-BMW|BMW|bmw|www.bmw.com
-Emirates|Emirates (airline)|emirates|www.emirates.com
-Malaysia Airlines|Malaysia Airlines|malaysiaairlines|www.malaysiaairlines.com
-Aarong|Aarong||www.aarong.com
-Royal Enfield|Royal Enfield (India)|royalenfield|www.royalenfield.com
-Haier|Haier|haier|www.haier.com
-Singer Beko|Singer Bangladesh||www.singerbd.com
-ACI|ACI Limited||www.aci-bd.com
-Beko|Beko|beko|www.beko.com
-New Zealand Dairy|||www.nzdairybd.com
-IFY Shop|||ifyshop.com
-Study in Bangladesh|||studyinbangladesh.com
+# Name|Wikipedia page or File:<commons file>|simple-icons slug|website
+BMW|File:BMW.svg|bmw|
+Malaysia Airlines|||www.malaysiaairlines.com
+ACI|||www.aci-bd.com
+New Zealand Dairy|||
+IFY Shop|||
+Study in Bangladesh|||
+Mediacom|||
+Paramount|||
+Aziz & Company|||
+Mega Builders|||
+Sencillo|||

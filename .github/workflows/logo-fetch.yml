@@ -31,8 +31,17 @@ jobs:
               if not m: return None
               f = m.group(1).strip()
               return f, 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
+          def commons_file(f):
+              return f, 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
+          def commons_search(q):
+              a = urllib.parse.urlencode({'action': 'query', 'list': 'search', 'srsearch': q + ' logo', 'srnamespace': 6, 'format': 'json', 'srlimit': 8})
+              hits = [h['title'][5:] for h in json.loads(get('https://commons.wikimedia.org/w/api.php?' + a)[0])['query']['search']]
+              print('   commons hits for', q, ':', hits)
+              hits = [h for h in hits if h.lower().endswith('.svg')] or hits
+              return commons_file(hits[0]) if hits else None
           def site(dom):
               h = get('https://' + dom)[0].decode('utf8', 'ignore')
+              print('   logo-like images on', dom, ':', re.findall(r'(?:src|href|content)="([^"]*logo[^"]*)"', h, re.I)[:8])
               for pat in [r'<img[^>]+(?:class|id|alt)="[^"]*logo[^"]*"[^>]+src="([^"]+)"', r'<img[^>]+src="([^"]+logo[^"]+)"',
                           r'<link[^>]+rel="apple-touch-icon[^"]*"[^>]+href="([^"]+)"', r'<meta[^>]+property="og:image"[^>]+content="([^"]+)"']:
                   m = re.search(pat, h, re.I)
@@ -42,7 +51,9 @@ jobs:
               if not line or line.startswith('#'): continue
               name, page, slug, dom = (line.split('|') + ['', '', ''])[:4]
               tries = []
-              if page: tries.append(('wikipedia', lambda: wiki(page)))
+              if page.startswith('File:'): tries.append(('commons-file', lambda: commons_file(page[5:])))
+              elif page: tries.append(('wikipedia', lambda: wiki(page)))
+              tries.append(('commons-search', lambda: commons_search(name)))
               if slug: tries.append(('simple-icons', lambda: (slug, f'https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/{slug}.svg')))
               if dom: tries.append(('site', lambda: site(dom)))
               ok = False
@@ -50,6 +61,7 @@ jobs:
                   try:
                       r = fn()
                       if not r: print(f'-- {name}: {src} no logo'); continue
+                      print(f'   {name}: {src} trying {r[0]}')
                       data, ct, final = get(r[1])
                       if len(data) < 200: print(f'-- {name}: {src} tiny'); continue
                       ext = 'svg' if ('svg' in ct or final.lower().endswith('.svg')) else ct.split('/')[-1].split(';')[0]
