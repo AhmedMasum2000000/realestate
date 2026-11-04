@@ -40,6 +40,17 @@ jobs:
               print('   commons hits for', q, ':', hits)
               hits = [h for h in hits if h.lower().endswith('.svg')] or hits
               return commons_file(hits[0]) if hits else None
+          def photo(q, minw=2400):
+              a = urllib.parse.urlencode({'action': 'query', 'generator': 'search', 'gsrsearch': q + ' filetype:bitmap', 'gsrnamespace': 6, 'gsrlimit': 25,
+                                          'prop': 'imageinfo', 'iiprop': 'url|size|extmetadata', 'iiurlwidth': 2400, 'format': 'json'})
+              pages = json.loads(get('https://commons.wikimedia.org/w/api.php?' + a)[0]).get('query', {}).get('pages', {})
+              best = []
+              for pg in sorted(pages.values(), key=lambda x: x.get('index', 99)):
+                  ii = pg['imageinfo'][0]; md = ii.get('extmetadata', {})
+                  lic = md.get('LicenseShortName', {}).get('value', '?'); art = re.sub('<[^>]+>', '', md.get('Artist', {}).get('value', '?'))[:60]
+                  print(f"   cand {pg['title'][5:]} {ii['width']}x{ii['height']} {lic} by {art}")
+                  if ii['width'] >= minw and ii['width'] >= ii['height']: best.append((pg['title'][5:] + f' | {lic} | {art}', ii.get('thumburl') or ii['url']))
+              return best[:3]
           def site(dom):
               h = get('https://' + dom)[0].decode('utf8', 'ignore')
               print('   logo-like images on', dom, ':', re.findall(r'(?:src|href|content)="([^"]*logo[^"]*)"', h, re.I)[:8])
@@ -52,6 +63,14 @@ jobs:
               if not line or line.startswith('#'): continue
               name, page, slug, dom = (line.split('|') + ['', '', ''])[:4]
               tries = []
+              if page.startswith('photo:'):
+                  try:
+                      for i, (title, u) in enumerate(photo(page[6:])):
+                          data, ct, final = get(u, 12_000_000)
+                          print(f'LOGO-BEGIN {name}-{i + 1}|photo|jpg|{title}'); print(base64.b64encode(data).decode()); print('LOGO-END')
+                  except Exception as ex:
+                      print(f'-- {name}: photo error {ex}')
+                  continue
               if page.startswith('https://'): tries.append(('url', lambda: (page.rsplit('/', 1)[-1], page)))
               elif page.startswith('File:'): tries.append(('commons-file', lambda: commons_file(page[5:])))
               elif page: tries.append(('wikipedia', lambda: wiki(page)))

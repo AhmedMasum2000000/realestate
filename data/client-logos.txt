@@ -1,30 +1,7 @@
-# Name|Wikipedia page or File:<commons file> or https URL|simple-icons slug or 'search'|website
-Coca-Cola|Coca-Cola||
-Pepsi|Pepsi||
-HSBC|HSBC||
-KFC|KFC||
-HP|HP Inc.||
-Hyundai|Hyundai Motor Company||
-Petronas|Petronas||
-Casio|Casio||
-Castrol|Castrol||
-Dabur|Dabur||
-Batik Air|Batik Air||
-UNDP|United Nations Development Programme||
-Square|Square Group||
-Walton|Walton Group||
-Banglalink|Banglalink||
-Prothom Alo|Prothom Alo||
-Apex|Apex Footwear||
-Hatil|Hatil||
-Hamdard|Hamdard Laboratories (Waqf) Bangladesh||
-Shanta Holdings|Shanta Holdings||
-United Group|United Group (Bangladesh)||
-T Sports|T Sports||
-Nagorik TV|Nagorik TV||
-Radio Foorti|Radio Foorti||
-Dekko|Dekko Group||
-Praava Health|Praava Health||
-Augmedix|Augmedix||
-Bangladesh Tourism Board|Bangladesh Tourism Board||
-Sailor|Sailor (clothing brand)||
+# Name|Wikipedia page, File:<commons file>, https URL, or photo:<commons search>|simple-icons slug or 'search'|website
+metro-interior|photo:Dhaka Metro Rail interior||
+metro-train|photo:Dhaka Metro Rail train||
+metro-mrt6|photo:MRT Line 6 Dhaka||
+dhaka-night|photo:Dhaka night skyline||
+dhaka-traffic|photo:Dhaka traffic||
+dhaka-billboard|photo:billboard Dhaka||
