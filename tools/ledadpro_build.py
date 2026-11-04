@@ -63,7 +63,7 @@ def screens(a, n):
 
 def org():
     return {'@type': 'LocalBusiness', '@id': SITE + '/#business', 'name': 'LED AD PRO', 'url': SITE + '/',
-            'telephone': PHONE, 'email': EMAIL, 'image': SITE + '/assets/img/loc/gulshan-circle-2-1200.webp',
+            'telephone': PHONE, 'email': EMAIL, 'image': SITE + '/assets/brand/og-image.png', 'logo': SITE + '/assets/brand/logo-horizontal-1600.png',
             'address': {'@type': 'PostalAddress', 'streetAddress': 'Flat A1, House 99, Road 10/2, Block D, Niketon',
                         'addressLocality': 'Dhaka', 'addressRegion': 'Gulshan 1', 'addressCountry': 'BD'},
             'geo': {'@type': 'GeoCoordinates', 'latitude': 23.774, 'longitude': 90.417},
@@ -86,7 +86,7 @@ def faq_ld(qas):
     return {'@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': re.sub('<[^>]+>', '', ans)}} for q, ans in qas]}
 
 
-def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/img/loc/gulshan-circle-2-1200.webp', lead=''):
+def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og-image.png', lead=''):
     url = SITE + path
     bc = ''.join(f'<a href="{u}">{e(n)}</a><span>/</span>' for n, u in crumb[:-1]) + f'<span aria-current="page">{e(crumb[-1][0])}</span>'
     doc = f'''<!doctype html>
@@ -99,14 +99,15 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/img/loc/
 <meta name="robots" content="index,follow,max-image-preview:large">
 <meta property="og:type" content="website"><meta property="og:site_name" content="LED AD PRO"><meta property="og:title" content="{e(title)}">
 <meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{url}"><meta property="og:image" content="{SITE}{og_img}">
-<meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#07122b">
+<meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0B1B3F">
+<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/assets/brand/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/pages.css?v=1">
 {ld(*schema, crumbs(crumb))}
 </head>
 <body>
-<header class="ph"><a class="logo" href="/">LED AD <b>PRO</b></a>
+<header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70"></a>
 <nav aria-label="Main"><a href="/#services">Services</a><a href="/locations/">Locations</a><a href="/#static">Billboards</a><a href="/#contact">Contact</a></nav>
 <a class="btn" href="tel:{PHONE}">Call {PHONE_TXT}</a></header>
 <main>
@@ -119,7 +120,7 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/img/loc/
 <p class="hours">Sat–Thu 9am–8pm · Friday 10am–12pm · {e(ADDRESS)}</p></div></section>
 </main>
 <footer class="pf"><div class="wrap">
-<a class="wm" href="/">LED AD PRO</a>
+<a class="wm" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70"></a>
 <nav aria-label="Locations">{''.join(f'<a href="/locations/{x["id"]}/">{e(x["short"])}</a>' for x in LOCS)}</nav>
 <p>&copy; {date.today().year} LED AD PRO · Digital Out of Home advertising in Bangladesh · <a href="/">Home</a> · <a href="/locations/">All locations</a></p>
 </div></footer>
@@ -193,7 +194,7 @@ def build_area(a):
 <section class="wrap"><h2 class="display">Nearby locations</h2><div class="tiles">{''.join(f'<a class="tile" href="/locations/{x["id"]}/"><b>{e(x["name"])}</b><span>{screens(x, len(x["p"]))} · {km(a, x):.0f} km &#9656;</span></a>' for x in near)}</div></section>'''
     page(f'/locations/{aid}/', f'LED Billboard Advertising in {n} ({c} {"Screen" if c == 1 else "Screens"}) | LED AD PRO',
          f'Advertise on {screens(a, c)} in {n}, {city}. See every location with photos and facing, costs, audiences and booking steps. Call {PHONE_TXT}.',
-         f'LED billboard advertising in {n}', body, base_crumb, (org(), svc, itemlist, faq_ld(qas[:4])), hero_img)
+         f'LED billboard advertising in {n}', body, base_crumb, (org(), svc, itemlist, faq_ld(qas[:4])))
 
     # ---- Topic 1: LED screens
     rows = ''.join(f'<tr><td>{e(p["n"])}</td><td>{e(p.get("f") or "Ask for details")}</td></tr>' for p in a['p'])
@@ -208,7 +209,7 @@ def build_area(a):
 <li><b>Recent photo:</b> ask for a current photo or video of the screen running, as surroundings change.</li></ul>
 <p>Next: <a href="/locations/{aid}/advertising-cost/">what it costs in {e(sh)}</a> · <a href="/locations/{aid}/audience-and-routes/">who sees each screen</a></p></section>'''
     page(f'/locations/{aid}/led-screens/', TOPICS[0][2].format(n=sh, c=c), f'All {screens(a, c)} in {n} with photos and facing direction, so you can choose the right placement. LED AD PRO, Dhaka.',
-         TOPICS[0][3].format(n=sh), body, base_crumb + [('LED screens', f'/locations/{aid}/led-screens/')], (org(), itemlist), hero_img)
+         TOPICS[0][3].format(n=sh), body, base_crumb + [('LED screens', f'/locations/{aid}/led-screens/')], (org(), itemlist))
 
     # ---- Topic 2: cost
     body = f'''{topic_nav(a, 'advertising-cost')}
@@ -224,7 +225,7 @@ def build_area(a):
 <h2 class="display">Get a firm price</h2><p>Send your preferred screens, dates and budget. We reply with availability and a written quote that lists the screens, slots, dates and total.</p>
 <p>Related: <a href="/locations/{aid}/led-screens/">{e(sh)} screens</a> · <a href="/locations/{aid}/campaign-planning/">plan your campaign</a> · <a href="/locations/{aid}/faq/">{e(sh)} FAQ</a></p></section>'''
     page(f'/locations/{aid}/advertising-cost/', TOPICS[1][2].format(n=sh), f'How much LED billboard advertising costs in {n}: price factors, indicative per-minute rates and how to get a written quote from LED AD PRO.',
-         TOPICS[1][3].format(n=sh), body, base_crumb + [('Advertising cost', f'/locations/{aid}/advertising-cost/')], (org(), svc), hero_img)
+         TOPICS[1][3].format(n=sh), body, base_crumb + [('Advertising cost', f'/locations/{aid}/advertising-cost/')], (org(), svc))
 
     # ---- Topic 3: audience and routes
     facings = [p for p in a['p'] if p.get('f')]
@@ -239,7 +240,7 @@ def build_area(a):
 <li><b>City-wide reach:</b> add nearby areas: {', '.join(f'<a href="/locations/{x["id"]}/">{e(x["short"])}</a>' for x in near[:3])}.</li></ul>
 <p>Related: <a href="/locations/{aid}/led-screens/">{e(sh)} screens with photos</a> · <a href="/locations/{aid}/campaign-planning/">campaign planning</a></p></section>'''
     page(f'/locations/{aid}/audience-and-routes/', TOPICS[2][3].format(n=sh) + ' | LED AD PRO', f'Who sees LED billboards in {n}: the audience, the routes each screen faces and how to match a screen to your goal.',
-         TOPICS[2][3].format(n=sh), body, base_crumb + [('Audience & routes', f'/locations/{aid}/audience-and-routes/')], (org(), svc), hero_img)
+         TOPICS[2][3].format(n=sh), body, base_crumb + [('Audience & routes', f'/locations/{aid}/audience-and-routes/')], (org(), svc))
 
     # ---- Topic 4: campaign planning
     steps = [('Set the goal', f'Decide what people should do after seeing the ad: visit a {e(sh)} outlet, call, search your name or remember a launch date.'),
@@ -256,13 +257,13 @@ def build_area(a):
 <ul><li>Large text with high contrast; people see it for a few seconds.</li><li>Your logo, one message and one action.</li><li>Movement in the first second for video ads.</li><li>A local cue, such as the {e(sh)} branch or a nearby landmark, makes the ad feel relevant.</li></ul>
 <p>Related: <a href="/locations/{aid}/advertising-cost/">{e(sh)} cost guide</a> · <a href="/locations/{aid}/faq/">{e(sh)} FAQ</a></p></section>'''
     page(f'/locations/{aid}/campaign-planning/', TOPICS[3][2].format(n=sh), f'Step-by-step plan for an LED billboard campaign in {n}: goals, screens, dates, specification, creative checklist and reporting.',
-         TOPICS[3][3].format(n=sh), body, base_crumb + [('Campaign planning', f'/locations/{aid}/campaign-planning/')], (org(), howto), hero_img)
+         TOPICS[3][3].format(n=sh), body, base_crumb + [('Campaign planning', f'/locations/{aid}/campaign-planning/')], (org(), howto))
 
     # ---- Topic 5: FAQ
     body = f'''{topic_nav(a, 'faq')}
 <section class="wrap prose">{''.join(f'<h2 class="q">{e(q)}</h2><p>{ans}</p>' for q, ans in qas)}</section>'''
     page(f'/locations/{aid}/faq/', TOPICS[4][2].format(n=sh), f'Answers about LED billboard advertising in {n}: screens, cost, facing, timing, file formats and booking with LED AD PRO.',
-         TOPICS[4][3].format(n=sh), body, base_crumb + [('FAQ', f'/locations/{aid}/faq/')], (org(), faq_ld(qas)), hero_img)
+         TOPICS[4][3].format(n=sh), body, base_crumb + [('FAQ', f'/locations/{aid}/faq/')], (org(), faq_ld(qas)))
 
 
 def build_hub():
@@ -285,8 +286,8 @@ def build_home():
     s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=9"', s)
     s = re.sub(r'src="locations\.js\?v=\d+"', 'src="/assets/locations.js?v=2"', s)
     s = re.sub(r'src="main\.js\?v=\d+"', 'src="/assets/main.js?v=9"', s)
-    s = s.replace('src="img/', 'src="/assets/img/')
-    og = f'<meta property="og:type" content="website"><meta property="og:title" content="LED AD PRO | LED Billboard Advertising in Bangladesh"><meta property="og:url" content="{SITE}/"><meta property="og:image" content="{SITE}/assets/img/loc/gulshan-circle-2-1200.webp">'
+    s = s.replace('src="img/', 'src="/assets/img/').replace('src="brand/', 'src="/assets/brand/').replace('href="brand/', 'href="/assets/brand/')
+    og = f'<meta property="og:type" content="website"><meta property="og:title" content="LED AD PRO | LED Billboard Advertising in Bangladesh"><meta property="og:url" content="{SITE}/"><meta property="og:image" content="{SITE}/assets/brand/og-image.png"><meta name="twitter:card" content="summary_large_image">'
     web = {'@type': 'WebSite', 'name': 'LED AD PRO', 'url': SITE + '/'}
     s = s.replace('</head>', og + ld(org(), web) + '\n</head>', 1)
     # crawlable links from the homepage to every location page
@@ -301,6 +302,7 @@ def main():
         shutil.rmtree(OUT)
     (OUT / 'assets').mkdir(parents=True)
     shutil.copytree(SRC / 'img', OUT / 'assets/img')
+    shutil.copytree(SRC / 'brand', OUT / 'assets/brand')
     for f in ('style.css', 'main.js'):
         shutil.copy(SRC / f, OUT / 'assets' / f)
     shutil.copy(ROOT / 'sites/ledadpro-pages.css', OUT / 'assets/pages.css')

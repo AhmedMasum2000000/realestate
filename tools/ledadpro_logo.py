@@ -76,8 +76,8 @@ def svg(w, h, body, bg=None, title='LED AD PRO'):
     b = f'<rect width="{w}" height="{h}" fill="{bg}"/>' if bg else ''
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {w:.0f} {h:.0f}" width="{w:.0f}" height="{h:.0f}" role="img" aria-label="{title}"><title>{title}</title>{b}{body}</svg>\n'
 
-def horizontal(main, pro, ghost, bg=None, name='logo-horizontal', lit=PINK, on=CYAN, animate=False):
-    size = 100; capH = CAP / UPM * size; pad = 40
+def horizontal(main, pro, ghost, bg=None, name='logo-horizontal', lit=PINK, on=CYAN, animate=False, pad=40):
+    size = 100; capH = CAP / UPM * size
     m = capH * 1.36                      # mark a little taller than the caps, centred on them
     base = pad + (m + capH) / 2
     wbody, ww = word(pad + m + capH * .55, base, size, main, pro)
@@ -116,4 +116,8 @@ horizontal(WHITE, PINK, WHITE, NAVY, 'logo-horizontal-reverse-animated', animate
 stacked(WHITE, PINK, WHITE, NAVY, 'logo-stacked-reverse-animated', animate=True)
 mark_only(NAVY, None, 'mark-animated', animate=True)
 mark_only(WHITE, NAVY, 'mark-reverse-animated', animate=True)
+# Tight versions (no padding) for website headers and menus
+horizontal(WHITE, PINK, WHITE, None, 'logo-header-animated', animate=True, pad=14)
+horizontal(NAVY, PINK, NAVY, None, 'logo-header-dark', pad=2)
+horizontal(WHITE, WHITE, WHITE, None, 'logo-header-white', WHITE, WHITE, pad=2)
 print(sorted(p.name for p in OUT.glob('*.svg')))
