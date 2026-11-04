@@ -2,9 +2,13 @@
 Client names come from the founder's own client history (AD Pro / LED AD PRO campaigns);
 campaign photos are from the APCL client footage folder."""
 
-CLIENTS = ['BMW', 'Emirates', 'Malaysia Airlines', 'Aarong', 'Royal Enfield', 'Bangladesh Armed Forces', 'Haier',
-           'Singer Beko', 'ACI', 'New Zealand Dairy', 'Mediacom', 'Paramount', 'Aziz & Company', 'Mega Builders',
-           'IFY Shop', 'Sencillo', 'Study in Bangladesh']
+CLIENTS = [  # logo brands first, biggest names first; logos live in sites/ledadpro-v2/img/clients/
+    'BMW', 'Emirates', 'Coca-Cola', 'Pepsi', 'HSBC', 'Malaysia Airlines', 'Hyundai', 'Royal Enfield', 'HP', 'Petronas',
+    'Casio', 'Castrol', 'Haier', 'Batik Air', 'Dabur', 'Aarong', 'Square', 'Walton', 'ACI', 'Singer Beko', 'Banglalink',
+    'Prothom Alo', 'Hatil', 'Hamdard', 'United Group', 'T Sports', 'Nagorik TV', 'Radio Foorti',
+    # named in schema and text only (no logo file yet)
+    'Bangladesh Armed Forces', 'KFC', 'UNDP', 'Apex', 'Shanta Holdings', 'Dekko', 'Praava Health', 'Augmedix', 'Sailor',
+    'New Zealand Dairy', 'Mediacom', 'Paramount', 'Aziz & Company', 'Mega Builders', 'IFY Shop', 'Sencillo', 'Study in Bangladesh']
 
 CASES = [  # (image under img/work, brand, what we did, where)
     ('royal-enfield-gulshan-2.jpg', 'Royal Enfield', 'Bullet 350 launch on LED billboards, 7 boards', 'Gulshan Circle-2, Dhaka'),

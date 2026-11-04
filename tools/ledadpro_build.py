@@ -108,7 +108,7 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og
 <link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/assets/brand/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/pages.css?v=1">
+<link rel="stylesheet" href="/assets/pages.css?v=2">
 {ld(*schema, crumbs(crumb))}
 </head>
 <body>
@@ -285,8 +285,17 @@ def build_hub():
          'LED billboard locations in Bangladesh', body, [('Home', '/'), ('Locations', '/locations/')], (org(), il))
 
 
+def client_logo(c):  # sites/ledadpro-v2/img/clients/<slug>.svg|png|webp|jpg, if we have it
+    slug = re.sub(r'[^a-z0-9]+', '-', c.lower()).strip('-')
+    for ext in ('svg', 'png', 'webp', 'jpg'):
+        if (SRC / 'img' / 'clients' / f'{slug}.{ext}').exists():
+            return f'/assets/img/clients/{slug}.{ext}'
+
+
 def client_wall():
-    return '<div class="wall">' + ''.join(f'<span>{e(c)}</span>' for c in CLIENTS) + '</div>'
+    out = [f'<span class="logo-tile" title="{e(c)}"><img src="{client_logo(c)}" alt="{e(c)} logo" loading="lazy"></span>' for c in CLIENTS if client_logo(c)]
+    out.append('<a class="more-tile" href="/clients/"><b>400+</b>brands served</a>')
+    return '<div class="wall">' + ''.join(out) + '</div>'
 
 
 def build_services():
@@ -320,12 +329,22 @@ def build_clients():
          'Brands that trust our team', body, [('Home', '/'), ('Clients', '/clients/')], (org(), il))
 
 
+def logo_strip():
+    logos = [(c, client_logo(c)) for c in CLIENTS if client_logo(c)]
+    if not logos:
+        return ''
+    imgs = ''.join(f'<img src="{src}" alt="{e(c)}" loading="lazy">' for c, src in logos)
+    return (f'<section class="trusted" aria-label="Brands our team has delivered campaigns for">'
+            f'<p>Trusted by brands like these · <a href="/clients/">see the work</a></p>'
+            f'<div class="logo-row">{imgs}<span aria-hidden="true" style="display:contents">{imgs}</span></div></section>')
+
+
 def build_home():
     s = (SRC / 'index.html').read_text()
     s = s.replace('<meta name="robots" content="noindex">', '<meta name="robots" content="index,follow,max-image-preview:large">\n<link rel="canonical" href="https://ledadpro.com/">')
     s = s.replace('<title>LED AD PRO | Digital Out of Home Advertising in Bangladesh</title>', '<title>LED AD PRO | LED Billboard Advertising in Dhaka &amp; Bangladesh</title>')
     s = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="LED billboard advertising on {sum(len(a["p"]) for a in LOCS)} screens in Gulshan, Dhanmondi, Mirpur, Mohakhali, Airport, Chattogram, Sylhet and more. See every location with photos. Call {PHONE_TXT}.">', s)
-    s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=9"', s)
+    s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=10"', s)
     s = re.sub(r'src="locations\.js\?v=\d+"', 'src="/assets/locations.js?v=2"', s)
     s = re.sub(r'src="main\.js\?v=\d+"', 'src="/assets/main.js?v=9"', s)
     s = s.replace('src="img/', 'src="/assets/img/').replace('src="brand/', 'src="/assets/brand/').replace('data-img="img/', 'data-img="/assets/img/').replace('href="brand/', 'href="/assets/brand/')
@@ -335,6 +354,7 @@ def build_home():
     # crawlable links from the homepage to every location page
     links = '<nav class="foot-locs" aria-label="All locations">' + ''.join(f'<a href="/locations/{a["id"]}/">{e(a["short"])}</a>' for a in LOCS) + '</nav>'
     s = s.replace('<div class="foot-bar">', links + '\n    <div class="foot-bar">', 1)
+    s = s.replace('<!--CLIENT-LOGOS-->', logo_strip(), 1)
     (OUT / 'index.html').write_text(s)
     PAGES.append(('/', 'Home'))
 
