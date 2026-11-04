@@ -35,8 +35,8 @@ SERVICES = {
          ('How do I book?', 'Call sales on +880 1958-503753 (office +880 1316-743003) or email info@ledadpro.com with your dates and budget for availability and a written quote.')]),
  'led-caravan': dict(
     name='LED Caravan (Mobile LED Screen Van)', short='LED Caravan', img='img/event-stage-night-2400.webp', img2=None,
-    title='LED Caravan Advertising in Bangladesh (Mobile LED Screen Van) | LED AD PRO',
-    desc='Take your ad to the people with an LED caravan: a vehicle with a large LED screen for roadshows, launches, events and district tours across Bangladesh. LED AD PRO.',
+    title='LED Van Advertising in Bangladesh: LED Caravan & Mobile LED Truck | LED AD PRO',
+    desc='LED van advertising: an LED caravan (mobile LED truck) with a large screen for roadshows, launches, events and district tours across Bangladesh. Rent it from LED AD PRO.',
     answer='An LED caravan is a <strong>vehicle carrying a large LED screen</strong> that brings your ad to the audience: it drives planned routes, parks at markets, campuses and events, and plays video with sound. It reaches places fixed billboards cannot, from Dhaka neighbourhoods to district towns.',
     who=['Shoppers at markets and bazaars', 'Students at campuses and colleges', 'Crowds at fairs, events and product launches', 'Towns and districts without LED billboards'],
     how=[('Plan the route', 'Choose the areas, stops and hours that match your audience.'),

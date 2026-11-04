@@ -91,7 +91,11 @@ def faq_ld(qas):
     return {'@type': 'FAQPage', 'mainEntity': [{'@type': 'Question', 'name': q, 'acceptedAnswer': {'@type': 'Answer', 'text': re.sub('<[^>]+>', '', ans)}} for q, ans in qas]}
 
 
-def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og-image.png', lead=''):
+OG_DEFAULT = ['/assets/brand/og-image.png']  # build_area swaps in the area photo
+
+
+def page(path, title, desc, h1, body, crumb, schema=(), og_img=None, lead=''):
+    og_img = og_img or OG_DEFAULT[0]
     url = SITE + path
     bc = ''.join(f'<a href="{u}">{e(n)}</a><span>/</span>' for n, u in crumb[:-1]) + f'<span aria-current="page">{e(crumb[-1][0])}</span>'
     doc = f'''<!doctype html>
@@ -113,7 +117,7 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og
 </head>
 <body>
 <header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
-<nav aria-label="Main"><a href="/#services">Services</a><a href="/locations/">Locations</a><a href="/services/metro-rail-led-advertising/">Metro LED</a><a href="/services/led-caravan/">LED Caravan</a><a href="/clients/">Clients</a><a href="/#contact">Contact</a></nav>
+<nav aria-label="Main"><a href="/#services">Services</a><a href="/locations/">Locations</a><a href="/pricing/">Pricing</a><a href="/services/metro-rail-led-advertising/">Metro LED</a><a href="/services/led-caravan/">LED Caravan</a><a href="/clients/">Clients</a><a href="/#contact">Contact</a></nav>
 <a class="btn" href="tel:{PHONE}">Call {PHONE_TXT}</a></header>
 <main>
 <div class="wrap"><nav class="bc" aria-label="Breadcrumb">{bc}</nav>
@@ -178,6 +182,7 @@ def build_area(a):
     near = nearby(a)
     city = 'Dhaka' if a['kind'] == 'dhaka' else sh
     hero_img = img(a['img'])
+    OG_DEFAULT[0] = hero_img
     svc = {'@type': 'Service', 'name': f'LED billboard advertising in {n}', 'serviceType': 'Digital out-of-home advertising',
            'provider': {'@id': SITE + '/#business'}, 'areaServed': {'@type': 'Place', 'name': f'{n}, {"Dhaka, " if a["kind"] == "dhaka" else ""}Bangladesh',
                                                                  'geo': {'@type': 'GeoCoordinates', 'latitude': a['lat'], 'longitude': a['lon']}}}
@@ -271,6 +276,7 @@ def build_area(a):
 <section class="wrap prose">{''.join(f'<h2 class="q">{e(q)}</h2><p>{ans}</p>' for q, ans in qas)}</section>'''
     page(f'/locations/{aid}/faq/', TOPICS[4][2].format(n=sh), f'Answers about LED billboard advertising in {n}: screens, cost, facing, timing, file formats and booking with LED AD PRO.',
          TOPICS[4][3].format(n=sh), body, base_crumb + [('FAQ', f'/locations/{aid}/faq/')], (org(), faq_ld(qas)))
+    OG_DEFAULT[0] = '/assets/brand/og-image.png'
 
 
 def build_hub():
@@ -343,7 +349,7 @@ def build_home():
     s = (SRC / 'index.html').read_text()
     s = s.replace('<meta name="robots" content="noindex">', '<meta name="robots" content="index,follow,max-image-preview:large">\n<link rel="canonical" href="https://ledadpro.com/">')
     s = s.replace('<title>LED AD PRO | Digital Out of Home Advertising in Bangladesh</title>', '<title>LED AD PRO | LED Billboard Advertising in Dhaka &amp; Bangladesh</title>')
-    s = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="LED billboard advertising on {sum(len(a["p"]) for a in LOCS)} screens in Gulshan, Dhanmondi, Mirpur, Mohakhali, Airport, Chattogram, Sylhet and more. See every location with photos. Call {PHONE_TXT}.">', s)
+    s = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="LED billboard advertising on {sum(len(a["p"]) for a in LOCS)} screens in Dhaka, Chattogram, Sylhet and more. Every location with photos, prices from 100 BDT/min. Call {PHONE_TXT}.">', s)
     s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=10"', s)
     s = re.sub(r'src="locations\.js\?v=\d+"', 'src="/assets/locations.js?v=2"', s)
     s = re.sub(r'src="main\.js\?v=\d+"', 'src="/assets/main.js?v=9"', s)
@@ -355,6 +361,13 @@ def build_home():
     links = '<nav class="foot-locs" aria-label="All locations">' + ''.join(f'<a href="/locations/{a["id"]}/">{e(a["short"])}</a>' for a in LOCS) + '</nav>'
     s = s.replace('<div class="foot-bar">', links + '\n    <div class="foot-bar">', 1)
     s = s.replace('<!--CLIENT-LOGOS-->', logo_strip(), 1)
+    # SEO audit 2026-11: keyword H1 text, homepage FAQ, links to the new guide pages
+    s = s.replace('<span class="sr-only">LED AD PRO: LED billboards and screens in Dhaka</span>', '<span class="sr-only">LED billboard advertising in Dhaka and across Bangladesh</span>', 1)
+    import ledadpro_guides
+    faq_html, faq_schema = ledadpro_guides.home_faq(sys.modules[__name__])
+    s = s.replace('  <!-- Cyan band -->', faq_html + '\n  <!-- Cyan band -->', 1)
+    s = s.replace('</head>', ld(faq_schema) + '\n</head>', 1)
+    s = s.replace('<a href="#contact">Contact us</a></nav>', '<a href="/pricing/">Pricing</a><a href="/led-screen-rental/">LED screen rental</a><a href="/about/">About</a><a href="/guides/how-to-choose-a-billboard-location/">Choosing a location</a><a href="#contact">Contact us</a></nav>', 1)
     (OUT / 'index.html').write_text(s)
     PAGES.append(('/', 'Home'))
 
@@ -370,12 +383,22 @@ def main():
     shutil.copy(ROOT / 'sites/ledadpro-pages.css', OUT / 'assets/pages.css')
     (OUT / 'assets/locations.js').write_text(data.replace('"img/', '"/assets/img/'))
     build_home(); build_hub(); build_services(); build_clients()
+    import ledadpro_guides
+    ledadpro_guides.build(sys.modules[__name__])
     for a in LOCS:
         build_area(a)
     sm = ''.join(f'<url><loc>{SITE}{p}</loc><lastmod>{TODAY}</lastmod></url>' for p, _ in PAGES)
     (OUT / 'sitemap-ledadpro.xml').write_text(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{sm}</urlset>\n')
     llms = [f'# LED AD PRO\n\n> LED billboard and digital out-of-home advertising in Bangladesh: {sum(len(a["p"]) for a in LOCS)} LED screens in {len(LOCS)} areas, plus static billboards, custom LED displays and event screens. Office: {ADDRESS}. Sales and marketing {PHONE_TXT}, office {OFFICE_TXT}, {EMAIL}.\n\n## Locations\n']
     llms += [f'- [{a["name"]}]({SITE}/locations/{a["id"]}/): {screens(a, len(a["p"]))}; {AREA[a["id"]][0]}\n' for a in LOCS]
+    NL = chr(10)
+    llms += [NL + '## Prices, services and guides' + NL,
+             f'- [Billboard advertising cost in Bangladesh]({SITE}/pricing/): LED billboards about 100-600 BDT per minute; static billboard rent about 500-3,000 BDT per square foot' + NL,
+             f'- [LED screen rental]({SITE}/led-screen-rental/): LED screens and video walls for events, with setup and operator' + NL,
+             f'- [LED caravan / LED van advertising]({SITE}/services/led-caravan/): mobile LED screen vehicle for roadshows' + NL,
+             f'- [Metro Rail LED advertising]({SITE}/services/metro-rail-led-advertising/): screens inside Dhaka Metro coaches' + NL,
+             f'- [How to choose a billboard location]({SITE}/guides/how-to-choose-a-billboard-location/)' + NL,
+             f'- [About LED AD PRO]({SITE}/about/) · [Clients]({SITE}/clients/)' + NL]
     (OUT / 'llms.txt').write_text(''.join(llms))
     print(len(PAGES), 'pages')
 
