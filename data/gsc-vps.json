@@ -287,7 +287,7 @@
   "microgigger.com": {
     "file": "google4b543605f291f6ad.html",
     "property": "https://microgigger.com/",
-    "status": "failed: https://microgigger.com/google4b543605f291f6ad.html answers 404, not the verification file"
+    "status": "failed: https://microgigger.com/google4b543605f291f6ad.html answers 200, not the verification file"
   },
   "moveinthailand.com": {
     "file": "google4b543605f291f6ad.html",
@@ -385,6 +385,6 @@
   "visakori.com": {
     "file": "google4b543605f291f6ad.html",
     "property": "https://visakori.com/",
-    "status": "failed: https://visakori.com/google4b543605f291f6ad.html answers 404, not the verification file"
+    "status": "failed: https://visakori.com/google4b543605f291f6ad.html answers 200, not the verification file"
   }
 }
