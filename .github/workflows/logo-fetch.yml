@@ -33,7 +33,8 @@ jobs:
               # non-free logos live on en.wikipedia, free ones on Commons; this path serves both
               return f, 'https://en.wikipedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
           def commons_file(f):
-              return f, 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
+              u = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
+              return f, u if f.lower().endswith('.svg') else u + '?width=2400'
           def commons_search(q):
               a = urllib.parse.urlencode({'action': 'query', 'list': 'search', 'srsearch': q + ' logo', 'srnamespace': 6, 'format': 'json', 'srlimit': 8})
               hits = [h['title'][5:] for h in json.loads(get('https://commons.wikimedia.org/w/api.php?' + a)[0])['query']['search']]
@@ -63,6 +64,10 @@ jobs:
               if not line or line.startswith('#'): continue
               name, page, slug, dom = (line.split('|') + ['', '', ''])[:4]
               tries = []
+              if page.startswith('photo:') and name.endswith('?'):
+                  try: photo(page[6:])
+                  except Exception as ex: print(f'-- {name}: photo error {ex}')
+                  continue
               if page.startswith('photo:'):
                   try:
                       for i, (title, u) in enumerate(photo(page[6:])):

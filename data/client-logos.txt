@@ -1,7 +1,8 @@
-# Name|Wikipedia page, File:<commons file>, https URL, or photo:<commons search>|simple-icons slug or 'search'|website
-metro-interior|photo:Dhaka Metro Rail interior||
-metro-train|photo:Dhaka Metro Rail train||
-metro-mrt6|photo:MRT Line 6 Dhaka||
-dhaka-night|photo:Dhaka night skyline||
-dhaka-traffic|photo:Dhaka traffic||
-dhaka-billboard|photo:billboard Dhaka||
+# Name|source|slug|site   (name ending in ? = list photo candidates only)
+metro-interior?|photo:Dhaka Metro Rail interior||
+metro-train?|photo:Dhaka Metro Rail||
+metro-mrt6?|photo:MRT Line 6 Dhaka||
+dhaka-night?|photo:Dhaka night skyline||
+dhaka-traffic?|photo:Dhaka traffic||
+dhaka-billboard?|photo:billboard Dhaka||
+led-screen?|photo:LED billboard night city||
