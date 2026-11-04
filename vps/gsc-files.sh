@@ -9,11 +9,19 @@ for dir in "$IN"/*/; do
   d=$(basename "$dir")
   slug=$(echo "$d" | tr '.-' '__' | cut -c1-28); U="s_$slug"; R="/home/$U/public_html"
   [ -d "$R" ] || { echo "$d: no web root, skipped"; continue; }
+  # Where files are really served from: the web root, the vhost's DocumentRoot,
+  # and public/ for Laravel-style apps whose .htaccess sends everything there.
+  targets=("$R")
+  dr=$(sed -n 's/^[[:space:]]*DocumentRoot[[:space:]]\+"\{0,1\}\([^"]*\)"\{0,1\}.*/\1/p' \
+       "/usr/local/apps/apache2/etc/conf.d/site-$d.conf" 2>/dev/null | head -1)
+  [ -n "$dr" ] && [ -d "$dr" ] && [ "${dr%/}" != "$R" ] && targets+=("${dr%/}")
+  [ -d "$R/public" ] && targets+=("$R/public")
   for f in "$dir"google*.html; do
     [ -e "$f" ] || continue
     n=$(basename "$f")
     [[ "$n" =~ ^google[0-9a-f]+\.html$ ]] || { echo "$d: bad file name $n, skipped"; continue; }
-    install -m 644 -o "$U" -g "$U" "$f" "$R/$n"
+    for t in "${targets[@]}"; do install -m 644 -o "$U" -g "$U" "$f" "$t/$n"; done
+    echo "$d: placed in ${targets[*]}"
     code=$(curl -s --max-time 15 -o /dev/null -w '%{http_code}' --resolve "$d:443:127.0.0.1" "https://$d/$n" || true)
     echo "$d: $n placed ($code)"
   done
