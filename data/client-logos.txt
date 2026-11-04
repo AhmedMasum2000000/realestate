@@ -1,6 +1,4 @@
 # Name|source|slug|site
-c-ts2013|File:1 times square night 2013.jpg||
-c-ts2025|File:Times Square, NYC at night - August 2025.jpg||
-c-piccadilly|File:Open Happiness Piccadilly Circus Blue-Pink Hour 120917-1126-jikatu.jpg||
-c-shanklin|File:Shanklin Media LED Billboard IMG 9693 (49986694111).jpg||
-c-rotterdam|File:LED Impact electronic billboard, Molenlaankwartier, Rotterdam (2023) 05.jpg||
+fav-ico|https://ledadpro.com/favicon.ico||
+fav-svg|https://ledadpro.com/assets/brand/favicon.svg?v=2||
+fav-png|https://ledadpro.com/assets/brand/favicon-32.png?v=2||
