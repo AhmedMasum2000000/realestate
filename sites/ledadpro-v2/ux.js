@@ -47,7 +47,11 @@
   w.setAttribute('aria-label', 'Chat with sales on WhatsApp');
   w.innerHTML = '<svg viewBox="0 0 32 32" width="26" height="26" aria-hidden="true"><path fill="#fff" d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3zm0 23.7a10.7 10.7 0 0 1-5.5-1.5l-.4-.2-3.9 1 1-3.8-.3-.4A10.7 10.7 0 1 1 16 26.7zm5.9-8c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.8 8.8 0 0 1-4.4-3.8c-.3-.6.3-.5.9-1.7.1-.2 0-.4 0-.6l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.2 1.1-1.2 2.8s1.2 3.2 1.4 3.5c.2.2 2.4 3.6 5.7 5 2.1.9 2.9 1 4 .8.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.3.2-1.5-.1-.1-.3-.2-.6-.3z"/></svg><span>Chat with sales</span>';
   d.body.appendChild(w);
-  setTimeout(function () { w.classList.add('in'); }, 2200);
+  // on pages whose hero already has call/WhatsApp buttons, bring the floating button in after the hero
+  var heroCta = d.querySelector('.hero-cta');
+  if (heroCta && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { es.forEach(function (en) { w.classList.toggle('in', !en.isIntersecting); }); }).observe(heroCta);
+  } else setTimeout(function () { w.classList.add('in'); }, 2200);
 
   // ---- count-up numbers (".stats b", "[data-count]")
   var nums = [].slice.call(d.querySelectorAll('.stats b, [data-count]'));
@@ -62,6 +66,26 @@
       });
     }, { threshold: .6 });
     nums.forEach(function (n) { io.observe(n); });
+  }
+
+  // ---- hero booking cut-off: content is due by the 10th (airs the 15th) or the 25th (airs the 1st), Dhaka time
+  var U = d.getElementById('hero-urgent');
+  if (U) {
+    var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var dhaka = function () { var n = new Date(); return new Date(n.getTime() + (n.getTimezoneOffset() + 360) * 60000); };
+    var next = function (t) {
+      var y = t.getFullYear(), m = t.getMonth(), c = [];
+      for (var k = 0; k < 3; k++) { var mm = m + k; c.push([new Date(y, mm, 10, 23, 59, 59), new Date(y, mm, 15)]); c.push([new Date(y, mm, 25, 23, 59, 59), new Date(y, mm + 1, 1)]); }
+      for (var i = 0; i < c.length; i++) if (c[i][0] > t) return c[i];
+    };
+    var t0 = dhaka(), n = next(t0), fmt = function (x) { return x.getDate() + ' ' + MON[x.getMonth()]; };
+    U.querySelector('[data-dl-date]').textContent = fmt(n[0]);
+    U.querySelector('[data-dl-live]').textContent = fmt(n[1]);
+    var cd = U.querySelector('[data-dl-cd]');
+    var upd = function () { var ms = n[0] - dhaka(); if (ms < 0) return;
+      var dd = Math.floor(ms / 864e5), h = Math.floor(ms / 36e5) % 24, mi = Math.floor(ms / 6e4) % 60, s = Math.floor(ms / 1e3) % 60;
+      cd.textContent = (dd ? dd + 'd ' : '') + h + 'h ' + (mi < 10 ? '0' : '') + mi + 'm ' + (s < 10 ? '0' : '') + s + 's left'; };
+    upd(); setInterval(upd, 1000);
   }
 
   // ---- goal planner (homepage)

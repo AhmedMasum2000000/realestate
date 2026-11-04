@@ -153,7 +153,7 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img=None, lead=''):
 </div></footer>
 <script>(function(){{if(matchMedia("(prefers-reduced-motion: reduce)").matches||!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){{es.forEach(function(e){{if(!e.isIntersecting)return;var i=e.target,b=i.dataset.src||(i.dataset.src=i.getAttribute("src"));i.src=b+"#r"+Date.now();}});}},{{threshold:.6}});document.querySelectorAll("img[data-replay]").forEach(function(i){{io.observe(i);}});}})();</script>
 <div class="sticky-cta"><a href="tel:{PHONE}">Call now</a><a href="mailto:{EMAIL}">Get a quote</a></div>
-<script src="/assets/ux.js?v=1" defer></script>{SPEC}
+<script src="/assets/ux.js?v=3" defer></script>{SPEC}
 </body></html>
 '''
     f = OUT / path.strip('/') / 'index.html' if path != '/' else OUT / 'index.html'
@@ -368,10 +368,11 @@ def build_home():
     s = s.replace('<meta name="robots" content="noindex">', '<meta name="robots" content="index,follow,max-image-preview:large">\n<link rel="canonical" href="https://ledadpro.com/">')
     s = s.replace('<title>LED AD PRO | Digital Out of Home Advertising in Bangladesh</title>', '<title>LED AD PRO | LED Billboard Advertising in Dhaka &amp; Bangladesh</title>')
     s = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="LED billboard advertising on {sum(len(a["p"]) for a in LOCS)} screens in Dhaka, Chattogram, Sylhet and more. Every location with photos, prices from 100 BDT/min. Call {PHONE_TXT}.">', s)
-    s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=11"', s)
+    s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=13"', s)
     s = re.sub(r'src="locations\.js\?v=\d+"', 'src="/assets/locations.js?v=2"', s)
     s = re.sub(r'src="main\.js\?v=\d+"', 'src="/assets/main.js?v=11"', s)
-    s = re.sub(r'src="ux\.js\?v=\d+"', 'src="/assets/ux.js?v=1"', s)
+    s = re.sub(r'src="ux\.js\?v=\d+"', 'src="/assets/ux.js?v=3"', s)
+    s = s.replace('{{SCREENS}}', str(sum(len(a['p']) for a in LOCS))).replace('{{AREAS}}', str(len(LOCS)))
     s = s.replace('<body>', '<body>\n' + INTRO, 1).replace('</body>', SPEC + '\n</body>', 1)
     s = s.replace('src="img/', 'src="/assets/img/').replace('src="brand/', 'src="/assets/brand/').replace('data-img="img/', 'data-img="/assets/img/').replace('href="brand/', 'href="/assets/brand/')
     og = f'<meta property="og:type" content="website"><meta property="og:title" content="LED AD PRO | LED Billboard Advertising in Bangladesh"><meta property="og:url" content="{SITE}/"><meta property="og:image" content="{SITE}/assets/brand/og-image.png"><meta name="twitter:card" content="summary_large_image">'
