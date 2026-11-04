@@ -1,5 +1,4 @@
 # Name|source|slug|site
-ph-night-03|File:Stormy night in dhaka 03.jpg||
-ph-night-16|File:Stormy night in dhaka 16.jpg||
-ph-night-21|File:Stormy night in dhaka 21.jpg||
-ph-traffic-dhanmondi|File:Traffic Jam - Road 2 - Dhanmondi - Dhaka 2015-05-31 1919.JPG||
+ph-hatirjheel|photo:Hatirjheel night||
+ph-expressway|photo:Dhaka Elevated Expressway||
+ph-gulshan|photo:Gulshan Dhaka skyline||

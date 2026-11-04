@@ -51,7 +51,7 @@ jobs:
                   lic = md.get('LicenseShortName', {}).get('value', '?'); art = re.sub('<[^>]+>', '', md.get('Artist', {}).get('value', '?'))[:60]
                   print(f"   cand {pg['title'][5:]} {ii['width']}x{ii['height']} {lic} by {art}")
                   if ii['width'] >= minw and ii['width'] >= ii['height']: best.append((pg['title'][5:] + f' | {lic} | {art}', ii.get('thumburl') or ii['url']))
-              return best[:3]
+              return best[:2]
           def site(dom):
               h = get('https://' + dom)[0].decode('utf8', 'ignore')
               print('   logo-like images on', dom, ':', re.findall(r'(?:src|href|content)="([^"]*logo[^"]*)"', h, re.I)[:8])
