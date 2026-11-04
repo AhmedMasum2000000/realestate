@@ -15,11 +15,16 @@ for dir in "$IN"/*/; do
   dr=$(sed -n 's/^[[:space:]]*DocumentRoot[[:space:]]\+"\{0,1\}\([^"]*\)"\{0,1\}.*/\1/p' \
        "/usr/local/apps/apache2/etc/conf.d/site-$d.conf" 2>/dev/null | head -1)
   [ -n "$dr" ] && [ -d "$dr" ] && [ "${dr%/}" != "$R" ] && targets+=("${dr%/}")
-  [ -d "$R/public" ] && targets+=("$R/public")
+  # Laravel sites copied from Hostinger forward requests to public/, but their root
+  # .htaccess mangles requests for files that exist in the root (they end in
+  # server.php, which answers an empty page). There the file must be in public/ only.
+  laravel=""
+  if [ -d "$R/public" ] && grep -qs 'public/' "$R/.htaccess"; then laravel=1; targets=("$R/public"); fi
   for f in "$dir"google*.html; do
     [ -e "$f" ] || continue
     n=$(basename "$f")
     [[ "$n" =~ ^google[0-9a-f]+\.html$ ]] || { echo "$d: bad file name $n, skipped"; continue; }
+    [ -n "$laravel" ] && rm -f "$R/$n"
     for t in "${targets[@]}"; do install -m 644 -o "$U" -g "$U" "$f" "$t/$n"; done
     echo "$d: placed in ${targets[*]}"
     code=$(curl -s --max-time 15 -o /dev/null -w '%{http_code}' --resolve "$d:443:127.0.0.1" "https://$d/$n" || true)
