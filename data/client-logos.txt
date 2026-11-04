@@ -1,8 +1,6 @@
 # Name|source|slug|site   (name ending in ? = list photo candidates only)
-metro-interior?|photo:Dhaka Metro Rail interior||
-metro-train?|photo:Dhaka Metro Rail||
-metro-mrt6?|photo:MRT Line 6 Dhaka||
-dhaka-night?|photo:Dhaka night skyline||
-dhaka-traffic?|photo:Dhaka traffic||
-dhaka-billboard?|photo:billboard Dhaka||
-led-screen?|photo:LED billboard night city||
+ph-metro-inside|File:Inside Dhaka Metro.jpg||
+ph-metro-inside-2|File:Inside Dhaka Metro 2.jpg||
+ph-metro-agargaon|File:Train entering at Agargaon metro station Platform.jpg||
+ph-metro-bd|File:Metro Rail in Bangladesh.jpg||
+ph-metro-dhaka|File:Dhaka metro rail.jpg||
