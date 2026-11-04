@@ -242,7 +242,8 @@ body.locked{overflow:hidden}
 
 /* Footer wordmark */
 .foot{padding:40px 0 24px;overflow:hidden}
-.wordmark{font:900 clamp(40px,13.4vw,260px)/.82 var(--display);text-transform:uppercase;letter-spacing:-.04em;white-space:nowrap;color:var(--pink);text-align:center;margin:clamp(16px,3vh,32px) 0}
+.wordmark{display:block;margin:clamp(20px,4vh,40px) auto;max-width:1100px}
+.wordmark img{width:100%;height:auto;display:block}
 .foot{padding:clamp(48px,8vh,80px) 0 24px;overflow:hidden}
 .foot-nav{display:flex;justify-content:center;flex-wrap:wrap;gap:8px 28px;font:800 13px/1 var(--body);letter-spacing:.08em;text-transform:uppercase}
 .foot-nav a:hover{color:var(--yellow)}

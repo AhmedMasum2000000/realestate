@@ -120,4 +120,5 @@ mark_only(WHITE, NAVY, 'mark-reverse-animated', animate=True)
 horizontal(WHITE, PINK, WHITE, None, 'logo-header-animated', animate=True, pad=14)
 horizontal(NAVY, PINK, NAVY, None, 'logo-header-dark', pad=2)
 horizontal(WHITE, WHITE, WHITE, None, 'logo-header-white', WHITE, WHITE, pad=2)
+horizontal(WHITE, WHITE, WHITE, None, 'logo-header-white-animated', WHITE, NAVY, animate=True, pad=14)  # for pink backgrounds
 print(sorted(p.name for p in OUT.glob('*.svg')))

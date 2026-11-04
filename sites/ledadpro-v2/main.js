@@ -236,5 +236,11 @@
   $('.static-grid').innerHTML = STATIC.map((s, i) => `<figure class="pcard rv" style="transition-delay:${(i % 4) * 90}ms"><div class="pimg"><img src="${s.i}" alt="${esc(s.n)}"></div><figcaption><b>${esc(s.n)}</b><span>Static billboard</span></figcaption></figure>`).join('');
   $$('.static-grid .rv').forEach(el => io.observe(el));
 
+  // Logos replay their light-up animation each time they come into view (and when the menu opens).
+  const replay = img => { const base = img.dataset.src || (img.dataset.src = img.getAttribute('src')); img.src = base + '#r' + Date.now(); };
+  const logoIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !reduce) replay(e.target); }), { threshold: .6 });
+  $$('img[data-replay]').forEach(i => logoIO.observe(i));
+  burger.addEventListener('click', () => { const m = $('.menu .logo img'); if (m && !reduce) replay(m); });
+
   $('#yr').textContent = new Date().getFullYear();
 })();

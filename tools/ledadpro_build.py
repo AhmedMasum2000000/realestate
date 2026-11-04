@@ -107,7 +107,7 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og
 {ld(*schema, crumbs(crumb))}
 </head>
 <body>
-<header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70"></a>
+<header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
 <nav aria-label="Main"><a href="/#services">Services</a><a href="/locations/">Locations</a><a href="/#static">Billboards</a><a href="/#contact">Contact</a></nav>
 <a class="btn" href="tel:{PHONE}">Call {PHONE_TXT}</a></header>
 <main>
@@ -120,10 +120,11 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og
 <p class="hours">Sat–Thu 9am–8pm · Friday 10am–12pm · {e(ADDRESS)}</p></div></section>
 </main>
 <footer class="pf"><div class="wrap">
-<a class="wm" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70"></a>
+<a class="wm" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
 <nav aria-label="Locations">{''.join(f'<a href="/locations/{x["id"]}/">{e(x["short"])}</a>' for x in LOCS)}</nav>
 <p>&copy; {date.today().year} LED AD PRO · Digital Out of Home advertising in Bangladesh · <a href="/">Home</a> · <a href="/locations/">All locations</a></p>
 </div></footer>
+<script>(function(){{if(matchMedia("(prefers-reduced-motion: reduce)").matches||!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){{es.forEach(function(e){{if(!e.isIntersecting)return;var i=e.target,b=i.dataset.src||(i.dataset.src=i.getAttribute("src"));i.src=b+"#r"+Date.now();}});}},{{threshold:.6}});document.querySelectorAll("img[data-replay]").forEach(function(i){{io.observe(i);}});}})();</script>
 <div class="sticky-cta"><a href="tel:{PHONE}">Call now</a><a href="mailto:{EMAIL}">Get a quote</a></div>
 </body></html>
 '''
