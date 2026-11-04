@@ -18,7 +18,7 @@
 <body>
 
 <header class="hdr">
-  <a class="logo" href="#top" aria-label="LED AD PRO home"><img src="brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
+  <a class="logo" href="#top" aria-label="LED AD PRO home"><img src="brand/logo-classic-dark-animated.svg" alt="LED AD PRO" width="204" height="80"></a>
   <div class="hdr-r">
     <a class="btn" href="tel:+8801958503753">Call us</a>
     <button class="burger" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><span></span><span></span><span></span></button>
@@ -27,7 +27,7 @@
 
 <div class="menu" id="menu" aria-hidden="true">
   <div class="menu-top">
-    <a class="logo" href="#top" aria-label="LED AD PRO home"><img src="brand/logo-header-white-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
+    <a class="logo" href="#top" aria-label="LED AD PRO home"><img src="brand/logo-classic-white-animated.svg" alt="LED AD PRO" width="204" height="80"></a>
     <button class="menu-x" aria-label="Close menu"><span></span><span></span></button>
   </div>
   <nav class="menu-links" aria-label="Main">
@@ -132,6 +132,27 @@
     <div class="svc-peek" aria-hidden="true"><img alt=""></div>
   </section>
 
+  <!-- Goal planner -->
+  <section class="planner" id="planner" aria-labelledby="pl-h">
+    <div class="wrap">
+      <p class="eyebrow">Plan in 10 seconds</p>
+      <h2 class="display" id="pl-h">What do you want <em>to achieve?</em></h2>
+      <div class="pl-goals" role="group" aria-label="Pick your goal">
+        <button type="button" data-goal="launch" aria-pressed="false">Launch a product</button>
+        <button type="button" data-goal="store" aria-pressed="false">Open a store</button>
+        <button type="button" data-goal="festive" aria-pressed="false">Festive sales</button>
+        <button type="button" data-goal="trust" aria-pressed="false">Build trust</button>
+        <button type="button" data-goal="city" aria-pressed="false">Reach a new city</button>
+        <button type="button" data-goal="try" aria-pressed="false">Get people to try it</button>
+      </div>
+      <div class="pl-out" hidden aria-live="polite">
+        <ul class="pl-mix"></ul>
+        <div class="pl-cta"><a class="btn pl-wa" href="https://wa.me/8801958503753" target="_blank" rel="noopener">Send me this plan</a><a class="btn" href="tel:+8801958503753">Call sales</a></div>
+        <p>We cover all over Bangladesh. Tell us your areas and dates and we send back sites, timing and a written quote.</p>
+      </div>
+    </div>
+  </section>
+
   <!-- Locations directory -->
   <section class="locations" id="locations">
     <div class="wrap">
@@ -215,7 +236,7 @@
 <footer class="foot">
   <div class="wrap">
     <nav class="foot-nav" aria-label="Footer"><a href="#top">Home</a><a href="#services">Services</a><a href="/locations/">Locations</a><a href="/services/metro-rail-led-advertising/">Metro Rail LED</a><a href="/services/led-caravan/">LED Caravan</a><a href="/clients/">Clients</a></nav>
-    <a class="wordmark" href="#top" aria-label="LED AD PRO home"><img src="brand/logo-header-animated.svg" alt="LED AD PRO" width="1200" height="280" data-replay></a>
+    <a class="wordmark" href="#top" aria-label="LED AD PRO home"><img src="brand/logo-classic-dark-animated.svg" alt="LED AD PRO" width="1212" height="476"></a>
     <nav class="foot-nav sub" aria-label="More"><a href="#about">About us</a><a href="#services">LED billboards</a><a href="#services">Custom displays</a><a href="#services">Event screens</a><a href="#contact">Contact us</a></nav>
     <div class="foot-bar"><span>&copy; <span id="yr"></span> LED AD PRO. Dhaka, Bangladesh.</span><span>Digital Out of Home Advertising</span></div>
   </div>
@@ -223,5 +244,6 @@
 
 <script src="locations.js?v=1"></script>
 <script src="main.js?v=10"></script>
+<script src="ux.js?v=1" defer></script>
 </body>
 </html>

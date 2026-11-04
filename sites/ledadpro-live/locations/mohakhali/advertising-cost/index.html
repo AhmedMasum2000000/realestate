@@ -12,11 +12,128 @@
 <link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/assets/brand/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/pages.css?v=2">
+<link rel="stylesheet" href="/assets/pages.css?v=3">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "LocalBusiness", "@id": "https://ledadpro.com/#business", "name": "LED AD PRO", "url": "https://ledadpro.com/", "telephone": "+8801958503753", "email": "info@ledadpro.com", "contactPoint": [{"@type": "ContactPoint", "telephone": "+8801958503753", "contactType": "sales", "areaServed": "BD", "availableLanguage": ["en", "bn"]}, {"@type": "ContactPoint", "telephone": "+8801316743003", "contactType": "customer service", "areaServed": "BD", "availableLanguage": ["en", "bn"]}], "image": "https://ledadpro.com/assets/brand/og-image.png", "logo": "https://ledadpro.com/assets/brand/logo-horizontal-1600.png", "address": {"@type": "PostalAddress", "streetAddress": "Flat A1, House 99, Road 10/2, Block D, Niketon", "addressLocality": "Dhaka", "addressRegion": "Gulshan 1", "addressCountry": "BD"}, "geo": {"@type": "GeoCoordinates", "latitude": 23.774, "longitude": 90.417}, "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"], "opens": "09:00", "closes": "20:00"}, {"@type": "OpeningHoursSpecification", "dayOfWeek": "Friday", "opens": "10:00", "closes": "12:00"}], "areaServed": {"@type": "Country", "name": "Bangladesh"}}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "Service", "name": "LED billboard advertising in Mohakhali", "serviceType": "Digital out-of-home advertising", "provider": {"@id": "https://ledadpro.com/#business"}, "areaServed": {"@type": "Place", "name": "Mohakhali, Dhaka, Bangladesh", "geo": {"@type": "GeoCoordinates", "latitude": 23.778, "longitude": 90.405}}}</script><script type="application/ld+json">{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://ledadpro.com/"}, {"@type": "ListItem", "position": 2, "name": "Locations", "item": "https://ledadpro.com/locations/"}, {"@type": "ListItem", "position": 3, "name": "Mohakhali", "item": "https://ledadpro.com/locations/mohakhali/"}, {"@type": "ListItem", "position": 4, "name": "Advertising cost", "item": "https://ledadpro.com/locations/mohakhali/advertising-cost/"}]}</script>
 </head>
 <body>
-<header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
+<style>
+.intro{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:radial-gradient(120% 90% at 50% 40%,#0d2550 0%,#07122b 70%);transition:opacity .35s ease,visibility 0s linear .35s}
+.intro .iw{width:min(560px,78vw);position:relative}
+.intro svg{width:100%;height:auto;display:block;overflow:visible}
+.intro .il,.intro #board{opacity:0;transform-box:fill-box;transform-origin:50% 60%}
+.intro .il{animation:ipop .55s cubic-bezier(.2,1.5,.4,1) calc(.22s + var(--i)*.065s) both}
+.intro #board{animation:irise .45s cubic-bezier(.2,1.3,.4,1) .78s both}
+.intro #globe{transform-box:fill-box;transform-origin:center;animation:igpop .5s cubic-bezier(.2,1.6,.4,1) both}
+.intro .ring{fill:none;stroke:#8AD5F2;stroke-width:4;transform-box:fill-box;transform-origin:center;animation:iring 1.1s ease-out .15s infinite}
+.intro .orb{transform-origin:1122px 407px;animation:iorb 1.6s linear infinite}
+.intro .bar{height:3px;margin:28px auto 0;width:46%;background:rgba(255,255,255,.12);border-radius:3px;overflow:hidden}
+.intro .bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#0674BB,#3FC1F0,#5BBF6A);transform-origin:left;animation:ibar 1.15s cubic-bezier(.6,.1,.3,1) both}
+@keyframes ipop{from{opacity:0;scale:.35;translate:0 40px}to{opacity:1;scale:1;translate:0 0}}
+@keyframes irise{from{opacity:0;translate:0 60px;scale:.8}to{opacity:1;translate:0 0;scale:1}}
+@keyframes igpop{0%{scale:.1;opacity:0}60%{scale:1.35;opacity:1}100%{scale:1}}
+@keyframes iring{from{scale:1;opacity:.8}to{scale:2.4;opacity:0}}
+@keyframes iorb{to{rotate:360deg}}
+@keyframes ibar{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+/* quick mode (later pages, link clicks): globe only */
+.intro.q{opacity:0;visibility:hidden}
+.intro.q.show{opacity:1;visibility:visible;transition:opacity .18s ease}
+.intro.q .il,.intro.q #board{animation:none;opacity:1}
+.intro.q .bar{display:none}
+.intro.q .iw{width:min(420px,70vw)}
+.intro.out{opacity:0;visibility:hidden}
+@media (prefers-reduced-motion:reduce){.intro{display:none}}
+</style><noscript><style>.intro{display:none}</style></noscript><div class="intro" id="intro" aria-hidden="true"><div class="iw"><svg viewBox="28 36 1212 476" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><style>#letters path,#letters rect{stroke:#0A5C99;stroke-width:1.4;stroke-linejoin:round;paint-order:stroke}#letters .face{stroke:#4FA9D8}</style><style>#lands{animation:spin 7s linear infinite}@keyframes spin{from{transform:translateX(0)}to{transform:translateX(220px)}}
+#scrsh{animation:sh 3.2s ease-in-out infinite}@keyframes sh{0%,55%{transform:translateX(-160px) skewX(-20deg)}100%{transform:translateX(420px) skewX(-20deg)}}
+@media (prefers-reduced-motion:reduce){#lands,#scrsh{animation:none}}</style>
+<defs>
+  <linearGradient id="dk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A9BE6"></stop><stop offset="1" stop-color="#0B74C0"></stop></linearGradient>
+  <linearGradient id="lt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B4E6F8"></stop><stop offset="1" stop-color="#7FCDEE"></stop></linearGradient>
+  <linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9EEFB"></stop><stop offset=".55" stop-color="#9AD8F1"></stop><stop offset="1" stop-color="#7CC6E8"></stop></linearGradient>
+  <radialGradient id="ocean" cx=".38" cy=".34" r=".75"><stop offset="0" stop-color="#5CC2F5"></stop><stop offset=".55" stop-color="#1673C4"></stop><stop offset="1" stop-color="#062C5E"></stop></radialGradient>
+  <linearGradient id="land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C7E86A"></stop><stop offset=".6" stop-color="#4FB35A"></stop><stop offset="1" stop-color="#1E7A4A"></stop></linearGradient>
+  <radialGradient id="shade" cx=".35" cy=".3" r=".85"><stop offset=".5" stop-color="#000" stop-opacity="0"></stop><stop offset="1" stop-color="#021530" stop-opacity=".55"></stop></radialGradient>
+  <radialGradient id="glow" r=".5"><stop offset="0" stop-color="#8AD5F2" stop-opacity=".9"></stop><stop offset="1" stop-color="#8AD5F2" stop-opacity="0"></stop></radialGradient>
+  <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"></stop><stop offset=".5" stop-color="#fff" stop-opacity=".55"></stop><stop offset="1" stop-color="#fff" stop-opacity="0"></stop></linearGradient>
+  <clipPath id="gclip"><circle cx="0" cy="0" r="66"></circle></clipPath>
+  <clipPath id="scrclip"><path id="scrpath" d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z"></path></clipPath>
+  <clipPath id="lettersclip"><rect x="0" y="0" width="1300" height="560"></rect></clipPath>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#06345E" flood-opacity=".18"></feDropShadow></filter>
+</defs>
+
+
+
+<!-- billboard (behind letters so the legs tuck into R and O) -->
+<g id="board">
+  <rect id="legL" x="882" y="205" width="10" height="112" fill="#CFEFFF" transform="translate(0 0)"></rect>
+  <rect id="legR" x="1096" y="190" width="10" height="127" fill="#CFEFFF" transform="translate(0 0)"></rect>
+  <g id="screen">
+    <path d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z" fill="url(#scr)" opacity="1"></path>
+    <g clip-path="url(#scrclip)"><rect id="scrsh" x="840" y="40" width="70" height="200" fill="url(#sweep)" opacity=".8"/></g>
+    <path id="frame" d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z" fill="none" stroke="#CFEFFF" stroke-width="11" stroke-linejoin="round"></path>
+  </g>
+</g>
+
+<g id="letters">
+  <!-- row 1 -->
+  <g class="il" style="--i:0" id="L" data-x="45" data-y="55" transform="translate(45 55) scale(1)">
+    <rect x="0" y="0" width="60" height="185" rx="4" fill="url(#dk)"></rect>
+    <path class="face" d="M60 140 H210 L184 185 H60 Z" fill="url(#lt)" opacity="1"></path>
+  </g>
+  <g class="il" style="--i:1" id="E" data-x="275" data-y="55" transform="translate(275 55) scale(1)">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)" opacity="1"></path>
+    <rect x="0" y="45" width="62" height="140" fill="url(#dk)"></rect>
+    <path d="M62 84 H200 L212 122 H62 Z" fill="url(#dk)"></path>
+    <path d="M0 146 H215 V181 Q215 185 211 185 H4 Q0 185 0 181 Z" fill="url(#dk)"></path>
+  </g>
+  <g class="il" style="--i:2" id="D1" data-x="510" data-y="55" transform="translate(510 55) scale(1)">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)" opacity="1"></path>
+    <path d="M0 45 H215 V160 Q215 185 190 185 H4 Q0 185 0 181 Z M62 45 V140 H153 V45 Z" fill="url(#dk)" fill-rule="evenodd"></path>
+  </g>
+  <!-- row 2 -->
+  <g class="il" style="--i:3" id="A" data-x="40" data-y="315" transform="translate(40 315) scale(1)">
+    <path class="face" d="M0 4 Q0 0 4 0 H180 L205 45 H0 Z" fill="url(#lt)" opacity="1"></path>
+    <path d="M0 45 H205 V185 H147 V135 H58 V185 H0 Z M58 45 V95 H147 V45 Z" fill="url(#dk)" fill-rule="evenodd"></path>
+  </g>
+  <g class="il" style="--i:4" id="D2" data-x="275" data-y="315" transform="translate(275 315) scale(1)">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)" opacity="1"></path>
+    <path d="M0 45 H215 V160 Q215 185 190 185 H4 Q0 185 0 181 Z M62 45 V140 H153 V45 Z" fill="url(#dk)" fill-rule="evenodd"></path>
+  </g>
+  <g class="il" style="--i:5" id="P" data-x="548" data-y="315" transform="translate(548 315) scale(1)">
+    <path class="face" d="M0 14 L56 0 V185 L0 171 Z" fill="url(#lt)" opacity="1"></path>
+    <path d="M56 0 H210 Q230 0 230 20 V115 Q230 135 210 135 H56 V95 H172 V45 H56 Z" fill="url(#dk)"></path>
+  </g>
+  <g class="il" style="--i:6" id="R" data-x="790" data-y="315" transform="translate(790 315) scale(1)">
+    <path d="M0 4 Q0 0 4 0 H190 Q210 0 210 20 V105 Q210 128 188 132 L214 185 H150 L126 135 H60 V185 H0 Z M60 45 V92 H150 V45 Z" fill="url(#dk)" fill-rule="evenodd"></path>
+    
+  </g>
+  <g class="il" style="--i:7" id="O" data-x="1015" data-y="315" transform="translate(1015 315) scale(1)">
+    <path d="M18 0 H197 Q215 0 215 18 V167 Q215 185 197 185 H18 Q0 185 0 167 V18 Q0 0 18 0 Z" fill="url(#dk)"></path>
+    <circle cx="107" cy="92" r="72" fill="#0B3E73"></circle>
+  </g>
+  
+</g>
+
+<!-- globe -->
+<circle class="ring" cx="1122" cy="407" r="70"/><g class="orb"><circle cx="1122" cy="307" r="7" fill="#8AD5F2"/><circle cx="1222" cy="407" r="5" fill="#5BBF6A"/><circle cx="1022" cy="407" r="5" fill="#3FC1F0"/><circle cx="1122" cy="507" r="6" fill="#FFD60A"/></g><g id="globe" transform="translate(1122 407)">
+  
+  
+  <circle r="66" fill="url(#ocean)"></circle>
+  <g clip-path="url(#gclip)"><g id="lands" transform="translate(0 0)"><path d="M-60 -40 q14 -12 30 -6 q8 10 2 18 q-10 4 -8 16 q10 8 6 22 q-6 16 -2 30 q-8 4 -12 -6 q-6 -18 -16 -26 q-10 -14 0 -30 z M-8 -50 q10 -6 22 -2 q4 8 -6 10 q-12 0 -16 -8 z M40 -36 q16 -8 30 0 q10 10 0 18 q8 14 2 30 q-8 22 -18 30 q-6 -10 -8 -24 q-12 -10 -10 -26 q-4 -16 4 -28 z M95 -44 q30 -10 56 2 q12 14 -4 22 q-14 2 -20 14 q-18 4 -24 -10 q-14 -14 -8 -28 z M120 22 q14 -4 22 6 q-2 12 -14 12 q-12 -4 -8 -18 z" fill="url(#land)" transform="translate(-220 0)"></path><path d="M-60 -40 q14 -12 30 -6 q8 10 2 18 q-10 4 -8 16 q10 8 6 22 q-6 16 -2 30 q-8 4 -12 -6 q-6 -18 -16 -26 q-10 -14 0 -30 z M-8 -50 q10 -6 22 -2 q4 8 -6 10 q-12 0 -16 -8 z M40 -36 q16 -8 30 0 q10 10 0 18 q8 14 2 30 q-8 22 -18 30 q-6 -10 -8 -24 q-12 -10 -10 -26 q-4 -16 4 -28 z M95 -44 q30 -10 56 2 q12 14 -4 22 q-14 2 -20 14 q-18 4 -24 -10 q-14 -14 -8 -28 z M120 22 q14 -4 22 6 q-2 12 -14 12 q-12 -4 -8 -18 z" fill="url(#land)" transform="translate(0 0)"></path><path d="M-60 -40 q14 -12 30 -6 q8 10 2 18 q-10 4 -8 16 q10 8 6 22 q-6 16 -2 30 q-8 4 -12 -6 q-6 -18 -16 -26 q-10 -14 0 -30 z M-8 -50 q10 -6 22 -2 q4 8 -6 10 q-12 0 -16 -8 z M40 -36 q16 -8 30 0 q10 10 0 18 q8 14 2 30 q-8 22 -18 30 q-6 -10 -8 -24 q-12 -10 -10 -26 q-4 -16 4 -28 z M95 -44 q30 -10 56 2 q12 14 -4 22 q-14 2 -20 14 q-18 4 -24 -10 q-14 -14 -8 -28 z M120 22 q14 -4 22 6 q-2 12 -14 12 q-12 -4 -8 -18 z" fill="url(#land)" transform="translate(220 0)"></path></g></g>
+  <circle r="66" fill="url(#shade)"></circle>
+  <ellipse cx="-22" cy="-28" rx="26" ry="14" fill="#fff" opacity=".35" transform="rotate(-30 -22 -28)"></ellipse>
+  <circle r="66" fill="none" stroke="#BFEFFF" stroke-width="3" opacity=".9"></circle>
+</g>
+
+
+<style>#letters path,#letters rect{stroke:#7FCBEF;stroke-width:1.2}</style></svg><div class="bar"><i></i></div></div></div><script>(function(){var i=document.getElementById('intro'),s=0,t0=Date.now(),d=0;
+try{s=sessionStorage.getItem('lap-intro');sessionStorage.setItem('lap-intro','1')}catch(e){}
+if(s){i.classList.add('q');var sh=setTimeout(function(){i.classList.add('show')},350)}
+function done(){if(d)return;d=1;clearTimeout(sh);i.classList.add('out');setTimeout(function(){i.classList.remove('show','leave');i.classList.add('q')},400)}
+window.lapIntroDone=done;var min=s?0:1150;
+window.addEventListener('load',function(){setTimeout(done,Math.max(0,min-(Date.now()-t0)))});
+setTimeout(done,3000);
+window.addEventListener('pageshow',function(e){if(e.persisted){i.classList.remove('show');i.classList.add('q','out')}})})();</script>
+<header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img decoding="async" src="/assets/brand/logo-classic-dark-animated.svg" alt="LED AD PRO" width="204" height="80"></a>
 <nav aria-label="Main"><a href="/#services">Services</a><a href="/locations/">Locations</a><a href="/pricing/">Pricing</a><a href="/services/metro-rail-led-advertising/">Metro LED</a><a href="/services/led-caravan/">LED Caravan</a><a href="/clients/">Clients</a><a href="/#contact">Contact</a></nav>
 <a class="btn" href="tel:+8801958503753">Call +880 1958-503753</a></header>
 <main>
@@ -41,10 +158,11 @@
 <p class="hours">Sat–Thu 9am–8pm · Friday 10am–12pm · Flat A1, House 99 (1st floor), Road 10/2, Block D, Niketon, Gulshan 1, Dhaka</p></div></section>
 </main>
 <footer class="pf"><div class="wrap">
-<a class="wm" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
+<a class="wm" href="/" aria-label="LED AD PRO home"><img decoding="async" src="/assets/brand/logo-classic-dark-animated.svg" alt="LED AD PRO" width="204" height="80"></a>
 <nav aria-label="Locations"><a href="/locations/agargaon/">Agargaon</a><a href="/locations/airport/">Airport</a><a href="/locations/banani/">Banani</a><a href="/locations/bogura/">Bogura</a><a href="/locations/chattogram/">Chattogram</a><a href="/locations/coxs-bazar/">Cox&#x27;s Bazar</a><a href="/locations/cumilla/">Cumilla</a><a href="/locations/dhanmondi/">Dhanmondi</a><a href="/locations/farmgate/">Farmgate</a><a href="/locations/feni/">Feni</a><a href="/locations/gulshan/">Gulshan</a><a href="/locations/kamlapur/">Kamlapur</a><a href="/locations/karwan-bazar/">Karwan Bazar</a><a href="/locations/mirpur/">Mirpur</a><a href="/locations/mohakhali/">Mohakhali</a><a href="/locations/narayanganj/">Narayanganj</a><a href="/locations/rajshahi/">Rajshahi</a><a href="/locations/rangpur/">Rangpur</a><a href="/locations/sadarghat/">Sadarghat</a><a href="/locations/sylhet/">Sylhet</a><a href="/locations/tejgaon/">Tejgaon</a></nav>
 <p>&copy; 2026 LED AD PRO · Sales <a href="tel:+8801958503753">+880 1958-503753</a> · Office <a href="tel:+8801316743003">+880 1316-743003</a> · Official LED partner to AD Pro · <a href="/">Home</a> · <a href="/locations/">All locations</a> · <a href="/services/metro-rail-led-advertising/">Metro Rail LED</a> · <a href="/services/led-caravan/">LED Caravan</a> · <a href="/clients/">Our clients</a></p>
 </div></footer>
 <script>(function(){if(matchMedia("(prefers-reduced-motion: reduce)").matches||!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){es.forEach(function(e){if(!e.isIntersecting)return;var i=e.target,b=i.dataset.src||(i.dataset.src=i.getAttribute("src"));i.src=b+"#r"+Date.now();});},{threshold:.6});document.querySelectorAll("img[data-replay]").forEach(function(i){io.observe(i);});})();</script>
 <div class="sticky-cta"><a href="tel:+8801958503753">Call now</a><a href="mailto:info@ledadpro.com">Get a quote</a></div>
+<script src="/assets/ux.js?v=1" defer></script><script type="speculationrules">{"prerender":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script>
 </body></html>

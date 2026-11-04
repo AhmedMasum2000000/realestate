@@ -20,6 +20,9 @@ OUT = ROOT / 'sites/ledadpro-live'
 sys.path.insert(0, str(ROOT / 'tools'))
 from ledadpro_areas import AREA, STATIC_AREA  # noqa: E402
 from ledadpro_extra import CLIENTS, CASES, SERVICES  # noqa: E402
+from ledadpro_intro import intro_html  # noqa: E402
+INTRO = intro_html()
+SPEC = '<script type="speculationrules">{"prerender":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}</script>'
 
 SITE = 'https://ledadpro.com'
 PHONE, PHONE_TXT = '+8801958503753', '+880 1958-503753'  # Sales and Marketing (main line for leads)
@@ -94,6 +97,19 @@ def faq_ld(qas):
 OG_DEFAULT = ['/assets/brand/og-image.png']  # build_area swaps in the area photo
 
 
+def opt_imgs(s, eager=2):
+    """decoding=async on every image; lazy-load all but the first `eager` (logo + hero)."""
+    n = [0]
+    def fix(m):
+        tag = m.group(0); n[0] += 1
+        if 'decoding=' not in tag:
+            tag = tag.replace('<img ', '<img decoding="async" ', 1)
+        if n[0] > eager and 'loading=' not in tag:
+            tag = tag.replace('<img ', '<img loading="lazy" ', 1)
+        return tag
+    return re.sub(r'<img [^>]*>', fix, s)
+
+
 def page(path, title, desc, h1, body, crumb, schema=(), og_img=None, lead=''):
     og_img = og_img or OG_DEFAULT[0]
     url = SITE + path
@@ -112,11 +128,12 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img=None, lead=''):
 <link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/assets/brand/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/assets/pages.css?v=2">
+<link rel="stylesheet" href="/assets/pages.css?v=3">
 {ld(*schema, crumbs(crumb))}
 </head>
 <body>
-<header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
+{INTRO}
+<header class="ph"><a class="logo" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-classic-dark-animated.svg" alt="LED AD PRO" width="204" height="80"></a>
 <nav aria-label="Main"><a href="/#services">Services</a><a href="/locations/">Locations</a><a href="/pricing/">Pricing</a><a href="/services/metro-rail-led-advertising/">Metro LED</a><a href="/services/led-caravan/">LED Caravan</a><a href="/clients/">Clients</a><a href="/#contact">Contact</a></nav>
 <a class="btn" href="tel:{PHONE}">Call {PHONE_TXT}</a></header>
 <main>
@@ -130,17 +147,18 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img=None, lead=''):
 <p class="hours">Sat–Thu 9am–8pm · Friday 10am–12pm · {e(ADDRESS)}</p></div></section>
 </main>
 <footer class="pf"><div class="wrap">
-<a class="wm" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
+<a class="wm" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-classic-dark-animated.svg" alt="LED AD PRO" width="204" height="80"></a>
 <nav aria-label="Locations">{''.join(f'<a href="/locations/{x["id"]}/">{e(x["short"])}</a>' for x in LOCS)}</nav>
 <p>&copy; {date.today().year} LED AD PRO · Sales <a href="tel:{PHONE}">{PHONE_TXT}</a> · Office <a href="tel:{OFFICE}">{OFFICE_TXT}</a> · Official LED partner to AD Pro · <a href="/">Home</a> · <a href="/locations/">All locations</a> · <a href="/services/metro-rail-led-advertising/">Metro Rail LED</a> · <a href="/services/led-caravan/">LED Caravan</a> · <a href="/clients/">Our clients</a></p>
 </div></footer>
 <script>(function(){{if(matchMedia("(prefers-reduced-motion: reduce)").matches||!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){{es.forEach(function(e){{if(!e.isIntersecting)return;var i=e.target,b=i.dataset.src||(i.dataset.src=i.getAttribute("src"));i.src=b+"#r"+Date.now();}});}},{{threshold:.6}});document.querySelectorAll("img[data-replay]").forEach(function(i){{io.observe(i);}});}})();</script>
 <div class="sticky-cta"><a href="tel:{PHONE}">Call now</a><a href="mailto:{EMAIL}">Get a quote</a></div>
+<script src="/assets/ux.js?v=1" defer></script>{SPEC}
 </body></html>
 '''
     f = OUT / path.strip('/') / 'index.html' if path != '/' else OUT / 'index.html'
     f.parent.mkdir(parents=True, exist_ok=True)
-    f.write_text(doc)
+    f.write_text(opt_imgs(doc))
     PAGES.append((path, title))
 
 
@@ -350,9 +368,11 @@ def build_home():
     s = s.replace('<meta name="robots" content="noindex">', '<meta name="robots" content="index,follow,max-image-preview:large">\n<link rel="canonical" href="https://ledadpro.com/">')
     s = s.replace('<title>LED AD PRO | Digital Out of Home Advertising in Bangladesh</title>', '<title>LED AD PRO | LED Billboard Advertising in Dhaka &amp; Bangladesh</title>')
     s = re.sub(r'<meta name="description" content="[^"]*">', f'<meta name="description" content="LED billboard advertising on {sum(len(a["p"]) for a in LOCS)} screens in Dhaka, Chattogram, Sylhet and more. Every location with photos, prices from 100 BDT/min. Call {PHONE_TXT}.">', s)
-    s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=10"', s)
+    s = re.sub(r'href="style\.css\?v=\d+"', 'href="/assets/style.css?v=11"', s)
     s = re.sub(r'src="locations\.js\?v=\d+"', 'src="/assets/locations.js?v=2"', s)
-    s = re.sub(r'src="main\.js\?v=\d+"', 'src="/assets/main.js?v=9"', s)
+    s = re.sub(r'src="main\.js\?v=\d+"', 'src="/assets/main.js?v=11"', s)
+    s = re.sub(r'src="ux\.js\?v=\d+"', 'src="/assets/ux.js?v=1"', s)
+    s = s.replace('<body>', '<body>\n' + INTRO, 1).replace('</body>', SPEC + '\n</body>', 1)
     s = s.replace('src="img/', 'src="/assets/img/').replace('src="brand/', 'src="/assets/brand/').replace('data-img="img/', 'data-img="/assets/img/').replace('href="brand/', 'href="/assets/brand/')
     og = f'<meta property="og:type" content="website"><meta property="og:title" content="LED AD PRO | LED Billboard Advertising in Bangladesh"><meta property="og:url" content="{SITE}/"><meta property="og:image" content="{SITE}/assets/brand/og-image.png"><meta name="twitter:card" content="summary_large_image">'
     web = {'@type': 'WebSite', 'name': 'LED AD PRO', 'url': SITE + '/'}
@@ -368,7 +388,8 @@ def build_home():
     s = s.replace('  <!-- Cyan band -->', faq_html + '\n  <!-- Cyan band -->', 1)
     s = s.replace('</head>', ld(faq_schema) + '\n</head>', 1)
     s = s.replace('<a href="#contact">Contact us</a></nav>', '<a href="/pricing/">Pricing</a><a href="/led-screen-rental/">LED screen rental</a><a href="/about/">About</a><a href="/guides/how-to-choose-a-billboard-location/">Choosing a location</a><a href="#contact">Contact us</a></nav>', 1)
-    (OUT / 'index.html').write_text(s)
+    s = s.replace('alt="LED billboard at Gulshan-2 facing Baridhara, Dhaka"', 'alt="LED billboard at Gulshan-2 facing Baridhara, Dhaka" fetchpriority="high"', 1)
+    (OUT / 'index.html').write_text(opt_imgs(s, eager=3))
     PAGES.append(('/', 'Home'))
 
 
@@ -378,7 +399,7 @@ def main():
     (OUT / 'assets').mkdir(parents=True)
     shutil.copytree(SRC / 'img', OUT / 'assets/img')
     shutil.copytree(SRC / 'brand', OUT / 'assets/brand')
-    for f in ('style.css', 'main.js'):
+    for f in ('style.css', 'main.js', 'ux.js'):
         shutil.copy(SRC / f, OUT / 'assets' / f)
     shutil.copy(ROOT / 'sites/ledadpro-pages.css', OUT / 'assets/pages.css')
     (OUT / 'assets/locations.js').write_text(data.replace('"img/', '"/assets/img/'))

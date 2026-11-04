@@ -182,7 +182,7 @@
       const [x, y] = pinXY(a), on = a === active, vis = shown.includes(a), ph = ((t / 1600) + i * .29) % 1;
       if (!vis && !on) { ctx.fillStyle = 'rgba(255,31,110,.35)'; ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill(); return; }
       if (!reduce) { ctx.strokeStyle = `rgba(255,31,110,${(1 - ph) * .8})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 5 + ph * (on ? 26 : 12), 0, 7); ctx.stroke(); }
-      ctx.fillStyle = on ? '#ffd60a' : '#ff1f6e'; ctx.beginPath(); ctx.arc(x, y, on ? 7 : 4.5, 0, 7); ctx.fill();
+      ctx.fillStyle = on ? '#ffd60a' : '#3FC1F0'; ctx.beginPath(); ctx.arc(x, y, on ? 7 : 4.5, 0, 7); ctx.fill();
       if (on) {
         const label = a.name.toUpperCase(); ctx.font = '800 12px Inter, sans-serif';
         const w = ctx.measureText(label).width, lx = Math.max(4, Math.min(x + 12, W - w - 4));
