@@ -52,7 +52,8 @@ jobs:
               if not line or line.startswith('#'): continue
               name, page, slug, dom = (line.split('|') + ['', '', ''])[:4]
               tries = []
-              if page.startswith('File:'): tries.append(('commons-file', lambda: commons_file(page[5:])))
+              if page.startswith('https://'): tries.append(('url', lambda: (page.rsplit('/', 1)[-1], page)))
+              elif page.startswith('File:'): tries.append(('commons-file', lambda: commons_file(page[5:])))
               elif page: tries.append(('wikipedia', lambda: wiki(page)))
               if slug == 'search': tries.append(('commons-search', lambda: commons_search(name))); slug = ''
               if slug: tries.append(('simple-icons', lambda: (slug, f'https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/{slug}.svg')))
