@@ -22,7 +22,9 @@ from ledadpro_areas import AREA, STATIC_AREA  # noqa: E402
 from ledadpro_extra import CLIENTS, CASES, SERVICES  # noqa: E402
 
 SITE = 'https://ledadpro.com'
-PHONE, PHONE_TXT, EMAIL = '+8801316743003', '+880 1316-743003', 'info@ledadpro.com'
+PHONE, PHONE_TXT = '+8801958503753', '+880 1958-503753'  # Sales and Marketing (main line for leads)
+OFFICE, OFFICE_TXT = '+8801316743003', '+880 1316-743003'  # office / general
+EMAIL = 'info@ledadpro.com'
 ADDRESS = 'Flat A1, House 99 (1st floor), Road 10/2, Block D, Niketon, Gulshan 1, Dhaka'
 TODAY = date.today().isoformat()
 e = html.escape
@@ -64,7 +66,9 @@ def screens(a, n):
 
 def org():
     return {'@type': 'LocalBusiness', '@id': SITE + '/#business', 'name': 'LED AD PRO', 'url': SITE + '/',
-            'telephone': PHONE, 'email': EMAIL, 'image': SITE + '/assets/brand/og-image.png', 'logo': SITE + '/assets/brand/logo-horizontal-1600.png',
+            'telephone': PHONE, 'email': EMAIL,
+            'contactPoint': [{'@type': 'ContactPoint', 'telephone': PHONE, 'contactType': 'sales', 'areaServed': 'BD', 'availableLanguage': ['en', 'bn']},
+                             {'@type': 'ContactPoint', 'telephone': OFFICE, 'contactType': 'customer service', 'areaServed': 'BD', 'availableLanguage': ['en', 'bn']}], 'image': SITE + '/assets/brand/og-image.png', 'logo': SITE + '/assets/brand/logo-horizontal-1600.png',
             'address': {'@type': 'PostalAddress', 'streetAddress': 'Flat A1, House 99, Road 10/2, Block D, Niketon',
                         'addressLocality': 'Dhaka', 'addressRegion': 'Gulshan 1', 'addressCountry': 'BD'},
             'geo': {'@type': 'GeoCoordinates', 'latitude': 23.774, 'longitude': 90.417},
@@ -118,12 +122,13 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img='/assets/brand/og
 <section class="cta"><div class="wrap"><h2 class="display">Get a shortlist and dates</h2>
 <p>Tell us your brand, budget and preferred dates. We reply with available screens, a written quote and the creative specification.</p>
 <div class="cta-b"><a class="btn" href="tel:{PHONE}">Call {PHONE_TXT}</a><a class="btn ghost" href="mailto:{EMAIL}?subject={e('LED billboard enquiry: ' + h1)}">Email {EMAIL}</a></div>
+<p class="hours">Sales &amp; marketing <a href="tel:{PHONE}">{PHONE_TXT}</a> · Office <a href="tel:{OFFICE}">{OFFICE_TXT}</a></p>
 <p class="hours">Sat–Thu 9am–8pm · Friday 10am–12pm · {e(ADDRESS)}</p></div></section>
 </main>
 <footer class="pf"><div class="wrap">
 <a class="wm" href="/" aria-label="LED AD PRO home"><img src="/assets/brand/logo-header-animated.svg" alt="LED AD PRO" width="300" height="70" data-replay></a>
 <nav aria-label="Locations">{''.join(f'<a href="/locations/{x["id"]}/">{e(x["short"])}</a>' for x in LOCS)}</nav>
-<p>&copy; {date.today().year} LED AD PRO · Official LED partner to AD Pro · <a href="/">Home</a> · <a href="/locations/">All locations</a> · <a href="/services/metro-rail-led-advertising/">Metro Rail LED</a> · <a href="/services/led-caravan/">LED Caravan</a> · <a href="/clients/">Our clients</a></p>
+<p>&copy; {date.today().year} LED AD PRO · Sales <a href="tel:{PHONE}">{PHONE_TXT}</a> · Office <a href="tel:{OFFICE}">{OFFICE_TXT}</a> · Official LED partner to AD Pro · <a href="/">Home</a> · <a href="/locations/">All locations</a> · <a href="/services/metro-rail-led-advertising/">Metro Rail LED</a> · <a href="/services/led-caravan/">LED Caravan</a> · <a href="/clients/">Our clients</a></p>
 </div></footer>
 <script>(function(){{if(matchMedia("(prefers-reduced-motion: reduce)").matches||!("IntersectionObserver" in window))return;var io=new IntersectionObserver(function(es){{es.forEach(function(e){{if(!e.isIntersecting)return;var i=e.target,b=i.dataset.src||(i.dataset.src=i.getAttribute("src"));i.src=b+"#r"+Date.now();}});}},{{threshold:.6}});document.querySelectorAll("img[data-replay]").forEach(function(i){{io.observe(i);}});}})();</script>
 <div class="sticky-cta"><a href="tel:{PHONE}">Call now</a><a href="mailto:{EMAIL}">Get a quote</a></div>
@@ -349,7 +354,7 @@ def main():
         build_area(a)
     sm = ''.join(f'<url><loc>{SITE}{p}</loc><lastmod>{TODAY}</lastmod></url>' for p, _ in PAGES)
     (OUT / 'sitemap-ledadpro.xml').write_text(f'<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{sm}</urlset>\n')
-    llms = [f'# LED AD PRO\n\n> LED billboard and digital out-of-home advertising in Bangladesh: {sum(len(a["p"]) for a in LOCS)} LED screens in {len(LOCS)} areas, plus static billboards, custom LED displays and event screens. Office: {ADDRESS}. Phone {PHONE_TXT}, {EMAIL}.\n\n## Locations\n']
+    llms = [f'# LED AD PRO\n\n> LED billboard and digital out-of-home advertising in Bangladesh: {sum(len(a["p"]) for a in LOCS)} LED screens in {len(LOCS)} areas, plus static billboards, custom LED displays and event screens. Office: {ADDRESS}. Sales and marketing {PHONE_TXT}, office {OFFICE_TXT}, {EMAIL}.\n\n## Locations\n']
     llms += [f'- [{a["name"]}]({SITE}/locations/{a["id"]}/): {screens(a, len(a["p"]))}; {AREA[a["id"]][0]}\n' for a in LOCS]
     (OUT / 'llms.txt').write_text(''.join(llms))
     print(len(PAGES), 'pages')

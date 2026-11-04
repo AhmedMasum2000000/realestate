@@ -28,7 +28,7 @@ SERVICES = {
          ('Which metro line can I advertise on?', 'Dhaka Metro Rail MRT Line-6, which runs between Uttara and Motijheel. Current screen coverage is confirmed when you enquire.'),
          ('How long should a metro ad be?', 'Keep it short, usually 10 to 15 seconds, and make it work without sound: passengers often watch without audio.'),
          ('Can I combine metro with LED billboards?', 'Yes. Pairing in-coach screens with roadside LED billboards near stations such as Farmgate, Karwan Bazar and Mirpur-10 repeats your message on the same journey.'),
-         ('How do I book?', 'Call +880 1316-743003 or email info@ledadpro.com with your dates and budget for availability and a written quote.')]),
+         ('How do I book?', 'Call sales on +880 1958-503753 (office +880 1316-743003) or email info@ledadpro.com with your dates and budget for availability and a written quote.')]),
  'led-caravan': dict(
     name='LED Caravan (Mobile LED Screen Van)', short='LED Caravan', img='img/event-stage-night-2400.webp', img2=None,
     title='LED Caravan Advertising in Bangladesh (Mobile LED Screen Van) | LED AD PRO',
@@ -43,5 +43,5 @@ SERVICES = {
          ('Where can an LED caravan go?', 'Anywhere the vehicle can drive and park: Dhaka areas, markets, campuses, event grounds and district towns, subject to local rules.'),
          ('Can it play sound?', 'Yes. Unlike most roadside billboards, a caravan can play video with sound at stops.'),
          ('What is it best for?', 'Launches, roadshows, sales campaigns, activations and reaching towns without fixed LED screens.'),
-         ('How do I book?', 'Call +880 1316-743003 or email info@ledadpro.com with your route idea and dates for a plan and written quote.')]),
+         ('How do I book?', 'Call sales on +880 1958-503753 (office +880 1316-743003) or email info@ledadpro.com with your route idea and dates for a plan and written quote.')]),
 }

@@ -234,7 +234,7 @@ a.svc-row{color:inherit;cursor:pointer}
 .big-cta .chev{display:inline-block;color:#fff;transition:transform .5s var(--ease)}
 .big-cta:hover{transform:translateY(-4px);box-shadow:0 24px 60px rgba(255,31,110,.35)}
 .big-cta:hover .chev{transform:translateX(18px)}
-.contact-cols{display:grid;grid-template-columns:repeat(4,1fr);gap:32px;margin-top:56px}
+.contact-cols{display:grid;grid-template-columns:repeat(5,1fr);gap:32px;margin-top:56px}
 .contact-cols h4{font:700 12px/1 var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
 .contact-cols a,.contact-cols p{font-size:18px;font-weight:600}
 .contact-cols a{overflow-wrap:anywhere}
