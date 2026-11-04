@@ -18,7 +18,7 @@ for d in $DIRS; do
   if [ -e "$R/$d" ] && [ ! -e "$R/$d/$MARK" ]; then echo "STOP: $R/$d exists and was not created by this script"; exit 1; fi
 done
 mkdir -p "$BK"
-for f in index.html .htaccess robots.txt sitemap-ledadpro.xml llms.txt; do [ -e "$R/$f" ] && cp -a "$R/$f" "$BK/" || true; done
+for f in index.html .htaccess robots.txt sitemap-ledadpro.xml llms.txt favicon.ico; do [ -e "$R/$f" ] && cp -a "$R/$f" "$BK/" || true; done
 for d in $DIRS; do [ -d "$R/$d" ] && cp -a "$R/$d" "$BK/" || true; done
 echo "$DIRS" > "$BK/.dirs"
 echo "Backup: $BK"; echo "$BK" > /root/backups/$D-latest
@@ -28,6 +28,7 @@ for d in $DIRS; do
   rm -rf "$R/.$d.old"; [ -d "$R/$d" ] && mv "$R/$d" "$R/.$d.old"; mv "$R/.$d.new" "$R/$d"; rm -rf "$R/.$d.old"
 done
 cp "$SRC/index.html" "$SRC/sitemap-ledadpro.xml" "$SRC/llms.txt" "$R/"
+if [ -f "$SRC/favicon.ico" ]; then cp "$SRC/favicon.ico" "$R/favicon.ico"; chown "$U:$U" "$R/favicon.ico"; chmod 644 "$R/favicon.ico"; fi
 # Our .htaccess block, rewritten on every deploy and kept above WordPress' rules
 HOST_RE=${D//./\\.}
 REDIRECTS=$(cat "$SRC/redirects.conf" 2>/dev/null || true)  # old WordPress URLs -> new pages

@@ -125,7 +125,7 @@ def page(path, title, desc, h1, body, crumb, schema=(), og_img=None, lead=''):
 <meta property="og:type" content="website"><meta property="og:site_name" content="LED AD PRO"><meta property="og:title" content="{e(title)}">
 <meta property="og:description" content="{e(desc)}"><meta property="og:url" content="{url}"><meta property="og:image" content="{SITE}{og_img}">
 <meta name="twitter:card" content="summary_large_image"><meta name="theme-color" content="#0B1B3F">
-<link rel="icon" href="/assets/brand/favicon.svg" type="image/svg+xml"><link rel="icon" href="/assets/brand/favicon-32.png" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/assets/brand/favicon-180.png">
+<link rel="icon" href="/favicon.ico?v=2" sizes="any"><link rel="icon" href="/assets/brand/favicon.svg?v=2" type="image/svg+xml"><link rel="icon" href="/assets/brand/favicon-32.png?v=2" sizes="32x32" type="image/png"><link rel="apple-touch-icon" href="/assets/brand/favicon-180.png?v=2">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/assets/pages.css?v=3">
@@ -402,6 +402,7 @@ def main():
     for f in ('style.css', 'main.js', 'ux.js'):
         shutil.copy(SRC / f, OUT / 'assets' / f)
     shutil.copy(ROOT / 'sites/ledadpro-pages.css', OUT / 'assets/pages.css')
+    shutil.copy(SRC / 'brand/favicon.ico', OUT / 'favicon.ico')  # root /favicon.ico (browsers and Google ask for it)
     (OUT / 'assets/locations.js').write_text(data.replace('"img/', '"/assets/img/'))
     build_home(); build_hub(); build_services(); build_clients()
     import ledadpro_guides
