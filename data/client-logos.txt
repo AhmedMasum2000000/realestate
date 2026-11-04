@@ -1,5 +1,6 @@
-# Name|source|slug|site   (name ending in ? = list photo candidates only)
-db1?|photo:digital billboard night||
-db2?|photo:LED billboard||
-db3?|photo:Times Square night billboards||
-db4?|photo:Piccadilly Circus lights||
+# Name|source|slug|site
+c-ts2013|File:1 times square night 2013.jpg||
+c-ts2025|File:Times Square, NYC at night - August 2025.jpg||
+c-piccadilly|File:Open Happiness Piccadilly Circus Blue-Pink Hour 120917-1126-jikatu.jpg||
+c-shanklin|File:Shanklin Media LED Billboard IMG 9693 (49986694111).jpg||
+c-rotterdam|File:LED Impact electronic billboard, Molenlaankwartier, Rotterdam (2023) 05.jpg||
