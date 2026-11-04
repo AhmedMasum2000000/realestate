@@ -49,6 +49,27 @@ class SearchConsole:
             session = AuthorizedSession(creds)
         self.http = session
 
+    @classmethod
+    def from_refresh_token(cls, client_id: str, client_secret: str, refresh_token: str,
+                           session: Any = None) -> "SearchConsole":
+        """Act as a Google user (OAuth refresh token) instead of a service account.
+
+        Properties verified this way belong to that user directly, so no
+        extra owner has to be added.
+        """
+        obj = cls.__new__(cls)
+        obj.email = "oauth-user"
+        if session is None:
+            from google.auth.transport.requests import AuthorizedSession
+            from google.oauth2.credentials import Credentials
+
+            creds = Credentials(None, refresh_token=refresh_token, client_id=client_id,
+                                client_secret=client_secret,
+                                token_uri="https://oauth2.googleapis.com/token", scopes=SCOPES)
+            session = AuthorizedSession(creds)
+        obj.http = session
+        return obj
+
     # -- transport ----------------------------------------------------------
 
     def _req(self, method: str, url: str, **kw) -> dict:
