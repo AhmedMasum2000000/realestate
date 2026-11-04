@@ -390,7 +390,8 @@ def build_home():
     s = s.replace('</head>', ld(faq_schema) + '\n</head>', 1)
     s = s.replace('<a href="#contact">Contact us</a></nav>', '<a href="/pricing/">Pricing</a><a href="/led-screen-rental/">LED screen rental</a><a href="/about/">About</a><a href="/guides/how-to-choose-a-billboard-location/">Choosing a location</a><a href="#contact">Contact us</a></nav>', 1)
     s = s.replace('alt="LED billboard at Gulshan-2 facing Baridhara, Dhaka"', 'alt="LED billboard at Gulshan-2 facing Baridhara, Dhaka" fetchpriority="high"', 1)
-    (OUT / 'index.html').write_text(opt_imgs(s, eager=3))
+    s = s.replace('alt="LED screens on an event stage at night"', 'alt="LED screens on an event stage at night" fetchpriority="low"', 1).replace('alt="LED screen production for a daytime event"', 'alt="LED screen production for a daytime event" fetchpriority="low"', 1)
+    (OUT / 'index.html').write_text(opt_imgs(s, eager=5))  # logo, menu logo, 3 hero slides: hidden slides never intersect, so they must not be lazy
     PAGES.append(('/', 'Home'))
 
 
