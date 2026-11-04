@@ -1,10 +1,30 @@
-# Name|Wikipedia page or File:<commons file>|simple-icons slug or 'search'|website
-Malaysia Airlines|Malaysia Airlines||www.malaysiaairlines.com
-ACI|ACI Limited||www.aci-bd.com
-Mediacom|Mediacom Limited||
-New Zealand Dairy|||www.newzealanddairy.com.bd
-Aziz & Company|||
-Mega Builders|||
-Sencillo|||
-Paramount|||
-APCL portfolio|https://adpro.com.bd/wp-content/uploads/2024/12/client-portfolio-AD-PRO-communications-limitedapcl.webp||
+# Name|Wikipedia page or File:<commons file> or https URL|simple-icons slug or 'search'|website
+Coca-Cola|Coca-Cola||
+Pepsi|Pepsi||
+HSBC|HSBC||
+KFC|KFC||
+HP|HP Inc.||
+Hyundai|Hyundai Motor Company||
+Petronas|Petronas||
+Casio|Casio||
+Castrol|Castrol||
+Dabur|Dabur||
+Batik Air|Batik Air||
+UNDP|United Nations Development Programme||
+Square|Square Group||
+Walton|Walton Group||
+Banglalink|Banglalink||
+Prothom Alo|Prothom Alo||
+Apex|Apex Footwear||
+Hatil|Hatil||
+Hamdard|Hamdard Laboratories (Waqf) Bangladesh||
+Shanta Holdings|Shanta Holdings||
+United Group|United Group (Bangladesh)||
+T Sports|T Sports||
+Nagorik TV|Nagorik TV||
+Radio Foorti|Radio Foorti||
+Dekko|Dekko Group||
+Praava Health|Praava Health||
+Augmedix|Augmedix||
+Bangladesh Tourism Board|Bangladesh Tourism Board||
+Sailor|Sailor (clothing brand)||
