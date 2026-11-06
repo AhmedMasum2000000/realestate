@@ -1,0 +1,37 @@
+[
+  {
+    "asset": "logo.png",
+    "source_url": "https://moveinthailand.com/wp-content/uploads/2026/03/Logo-Move-In-Thailand-scaled.png",
+    "cpanel_confirmed": true,
+    "original_sha256": "b2a3f4ab328cc60780b7d71a02a720fef2fedb19464cc5dc9a11dcf9f35bce1f",
+    "use": "Original brand artwork"
+  },
+  {
+    "asset": "coast.webp",
+    "source_url": "https://moveinthailand.com/wp-content/uploads/2026/03/wallpaperflare.com_wallpaper.jpg",
+    "cpanel_confirmed": true,
+    "original_sha256": "3bed5cf78315dd17fc9629ce90324b832e8f416b09c94583c4b5dbe95daa1e25",
+    "use": "Existing website or partner property photograph; not a client testimonial or current availability claim"
+  },
+  {
+    "asset": "home.webp",
+    "source_url": "https://pattayahomepro.com/assets/properties/CP1790/hero.webp",
+    "cpanel_confirmed": true,
+    "original_sha256": "032845862792bb06a176d9523d911c8e13bee4c20eb982762e77912f692f5fc5",
+    "use": "Existing website or partner property photograph; not a client testimonial or current availability claim"
+  },
+  {
+    "asset": "home-2.webp",
+    "source_url": "https://pattayahomepro.com/assets/properties/CP1799/hero.webp",
+    "cpanel_confirmed": true,
+    "original_sha256": "3ffb7909ea6546b514603c4857ea3ef2bc9cdd8615a82ca712a097fe8d4e66be",
+    "use": "Existing website or partner property photograph; not a client testimonial or current availability claim"
+  },
+  {
+    "asset": "home-3.webp",
+    "source_url": "https://pattayahomepro.com/assets/properties/CP1849/hero.webp",
+    "cpanel_confirmed": true,
+    "original_sha256": "fd2e459bcb81bf30c65654c8d05a7f89265197ddc15cd5de74732586cb7c422f",
+    "use": "Existing website or partner property photograph; not a client testimonial or current availability claim"
+  }
+]

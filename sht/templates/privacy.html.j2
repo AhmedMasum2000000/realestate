@@ -1,0 +1,14 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, crumbs with context %}
+{% block content %}
+<section class="page-hero">
+  <div class="frame">
+    {{ crumbs(page) }}
+    <div class="page-hero-grid">
+      <div>{{ mono('Your information') }}<h1 class="display page-title" data-reveal-words>Only what we <em>need.</em></h1></div>
+      <div class="page-hero-side"><p class="lede">The consultation form asks for contact details and the priorities of your move. Please keep identity documents and financial records out of a first enquiry.</p></div>
+    </div>
+  </div>
+</section>
+<section class="section article"><div class="frame article-grid"><article class="prose">{% for title, text in sht.PRIVACY %}<section class="prose-block"><h2>{{ title }}</h2><p>{{ text }}</p></section>{% endfor %}</article></div></section>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, faq, cta, button with context %}
+{% from 'listing-parts.html.j2' import card with context %}
+{% set hub = page.hub %}
+{% block content %}
+<section class="page-hero hub-hero">
+  <div class="frame">
+    <nav class="crumbs mono" aria-label="Breadcrumb"><a href="{{ url('') }}">Home</a><span>/</span>{% if hub.kind != 'all' %}<a href="{{ url('properties/') }}">Properties</a><span>/</span>{% if hub.kind == 'area-type' %}<a href="{{ url('properties/' ~ hub.area_slug ~ '/') }}">{{ hub.area }}</a><span>/</span>{% endif %}{% endif %}<span aria-current="page">{{ hub.heading }}</span></nav>
+    <div class="page-hero-grid">
+      <div>{{ mono(hub.homes|length ~ ' homes · updated ' ~ updated_label) }}<h1 class="display page-title">{{ hub.heading }}</h1></div>
+      <div class="page-hero-side"><p class="lede">{{ hub.lead }}</p>{{ button('Ask us to shortlist for you', url('contact/?interest=homes')) }}</div>
+    </div>
+    {% if hub.facts %}<div class="hub-facts">{% for fact in hub.facts %}<p>{{ fact }}</p>{% endfor %}</div>{% endif %}
+  </div>
+</section>
+<section class="section hub-list">
+  <div class="frame">
+    {% if hub.kind == 'all' %}
+    <form class="home-filter" data-home-filter aria-label="Filter homes">
+      <label>Buy or rent<select name="deal"><option value="">Both</option><option value="sale">Buy</option><option value="rent">Rent</option></select></label>
+      <label>Type<select name="type"><option value="">Any type</option>{% for slug, name in type_options %}<option value="{{ slug }}">{{ name|capitalize }}</option>{% endfor %}</select></label>
+      <label>Area<select name="area"><option value="">Anywhere</option>{% for slug, name in area_options %}<option value="{{ slug }}">{{ name }}</option>{% endfor %}</select></label>
+      <label>Bedrooms<select name="beds"><option value="">Any</option><option value="1">1+</option><option value="2">2+</option><option value="3">3+</option><option value="4">4+</option></select></label>
+      <label>Sort<select name="sort"><option value="new">Newest</option><option value="low">Price, low to high</option><option value="high">Price, high to low</option></select></label>
+      <label class="check"><input type="checkbox" name="saved"><span>My shortlist only</span></label>
+      <p class="home-count mono" data-home-count aria-live="polite">{{ hub.homes|length }} homes</p>
+    </form>
+    {% endif %}
+    <div class="home-grid" data-home-grid>{% for h in hub.homes %}{{ card(h, loop.index <= 3) }}{% endfor %}</div>
+    <div class="shortlist-bar" data-shortlist-bar hidden><p><strong data-shortlist-count>0</strong> saved to your shortlist</p><a class="button" href="{{ url('contact/?interest=homes') }}" data-shortlist-send><span>Send my shortlist</span>{{ icon('arrow') }}</a></div>
+  </div>
+</section>
+{% set links = hub_links(hub) %}{% if links %}<section class="section hub-nav"><div class="frame">{% for group, items in links if items %}<div class="hub-nav-group">{{ mono(group) }}<nav class="hub-links">{% for key in items %}<a href="{{ url(key ~ '/') }}">{{ home_hubs[key].heading }} <span>{{ home_hubs[key].homes|length }}</span></a>{% endfor %}</nav></div>{% endfor %}</div></section>{% endif %}
+<section class="section hub-guides"><div class="frame related-grid">{% for title, text, href in guide_links(hub) %}<a class="related-card" href="{{ url(href) }}"><span class="related-index mono">{{ '%02d'|format(loop.index) }}</span><h3>{{ title }}</h3><p>{{ text }}</p><span class="link-arrow">{{ icon('arrow') }}</span></a>{% endfor %}</div></section>
+{{ faq(hub.faqs) }}
+{{ cta(title='Tell us the home. <em>We do the rest.</em>', text='Share the area, budget and dates you have in mind. We shortlist homes, confirm availability with the agents and arrange viewings around your visa and arrival.') }}
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, faq, button with context %}
+{% from 'listing-parts.html.j2' import card with context %}
+{% from 'boon.html.j2' import boon %}
+{% set h = page.home %}
+{% block content %}
+<section class="listing-hero">
+  <div class="frame">
+    <nav class="crumbs mono" aria-label="Breadcrumb"><a href="{{ url('') }}">Home</a><span>/</span><a href="{{ url('properties/') }}">Properties</a><span>/</span>{% if h.crumb != 'properties' %}<a href="{{ url(h.crumb ~ '/') }}">{{ home_hubs[h.crumb].crumb }}</a><span>/</span>{% endif %}<span aria-current="page">{{ h.ref }}</span></nav>
+    <div class="listing-grid">
+      <figure class="listing-photo"><img src="{{ asset(h.image) }}" width="{{ h.img_w }}" height="{{ h.img_h }}" alt="{{ h.h1 }}{{ ' at ' ~ h.project if h.project else '' }}" fetchpriority="high"><figcaption class="mono">{{ h.ref }} · {{ h.area }}{% if h.project %} · {{ h.project }}{% endif %}</figcaption></figure>
+      <div class="listing-head">
+        {{ mono(h.deal_label ~ ' · ' ~ h.area ~ ', Pattaya') }}
+        <h1 class="listing-title">{{ h.h1 }}{% if h.project %}<span>{{ h.project }}</span>{% endif %}</h1>
+        <p class="listing-price">{{ h.price_text }}</p>
+        <dl class="listing-facts">
+          <div><dt>Type</dt><dd>{{ h.singular|capitalize }}</dd></div>
+          <div><dt>Bedrooms</dt><dd>{{ 'Studio' if h.beds == 0 else (h.beds if h.beds is not none else 'Ask us') }}</dd></div>
+          <div><dt>Bathrooms</dt><dd>{{ h.baths if h.baths else 'Ask us' }}</dd></div>
+          <div><dt>Area</dt><dd><a href="{{ url(h.area_hub ~ '/') }}">{{ h.area }}</a></dd></div>
+          <div><dt>Reference</dt><dd>{{ h.ref }}</dd></div>
+          <div><dt>Updated</dt><dd><time datetime="{{ h.updated.isoformat() }}">{{ h.updated.strftime('%-d %b %Y') }}</time></dd></div>
+        </dl>
+        <div class="button-row">{{ button('Request details & viewing', '#enquire') }}<button class="text-arrow" type="button" data-save="{{ h.ref }}" aria-pressed="false">Save to shortlist</button></div>
+        <p class="listing-trust mono">Free to ask · No obligation · Availability checked before you travel</p>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section listing-body">
+  <div class="frame article-grid">
+    <article class="prose">
+      <section class="prose-block"><h2>In short</h2><p>{{ h.summary }}</p>{% if h.stale %}<div class="note">This listing was last updated more than nine months ago. We will confirm whether it is still available and, if not, suggest similar homes in {{ h.area }}.</div>{% endif %}</section>
+      <section class="prose-block"><h2>{{ 'Can a foreigner buy it?' if h.deal == 'sale' else 'Renting it as a foreigner' }}</h2><p>{{ h.ownership }}</p><p>Read more: <a href="{{ url('homes/foreign-ownership/') }}">what foreigners can own in Thailand</a>{% if h.deal == 'sale' %}, <a href="{{ url('homes/buy-condo-thailand/' if h.type in ('Condo', 'Apartment') else 'homes/property-transfer/') }}">{{ 'buying a condo step by step' if h.type in ('Condo', 'Apartment') else 'the transfer at the Land Office' }}</a>{% else %}, <a href="{{ url('homes/rent-in-pattaya/') }}">renting in Pattaya</a> and <a href="{{ url('stay-legal/tm30/') }}">the TM30 address notification</a>{% endif %}.{% if h.deal == 'sale' and h.type in ('Condo', 'Apartment') %} The foreign quota is set by the <a href="{{ source_map['condo'][1] }}" target="_blank" rel="noopener">Condominium Act (Department of Lands)</a>.{% endif %}</p></section>
+      <section class="prose-block"><h2>What it costs beyond the price</h2><p>{{ h.costs }}</p><p>{% if h.deal == 'sale' %}<a href="{{ url('homes/property-transfer/') }}">Transfer fees and taxes explained</a>{% else %}<a href="{{ url('living/cost-of-living/') }}">Build a monthly budget for Thailand</a>{% endif %}.</p></section>
+      <section class="prose-block"><h2>The visa side</h2><p>A home does not come with a visa. Long-stay residents usually pair it with the <a href="{{ url('visas/retirement/') }}">retirement visa</a> (age 50 and over), the <a href="{{ url('visas/ltr/') }}">Long-Term Resident visa</a>, <a href="{{ url('visas/thailand-privilege/') }}">Thailand Privilege</a> membership or the <a href="{{ url('visas/dtv/') }}">Destination Thailand Visa</a>. We plan the home and the visa together, so the lease or transfer date and your arrival line up. Not sure which fits? <a href="{{ url('tools/visa-finder/') }}">Take the Visa Finder</a>.</p></section>
+      <section class="prose-block"><h2>Living in {{ h.area }}</h2><p>{{ h.area_text }}</p><p><a href="{{ url(h.area_hub ~ '/') }}">More homes in {{ h.area }}</a> · <a href="{{ url('living/pattaya/') }}">Compare Pattaya’s neighbourhoods</a></p></section>
+      <section class="prose-block"><h2>How we help with this home</h2><ol class="steps"><li>We confirm availability and the current price with the listing agent.</li><li>We check the ownership route{{ ' and the building’s foreign quota' if h.deal == 'sale' and h.type in ('Condo', 'Apartment') else '' if h.deal == 'rent' else ' and the land and lease documents' }}, or the lease terms.</li><li>We arrange a viewing around your dates, in person or by video where the agent can offer one.</li><li>We line up the visa, the move-in date and your first month: bank, insurance, TM30.</li></ol><p class="fineprint">Listing data from Casa Pattaya, reference {{ h.ref }}, last updated {{ h.updated.strftime('%-d %B %Y') }}. Photographs are the listing agent’s. Prices are asking prices and may change.</p></section>
+    </article>
+    <aside class="aside listing-aside" id="enquire">
+      <form id="move-enquiry" class="form listing-form" action="{{ url('wp-json/sht/v1/enquiries') }}" method="post">
+        {{ mono('Ask about ' ~ h.ref) }}
+        <p class="listing-form-title">Request details &amp; a viewing</p>
+        <label for="enquiry-name">Your name<input id="enquiry-name" name="name" autocomplete="name" maxlength="120" required></label>
+        <label for="enquiry-email">Email<input id="enquiry-email" name="email" type="email" autocomplete="email" maxlength="200" required></label>
+        <label for="enquiry-phone">Phone or WhatsApp <span>Optional</span><input id="enquiry-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" placeholder="With country code"></label>
+        <label for="enquiry-interest">I would like<select id="enquiry-interest" name="interest" required><option value="homes" selected>Details and a viewing</option><option value="visa">Help with the visa as well</option><option value="other">Help with the whole move</option></select></label>
+        <label for="enquiry-timeline">When?<select id="enquiry-timeline" name="timeline" required><option value="">Approximate timeline</option><option value="soon">Within 3 months</option><option value="later">In 3–6 months</option><option value="year">In 6–12 months</option><option value="exploring">Still exploring</option><option value="already">Already in Thailand</option></select></label>
+        <label for="enquiry-message">Message<textarea id="enquiry-message" name="message" rows="4" maxlength="3000">{{ h.message }}</textarea></label>
+        <div class="honeypot" aria-hidden="true"><label>Leave this blank<input name="website" tabindex="-1" autocomplete="off"></label></div>
+        <label class="check"><input name="consent" type="checkbox" required value="yes"><span>I agree to be contacted about this enquiry and have read the <a href="{{ url('privacy/') }}">privacy information</a>.</span></label>
+        <button class="button" type="submit"><span>Send my request</span>{{ icon('arrow') }}</button>
+        <p id="enquiry-status" class="form-status" role="status" aria-live="polite"></p>
+        <noscript><p>This form needs JavaScript to submit securely.</p></noscript>
+      </form>
+      <div class="boon-helper" data-boon-helper><div class="boon-figure" data-boon-figure>{{ boon('notes', 'boon-pose is-on') }}{{ boon('success', 'boon-pose') }}{{ boon('puzzled', 'boon-pose') }}</div><p class="boon-bubble" data-boon-say aria-live="polite">I have noted the reference for you. Just add your name and email.</p></div>
+    </aside>
+  </div>
+</section>
+{% if h.similar %}<section class="section similar"><div class="frame"><div class="section-head section-head-row">{{ mono('Similar homes') }}<h2 class="display">More like <em>this.</em></h2>{{ button('All homes ' ~ h.deal_label, url(('properties/' ~ h.deal_label.replace(' ', '-')) ~ '/'), 'button-ghost') }}</div><div class="home-grid">{% for other in h.similar %}{{ card(other) }}{% endfor %}</div>
+<nav class="hub-links" aria-label="Related searches">{% for key in h.hubs %}<a href="{{ url(key ~ '/') }}">{{ home_hubs[key].heading }}</a>{% endfor %}</nav></div></section>{% endif %}
+{{ faq(h.faqs, 'Before you <em>ask.</em>') }}
+{% endblock %}

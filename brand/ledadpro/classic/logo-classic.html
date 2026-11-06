@@ -1,0 +1,183 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+html,body{margin:0;background:#fff}
+#stage{width:1920px;height:1080px;display:flex;align-items:center;justify-content:center;background:#fff;overflow:hidden}
+svg{display:block}
+#letters path,#letters rect:not(#sheen){stroke:#0A5C99;stroke-width:1.4;stroke-linejoin:round;paint-order:stroke}
+#letters .face{stroke:#4FA9D8}
+</style></head>
+<body>
+<div id="stage">
+<svg id="s" width="1700" height="732" viewBox="0 0 1300 560" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="dk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1585D2"/><stop offset="1" stop-color="#0562A3"/></linearGradient>
+  <linearGradient id="lt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#B4E6F8"/><stop offset="1" stop-color="#7FCDEE"/></linearGradient>
+  <linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9EEFB"/><stop offset=".55" stop-color="#9AD8F1"/><stop offset="1" stop-color="#7CC6E8"/></linearGradient>
+  <radialGradient id="ocean" cx=".38" cy=".34" r=".75"><stop offset="0" stop-color="#5CC2F5"/><stop offset=".55" stop-color="#1673C4"/><stop offset="1" stop-color="#062C5E"/></radialGradient>
+  <linearGradient id="land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C7E86A"/><stop offset=".6" stop-color="#4FB35A"/><stop offset="1" stop-color="#1E7A4A"/></linearGradient>
+  <radialGradient id="shade" cx=".35" cy=".3" r=".85"><stop offset=".5" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#021530" stop-opacity=".55"/></radialGradient>
+  <radialGradient id="glow" r=".5"><stop offset="0" stop-color="#8AD5F2" stop-opacity=".9"/><stop offset="1" stop-color="#8AD5F2" stop-opacity="0"/></radialGradient>
+  <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+  <clipPath id="gclip"><circle cx="0" cy="0" r="66"/></clipPath>
+  <clipPath id="scrclip"><path id="scrpath" d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z"/></clipPath>
+  <clipPath id="lettersclip"><rect x="0" y="0" width="1300" height="560"/></clipPath>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#06345E" flood-opacity=".18"/></filter>
+</defs>
+
+<g id="glowfx"></g>
+
+<!-- billboard (behind letters so the legs tuck into R and O) -->
+<g id="board">
+  <rect id="legL" x="882" y="205" width="10" height="112" fill="#0E2238"/>
+  <rect id="legR" x="1096" y="190" width="10" height="127" fill="#0E2238"/>
+  <g id="screen">
+    <path d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z" fill="url(#scr)"/>
+    <g clip-path="url(#scrclip)" id="scrcontent"></g>
+    <path id="frame" d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z" fill="none" stroke="#0E2238" stroke-width="11" stroke-linejoin="round"/>
+  </g>
+</g>
+
+<g id="letters" filter="url(#soft)">
+  <!-- row 1 -->
+  <g id="L" data-x="45" data-y="55">
+    <rect x="0" y="0" width="60" height="185" rx="4" fill="url(#dk)"/>
+    <path class="face" d="M60 140 H210 L184 185 H60 Z" fill="url(#lt)"/>
+  </g>
+  <g id="E" data-x="275" data-y="55">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)"/>
+    <rect x="0" y="45" width="62" height="140" fill="url(#dk)"/>
+    <path d="M62 84 H200 L212 122 H62 Z" fill="url(#dk)"/>
+    <path d="M0 146 H215 V181 Q215 185 211 185 H4 Q0 185 0 181 Z" fill="url(#dk)"/>
+  </g>
+  <g id="D1" data-x="510" data-y="55">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)"/>
+    <path d="M0 45 H215 V160 Q215 185 190 185 H4 Q0 185 0 181 Z M62 45 V140 H153 V45 Z" fill="url(#dk)" fill-rule="evenodd"/>
+  </g>
+  <!-- row 2 -->
+  <g id="A" data-x="40" data-y="315">
+    <path class="face" d="M0 4 Q0 0 4 0 H180 L205 45 H0 Z" fill="url(#lt)"/>
+    <path d="M0 45 H205 V185 H147 V135 H58 V185 H0 Z M58 45 V95 H147 V45 Z" fill="url(#dk)" fill-rule="evenodd"/>
+  </g>
+  <g id="D2" data-x="275" data-y="315">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)"/>
+    <path d="M0 45 H215 V160 Q215 185 190 185 H4 Q0 185 0 181 Z M62 45 V140 H153 V45 Z" fill="url(#dk)" fill-rule="evenodd"/>
+  </g>
+  <g id="P" data-x="548" data-y="315">
+    <path class="face" d="M0 14 L56 0 V185 L0 171 Z" fill="url(#lt)"/>
+    <path d="M56 0 H210 Q230 0 230 20 V115 Q230 135 210 135 H56 V95 H172 V45 H56 Z" fill="url(#dk)"/>
+  </g>
+  <g id="R" data-x="790" data-y="315">
+    <path d="M0 4 Q0 0 4 0 H190 Q210 0 210 20 V105 Q210 128 188 132 L214 185 H150 L126 135 H60 V185 H0 Z M60 45 V92 H150 V45 Z" fill="url(#dk)" fill-rule="evenodd"/>
+    
+  </g>
+  <g id="O" data-x="1015" data-y="315">
+    <path d="M18 0 H197 Q215 0 215 18 V167 Q215 185 197 185 H18 Q0 185 0 167 V18 Q0 0 18 0 Z" fill="url(#dk)"/>
+    <circle cx="107" cy="92" r="72" fill="#0B3E73"/>
+  </g>
+  <rect id="sheen" x="-300" y="40" width="160" height="480" fill="url(#sweep)" transform="skewX(-20)" opacity="0"/>
+</g>
+
+<!-- globe -->
+<g id="globe">
+  <circle id="gring" r="96" fill="none" stroke="#8AD5F2" stroke-width="3" stroke-dasharray="6 10" opacity="0"/>
+  <g id="orbit"></g>
+  <circle r="66" fill="url(#ocean)"/>
+  <g clip-path="url(#gclip)"><g id="lands"></g></g>
+  <circle r="66" fill="url(#shade)"/>
+  <ellipse cx="-22" cy="-28" rx="26" ry="14" fill="#fff" opacity=".35" transform="rotate(-30 -22 -28)"/>
+  <circle r="66" fill="none" stroke="#BFEFFF" stroke-width="3" opacity=".9"/>
+</g>
+
+<g id="fx"></g>
+</svg>
+</div>
+
+<script>
+const NS='http://www.w3.org/2000/svg', $=id=>document.getElementById(id);
+const el=(tag,a,p)=>{const e=document.createElementNS(NS,tag);for(const k in a)e.setAttribute(k,a[k]);(p||$('fx')).appendChild(e);return e};
+const clamp=(x,a=0,b=1)=>Math.max(a,Math.min(b,x)), lerp=(a,b,t)=>a+(b-a)*t;
+const eo=t=>1-Math.pow(1-clamp(t),3), eio=t=>{t=clamp(t);return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2};
+const back=t=>{t=clamp(t);const c=1.15;return 1+(c+1)*Math.pow(t-1,3)+c*Math.pow(t-1,2)};
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+
+// continents (one band, repeated for wrap); simplified Americas, Africa/Europe, Asia
+const LAND='M-60 -40 q14 -12 30 -6 q8 10 2 18 q-10 4 -8 16 q10 8 6 22 q-6 16 -2 30 q-8 4 -12 -6 q-6 -18 -16 -26 q-10 -14 0 -30 z M-8 -50 q10 -6 22 -2 q4 8 -6 10 q-12 0 -16 -8 z M40 -36 q16 -8 30 0 q10 10 0 18 q8 14 2 30 q-8 22 -18 30 q-6 -10 -8 -24 q-12 -10 -10 -26 q-4 -16 4 -28 z M95 -44 q30 -10 56 2 q12 14 -4 22 q-14 2 -20 14 q-18 4 -24 -10 q-14 -14 -8 -28 z M120 22 q14 -4 22 6 q-2 12 -14 12 q-12 -4 -8 -18 z';
+const PERIOD=220;
+for(let k=-1;k<=1;k++){el('path',{d:LAND,fill:'url(#land)',transform:`translate(${k*PERIOD} 0)`},$('lands'))}
+
+// orbit satellites (ad icons) and fx particles
+const ICONS=[
+ (g)=>{el('rect',{x:-11,y:-8,width:22,height:16,rx:3,fill:'#0674BB'},g);el('path',{d:'M-3 -4 L5 0 L-3 4 Z',fill:'#fff'},g)},              // play
+ (g)=>{el('path',{d:'M-10 -3 H-4 L6 -9 V9 L-4 3 H-10 Z',fill:'#0674BB'},g);el('path',{d:'M9 -5 q4 5 0 10',stroke:'#0674BB','stroke-width':2.5,fill:'none'},g)}, // megaphone
+ (g)=>{el('rect',{x:-12,y:-8,width:24,height:15,rx:2,fill:'#fff',stroke:'#0674BB','stroke-width':3},g);el('rect',{x:-2,y:7,width:4,height:6,fill:'#0674BB'},g)}, // screen
+ (g)=>{el('path',{d:'M0 -11 L3 -3 L11 -3 L5 2 L7 10 L0 5 L-7 10 L-5 2 L-11 -3 L-3 -3 Z',fill:'#F6C445'},g)},                                  // star
+ (g)=>{el('path',{d:'M-11 -8 H11 V5 H0 L-6 10 V5 H-11 Z',fill:'#8AD5F2',stroke:'#0674BB','stroke-width':2},g)},                              // chat
+];
+const sats=[];for(let i=0;i<5;i++){const g=el('g',{},$('orbit'));ICONS[i](g);sats.push(g)}
+const parts=[];for(let i=0;i<46;i++){const g=el('g',{opacity:0});const kind=i%7;
+  if(kind<5)ICONS[kind](g);else el('rect',{x:-4,y:-4,width:8,height:8,rx:1.5,fill:kind==5?'#8AD5F2':'#0674BB'},g);
+  parts.push({g,a:rnd()*Math.PI*2,sp:180+rnd()*320,t0:.35+rnd()*1.15,life:.55+rnd()*.35,rot:(rnd()-.5)*360,sc:.7+rnd()*.7})}
+const waves=[];for(let i=0;i<3;i++)waves.push(el('circle',{r:70,fill:'none',stroke:'#8AD5F2','stroke-width':4,opacity:0},$('glowfx')));
+const bwaves=[];for(let i=0;i<3;i++)bwaves.push(el('path',{d:'M-14 -10 q-8 10 0 20 M-24 -18 q-14 18 0 36',fill:'none',stroke:'#0674BB','stroke-width':4,'stroke-linecap':'round',opacity:0}));
+
+// screen content: scrolling ad panels
+const sc=$('scrcontent');const panels=[];
+const COLS=[['#0674BB','#8AD5F2'],['#F6C445','#0674BB'],['#166191','#B4E6F8'],['#1FA36B','#E9F9EE']];
+for(let i=0;i<5;i++){const g=el('g',{},sc);const c=COLS[i%4];
+  el('rect',{x:0,y:0,width:310,height:170,fill:c[0]},g);
+  el('circle',{cx:70,cy:85,r:38,fill:c[1],opacity:.9},g);
+  el('rect',{x:128,y:58,width:140,height:18,rx:9,fill:c[1]},g);el('rect',{x:128,y:88,width:96,height:14,rx:7,fill:c[1],opacity:.7},g);
+  el('rect',{x:128,y:112,width:70,height:22,rx:11,fill:'#fff'},g);panels.push(g)}
+const scrShine=el('rect',{x:-120,y:40,width:60,height:200,fill:'url(#sweep)',transform:'skewX(-20)'},sc);
+
+const LET=['L','E','D1','A','D2','P','R','O'].map(id=>{const g=$(id);return{g,x:+g.dataset.x,y:+g.dataset.y,w:g.getBBox().width,h:185}});
+const GX=1122,GY=407;            // globe home (inside O)
+const CX=650,CY=280;             // canvas centre
+
+window.render=function(t,still){
+  // ---- globe: appears at centre, spins, flies into the O
+  const gIn=eo(t/.22), gMove=eio((t-.42)/.5);
+  const gx=lerp(CX,GX,gMove), gy=lerp(CY,GY,gMove), gs=still?1:lerp(lerp(.2,1.55,gIn),1,gMove);
+  $('globe').setAttribute('transform',`translate(${still?GX:gx} ${still?GY:gy}) scale(${gs})`);
+  const spin=still?40:(t*170+40);
+  $('lands').setAttribute('transform',`translate(${(spin%PERIOD)} 0)`);
+  // orbiting ad icons around the globe
+  const orbOn=still?0:clamp((t-.15)/.2)*(1-clamp((t-1.35)/.3));
+  $('gring').setAttribute('opacity',(.9*orbOn).toFixed(3));$('gring').setAttribute('transform',`rotate(${t*120})`);
+  sats.forEach((g,i)=>{const a=t*4.2+i*Math.PI*2/5;const r=96;
+    g.setAttribute('transform',`translate(${Math.cos(a)*r} ${Math.sin(a)*r*.92}) scale(${.9+.25*Math.sin(t*9+i)})`);g.setAttribute('opacity',orbOn.toFixed(3))});
+  // ---- letters fly out of the globe and lock into place (staggered)
+  LET.forEach((L,i)=>{
+    const p=still?1:back((t-.32-i*.055)/.42), a=still?1:clamp((t-.32-i*.055)/.12);
+    const sx=lerp(gx-L.x-L.w/2,0,p), sy=lerp(gy-L.y-92,0,p), s=lerp(.15,1,clamp(p,0,1.2));
+    L.g.setAttribute('transform',`translate(${L.x+sx+L.w/2*(1-s)} ${L.y+sy+92*(1-s)}) scale(${s})`);L.g.setAttribute('opacity',a.toFixed(3));
+    // light faces fold in a beat later
+    const f=still?1:eo((t-.55-i*.05)/.25);
+    L.g.querySelectorAll('.face').forEach(fc=>{fc.setAttribute('opacity',(fc.getAttribute('fill')=='#fff'?.10:1)*f)});
+  });
+  // ---- billboard: legs rise, frame draws, screen lights up and plays ads
+  const legs=still?1:eo((t-.8)/.22);
+  $('legL').setAttribute('transform',`translate(0 ${(1-legs)*112})`);$('legL').setAttribute('height',112*legs);
+  $('legR').setAttribute('transform',`translate(0 ${(1-legs)*127})`);$('legR').setAttribute('height',127*legs);
+  const fr=$('frame'),len=fr.getTotalLength();fr.setAttribute('stroke-dasharray',len);fr.setAttribute('stroke-dashoffset',still?0:len*(1-eo((t-.9)/.3)));
+  const lit=still?1:eo((t-1.05)/.2);$('screen').querySelector('path').setAttribute('opacity',lit);
+  const pl=still?0:clamp((t-1.15)/.85), scroll=pl*310*3.2;
+  panels.forEach((g,i)=>{g.setAttribute('transform',`translate(${848+i*310-scroll} 50)`);g.setAttribute('opacity',still?0:clamp((t-1.12)/.1)*(1-clamp((t-1.9)/.1)))});
+  scrShine.setAttribute('transform',`translate(${still?-400:(840+((t*900)%520))} 0) skewX(-20)`);
+  // ---- broadcast waves from the globe, signal arcs from the billboard
+  waves.forEach((w,i)=>{const k=((t-.5)*1.6+i/3)%1;const on=still?0:(t>.5?1:0)*(1-clamp((t-1.75)/.25));
+    w.setAttribute('cx',gx);w.setAttribute('cy',gy);w.setAttribute('r',70+k*150);w.setAttribute('opacity',((1-k)*.7*on).toFixed(3))});
+  bwaves.forEach((w,i)=>{const k=((t-1.1)*2+i/3)%1;const on=still?0:(t>1.1?1:0)*(1-clamp((t-1.8)/.2));
+    w.setAttribute('transform',`translate(${836-k*40} ${130})`);w.setAttribute('opacity',((1-k)*on).toFixed(3))});
+  // ---- particles (ad icons, pixels) burst out of the globe
+  parts.forEach(P=>{const k=(t-P.t0)/P.life;if(still||k<0||k>1){P.g.setAttribute('opacity',0);return}
+    const d=eo(k)*P.sp, x=gx+Math.cos(P.a)*d, y=gy+Math.sin(P.a)*d*.75;
+    P.g.setAttribute('transform',`translate(${x} ${y}) rotate(${P.rot*k}) scale(${P.sc*(1-k*.4)})`);P.g.setAttribute('opacity',(Math.sin(k*Math.PI)).toFixed(3))});
+  // ---- final sheen across the letters
+  const sh=still?-1:clamp((t-1.5)/.4);
+  $('sheen').setAttribute('opacity',sh>0&&sh<1?1:0);$('sheen').setAttribute('x',-300+sh*1700);
+};
+render(0);
+</script>
+</body></html>

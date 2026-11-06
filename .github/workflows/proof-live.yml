@@ -1,0 +1,59 @@
+name: Prove a domain is served by the VPS
+
+# From the public internet: resolve the domain, fetch it over https with a one-time code, show the
+# TLS certificate, then find that exact code in the VPS's own access log. Read-only.
+
+on:
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: "Domain"
+        required: true
+      path:
+        description: "Page path for the screenshot, e.g. v2/ (optional)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Prove
+        env:
+          SSHPASS: ${{ secrets.VPS_PASSWORD }}
+          D: ${{ inputs.domain }}
+        run: |
+          set +e
+          sudo apt-get install -y -qq sshpass >/dev/null
+          TOKEN="proof-$(date +%s)-$RANDOM$RANDOM"
+          {
+          echo "### 1. Public DNS"; echo '```'; echo "Cloudflare 1.1.1.1: $(dig +short A $D @1.1.1.1 | tr '\n' ' ')"; echo "Google 8.8.8.8:     $(dig +short A $D @8.8.8.8 | tr '\n' ' ')"; echo "VPS IP:             187.127.141.173"; echo '```'
+          echo "### 2. Public https request (from a GitHub server in the US, not the VPS)"; echo '```'
+          curl -s -o /tmp/p.html -w "Connected to IP:  %{remote_ip}\nHTTP status:      %{http_code}\nTime:             %{time_total}s\n" "https://$D/?$TOKEN"
+          echo "Page title:       $(grep -oi '<title>[^<]*' /tmp/p.html | head -1 | sed 's/<title>//I')"; echo "One-time code:    $TOKEN"; echo '```'
+          echo "### 3. TLS certificate served"; echo '```'
+          echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null | openssl x509 -noout -subject -issuer -dates -ext subjectAltName 2>/dev/null | sed 's/^ *//'; echo '```'
+          echo "### 4. The same one-time code in the VPS's access log"; echo '```'
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new root@187.127.141.173 "hostname; grep -h '$TOKEN' /var/log/sites/$D.log | tail -2; echo; echo 'Certificate file on VPS:'; openssl x509 -in /etc/letsencrypt/live/$D/fullchain.pem -noout -serial -enddate"
+          echo; echo "Serial of the certificate the public saw:"; echo | openssl s_client -connect $D:443 -servername $D 2>/dev/null | openssl x509 -noout -serial
+          echo '```'
+          } | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Screenshot from the public internet
+        env:
+          D: ${{ inputs.domain }}
+          P: ${{ inputs.path }}
+        run: |
+          case "$P" in *[!A-Za-z0-9/_.-]*|*..*) echo "Bad path"; exit 1;; esac
+          timeout 90 google-chrome --headless=new --no-sandbox --hide-scrollbars --window-size=1366,900 --timeout=10000 --screenshot=/tmp/site.png "https://$D/$P" 2>/dev/null || timeout 90 chromium --headless --no-sandbox --window-size=1366,900 --timeout=10000 --screenshot=/tmp/site.png "https://$D/$P"
+          ls -la /tmp/site.png
+          pip install -q pillow && python3 -c "from PIL import Image; i=Image.open('/tmp/site.png').convert('RGB'); i.thumbnail((1100,9999)); i.save('/tmp/site.jpg', quality=70)"
+          echo "SHOT-BEGIN"; base64 -w0 /tmp/site.jpg; echo; echo "SHOT-END"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: proof-screenshot
+          path: /tmp/site.png
+          retention-days: 7

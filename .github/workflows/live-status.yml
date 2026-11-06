@@ -1,0 +1,33 @@
+name: Live status of all domains (read-only)
+
+# From the public internet: where each domain points (1.1.1.1 and 8.8.8.8), and what https returns.
+
+on:
+  workflow_dispatch:
+    inputs:
+      domains:
+        description: "Domains, space-separated"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  status:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check
+        env:
+          DOMAINS: ${{ inputs.domains }}
+        run: |
+          set +e
+          VPS=187.127.141.173
+          echo "| Domain | DNS (1.1.1.1 / 8.8.8.8) | On VPS | https | Title |" | tee -a "$GITHUB_STEP_SUMMARY"
+          echo "|---|---|---|---|---|" | tee -a "$GITHUB_STEP_SUMMARY"
+          for d in $DOMAINS; do
+            a=$(dig +short A $d @1.1.1.1 | grep -E '^[0-9.]+$' | sort | tr '\n' ' '); b=$(dig +short A $d @8.8.8.8 | grep -E '^[0-9.]+$' | sort | tr '\n' ' ')
+            on="no"; [ "$a" = "$VPS " ] && [ "$b" = "$VPS " ] && on="YES"; [ "$on" = no ] && echo "$a$b" | grep -q $VPS && on="partly"
+            code=$(curl -s -m 25 -o /tmp/p.html -w "%{http_code}" "https://$d/" 2>/dev/null); [ "$code" = "000" ] && code="$code ($(curl -sS -m 25 -o /dev/null https://$d/ 2>&1 | sed 's/curl: ([0-9]*) //' | cut -c1-40))"
+            t=$(grep -oi "<title>[^<]*" /tmp/p.html 2>/dev/null | head -1 | sed 's/<title>//I' | cut -c1-45); rm -f /tmp/p.html
+            echo "| $d | ${a:-none} / ${b:-none} | $on | $code | $t |" | tee -a "$GITHUB_STEP_SUMMARY"
+          done

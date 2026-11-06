@@ -1,0 +1,65 @@
+{
+ "saved": [
+  {
+   "url": "https://www.moveinthailand.com/",
+   "kind": "page",
+   "bytes": 24697,
+   "file": "files/index.html"
+  },
+  {
+   "url": "https://www.moveinthailand.com/visas/dtv/",
+   "kind": "page",
+   "bytes": 15016,
+   "file": "files/visas/dtv/index.html"
+  },
+  {
+   "url": "https://www.moveinthailand.com/contact/",
+   "kind": "page",
+   "bytes": 11775,
+   "file": "files/contact/index.html"
+  },
+  {
+   "url": "https://www.moveinthailand.com/wp-content/mit-site/assets/logo.png",
+   "kind": "asset",
+   "bytes": 79086,
+   "file": "files/wp-content/mit-site/assets/logo.png"
+  },
+  {
+   "url": "https://www.moveinthailand.com/wp-content/mit-site/assets/fonts/rubik-400.woff2",
+   "kind": "asset",
+   "bytes": 35348,
+   "file": "files/wp-content/mit-site/assets/fonts/rubik-400.woff2"
+  },
+  {
+   "url": "https://www.moveinthailand.com/wp-content/mit-site/assets/coast.webp",
+   "kind": "asset",
+   "bytes": 187886,
+   "file": "files/wp-content/mit-site/assets/coast.webp"
+  },
+  {
+   "url": "https://www.moveinthailand.com/wp-content/mit-site/assets/site.css?v=37ecba5972",
+   "kind": "css",
+   "bytes": 43754,
+   "file": "files/wp-content/mit-site/assets/site.css"
+  },
+  {
+   "url": "https://www.moveinthailand.com/wp-content/mit-site/assets/home.webp",
+   "kind": "asset",
+   "bytes": 83060,
+   "file": "files/wp-content/mit-site/assets/home.webp"
+  },
+  {
+   "url": "https://www.moveinthailand.com/wp-content/mit-site/assets/site.js?v=37ecba5972",
+   "kind": "asset",
+   "bytes": 23757,
+   "file": "files/wp-content/mit-site/assets/site.js"
+  },
+  {
+   "url": "https://www.moveinthailand.com/wp-content/mit-site/assets/fonts/rubik-500.woff2",
+   "kind": "asset",
+   "bytes": 35348,
+   "file": "files/wp-content/mit-site/assets/fonts/rubik-500.woff2"
+  }
+ ],
+ "external": []
+}

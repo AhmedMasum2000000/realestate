@@ -1,0 +1,50 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, faq, cta, sources, crumbs, rich_sections, related, button, form, hero_photo with context %}{% from 'boon.html.j2' import boon %}
+{% set visa = page.get('visa') %}
+{% set topic = page.slug.split('/')[0] %}
+{% block content %}
+<section class="page-hero">
+  <div class="frame">
+    {{ crumbs(page) }}
+    <div class="page-hero-grid">
+      <div>
+        {{ mono(visa.name if visa else (page.eyebrow or 'Guide')) }}
+        <h1 class="display page-title" data-reveal-words>{{ visa.title if visa else page.heading }}</h1>
+      </div>
+      <div class="page-hero-side">
+        <p class="lede">{{ (visa.intro if visa else page.intro)|md }}</p>
+        {{ button('Discuss this with us', url('contact/?interest=' ~ (visa.slug if visa else topic))) }}
+      </div>
+    </div>
+    {% if visa %}<div class="facts">{% for value, name in visa.facts %}<div class="metric" data-stagger>{{ mono(name) }}<strong class="metric-text">{{ value }}</strong></div>{% endfor %}<div class="metric metric-badge" data-stagger>{{ mono('Status') }}<strong class="metric-text">{{ visa.badge }}</strong></div></div>{% endif %}
+    {{ hero_photo((sht.ROUTE_PHOTOS.get(visa.slug, 'temple') if visa else sht.TOPIC_PHOTOS.get(topic, 'coast'))) }}
+  </div>
+</section>
+{% if page.get('cards') %}<section class="section hub-cards"><div class="frame related-grid">{% for title, text, href in page.cards %}<a class="related-card" href="{{ url(href) }}" data-stagger><span class="related-index mono">{{ '%02d'|format(loop.index) }}</span><h3>{{ title }}</h3><p>{{ text }}</p><span class="link-arrow">{{ icon('arrow') }}</span></a>{% endfor %}</div></section>{% endif %}
+<section class="section article">
+  <div class="frame article-grid">
+    <article class="prose">
+      {% set body = visa.sections if visa else page.sections %}{% set pool = ['villa-aerial', 'sea-terrace', 'pool-living', 'garden-villa', 'courtyard-pool', 'resort', 'chinatown', 'summit', 'pool-night', 'beach-aerial', 'garden-pool', 'villa-modern'] %}
+      {{ rich_sections(body[:2]) }}
+      {% if body|length > 2 %}{% set inset = pool[page.slug|length % pool|length] %}<figure class="article-photo" data-stagger><div class="mosaic-img" data-parallax>{{ photo(inset, sizes='(max-width: 900px) 92vw, 760px') }}</div><figcaption class="mono">{{ sht.PHOTOS[inset] }}</figcaption></figure>{% endif %}
+      {{ rich_sections(body[2:]) }}
+      {% set step = visa.next if visa else page.next %}{% if step %}<div class="next-step">{{ mono('Your next step') }}<h2>{{ step[0] }}</h2><a class="text-arrow" href="{{ url(step[1]) }}">Continue {{ icon('arrow') }}</a></div>{% endif %}
+      {{ sources(visa.sources if visa else page.sources) }}
+      <p class="shared-note mono">This guide is shared with our sister site, <a href="{{ canonical }}">Move In Thailand</a>.</p>
+    </article>
+    <aside class="aside">
+      <div class="aside-card">
+        {{ mono('Prepare the conversation' if visa else ('Key facts' if page.checklist else 'Save the research')) }}
+        <h3>{{ 'Bring a little context.' if visa else (page.checklist_title or ('Keep this close.' if page.checklist else 'Have it planned for you.')) }}</h3>
+        {% set items = visa.checklist if visa else page.checklist %}{% if items %}<ul class="ticks">{% for item in items %}<li>{{ item }}</li>{% endfor %}</ul>{% else %}<p>Tell us your situation once. We map the route, the documents and the costs, in writing.</p>{% endif %}
+        {{ button('Schedule consultation', url('contact/?interest=' ~ (visa.slug if visa else topic))) }}
+      </div>
+      {% if topic == 'stay-legal' %}{% include 'reminder.html.j2' %}{% endif %}
+      <a class="aside-link" href="{{ url('tools/visa-finder/') }}">{{ mono('Still comparing?') }}<span>Take the Visa Finder</span>{{ icon('arrow') }}</a>
+    </aside>
+  </div>
+</section>
+{{ faq(visa.faqs if visa else page.faqs) }}
+{{ related(visa.related if visa else page.related) }}
+{{ cta() }}
+{% endblock %}

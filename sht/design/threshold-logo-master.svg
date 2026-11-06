@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2048" height="2048" viewBox="0 0 2048 2048">
+  <rect id="background" width="2048" height="2048" fill="#e7e2d8"/>
+  <g id="symbol" transform="translate(0 2)" fill="none" stroke-width="68" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="3">
+    <path id="doorway" stroke="#171717" d="M704 1489V872C682 872 658 859 650 837C786 869 924 690 1024 534C1124 690 1262 869 1398 837C1390 859 1366 872 1344 872V1489"/>
+    <path id="horizon" stroke="#4a90c2" d="M461 1539H654M754 1539H1294M1394 1539H1587"/>
+  </g>
+</svg>

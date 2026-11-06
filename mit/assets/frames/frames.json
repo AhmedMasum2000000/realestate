@@ -1,0 +1,19 @@
+{
+  "fps": 24,
+  "quality": 85,
+  "source": "photos",
+  "sets": {
+    "desktop": {
+      "count": 84,
+      "width": 1280,
+      "height": 720,
+      "bytes": 10368686
+    },
+    "mobile": {
+      "count": 84,
+      "width": 540,
+      "height": 960,
+      "bytes": 5282782
+    }
+  }
+}

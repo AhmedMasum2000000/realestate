@@ -1,0 +1,13 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, button with context %}{% from 'boon.html.j2' import boon %}
+{% block content %}
+<section class="page-hero not-found">
+  <div class="frame">
+    <div class="boon-404">{{ boon('puzzled') }}<p class="boon-bubble">It seems this page has moved house. Let me show you the way back.</p></div>
+    {{ mono('404 · Not on this site') }}
+    <h1 class="display page-title">This page has <em>moved on.</em></h1>
+    <p class="lede">The page you asked for is not part of Second Home Thailand. Start from the routes or the library.</p>
+    <div class="button-row">{{ button('Residency routes', url('visas/')) }}{{ button('The library', url('library/'), 'button-ghost') }}</div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,115 @@
+#!/usr/bin/env python3
+"""Download a site's own design files: stylesheets, scripts, fonts, logo, images.
+
+    bin/fetch-design https://www.moveinthailand.com/ --out data/research/moveinthailand-design
+
+For rebuilding our own site without changing its look. Fetches the given pages,
+then every same-site stylesheet, script and image they reference, and the fonts
+and images those stylesheets reference. Third-party files (font CDNs, analytics)
+are listed in the manifest but not downloaded.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import sys
+from pathlib import Path
+from urllib.parse import urljoin, urlparse
+
+import requests
+
+UA = "MoveInThailandResearchBot/1.0 (+https://www.moveinthailand.com/)"
+RE_LINK = re.compile(r"""<link[^>]+href=["']([^"']+)["'][^>]*>""", re.I)
+RE_SRC = re.compile(r"""<(?:script|img|source)[^>]+(?:src|data-src)=["']([^"']+)["']""", re.I)
+RE_SRCSET = re.compile(r"""srcset=["']([^"']+)["']""", re.I)
+RE_CSS_URL = re.compile(r"""url\(\s*['"]?([^'")]+)['"]?\s*\)""", re.I)
+RE_IMPORT = re.compile(r"""@import\s+(?:url\()?['"]?([^'")\s;]+)""", re.I)
+RE_STYLE_ATTR = re.compile(r"""style=["'][^"']*url\(([^)]+)\)""", re.I)
+
+
+def same_site(url: str, host: str) -> bool:
+    return urlparse(url).netloc.lower().removeprefix("www.") == host
+
+
+def local_path(out: Path, url: str) -> Path:
+    p = urlparse(url)
+    path = p.path.lstrip("/") or "index.html"
+    if path.endswith("/"):
+        path += "index.html"
+    return out / "files" / path
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("urls", nargs="+")
+    ap.add_argument("--out", required=True)
+    args = ap.parse_args()
+    out = Path(args.out)
+    host = urlparse(args.urls[0]).netloc.lower().removeprefix("www.")
+    s = requests.Session()
+    s.headers["User-Agent"] = UA
+
+    seen: set[str] = set()
+    external: set[str] = set()
+    saved: list[dict] = []
+    queue: list[tuple[str, str]] = [(u, "page") for u in args.urls]
+
+    while queue:
+        url, kind = queue.pop(0)
+        url = url.split("#")[0]
+        if url in seen:
+            continue
+        seen.add(url)
+        if not same_site(url, host):
+            external.add(url)
+            continue
+        try:
+            r = s.get(url, timeout=30)
+        except requests.RequestException as exc:
+            saved.append({"url": url, "kind": kind, "error": type(exc).__name__})
+            continue
+        if r.status_code != 200:
+            saved.append({"url": url, "kind": kind, "error": f"HTTP {r.status_code}"})
+            continue
+        dest = local_path(out, url)
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(r.content)
+        saved.append({"url": url, "kind": kind, "bytes": len(r.content), "file": str(dest.relative_to(out))})
+        ctype = r.headers.get("content-type", "")
+
+        if kind == "page" or "html" in ctype:
+            html = r.text
+            for href in RE_LINK.findall(html):
+                tag = next((m.group(0) for m in RE_LINK.finditer(html) if m.group(1) == href), "")
+                if re.search(r"""rel=["'][^"']*(stylesheet|icon|preload|apple-touch)""", tag, re.I):
+                    queue.append((urljoin(url, href), "css" if "stylesheet" in tag else "asset"))
+            for src in RE_SRC.findall(html):
+                queue.append((urljoin(url, src), "asset"))
+            for srcset in RE_SRCSET.findall(html):
+                for part in srcset.split(","):
+                    bit = part.strip().split(" ")[0]
+                    if bit:
+                        queue.append((urljoin(url, bit), "asset"))
+            for ref in RE_STYLE_ATTR.findall(html):
+                queue.append((urljoin(url, ref.strip("'\" ")), "asset"))
+        elif kind == "css" or "css" in ctype:
+            css = r.text
+            for ref in RE_IMPORT.findall(css):
+                queue.append((urljoin(url, ref), "css"))
+            for ref in RE_CSS_URL.findall(css):
+                if not ref.startswith("data:"):
+                    queue.append((urljoin(url, ref), "asset"))
+
+    manifest = {"saved": saved, "external": sorted(external)}
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n")
+    ok = [x for x in saved if "file" in x]
+    print(f"{len(ok)} files saved, {len(saved) - len(ok)} failed, {len(external)} third-party refs -> {out}")
+    for x in ok:
+        print(f"  {x['kind']:5} {x['bytes']:>8}  {x['file']}")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

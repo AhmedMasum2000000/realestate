@@ -1,0 +1,93 @@
+{% from 'parts.html.j2' import mono with context %}{% from 'boon.html.j2' import boon %}{% from 'logo.html.j2' import logo %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ page.title }}</title>
+  <meta name="description" content="{{ page.description }}">
+  <meta name="theme-color" content="#e7e2d8">
+  <meta name="robots" content="{{ 'noindex,nofollow' if preview or page.template == '404' else 'noindex,follow' if page.get('noindex') else 'index,follow' }}">
+  <link rel="canonical" href="{{ canonical }}">
+  {% if gsc_meta and not page.slug %}<meta name="google-site-verification" content="{{ gsc_meta }}">{% endif %}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Second Home Thailand">
+  <meta property="og:title" content="{{ page.title }}">
+  <meta property="og:description" content="{{ page.description }}">
+  <meta property="og:url" content="{{ site }}{{ page.slug }}{{ '/' if page.slug else '' }}">
+  <meta property="og:image" content="{{ site }}wp-content/sht-site/assets/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="{{ asset('mark.svg') }}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{{ asset('mark.png') }}">
+  <link rel="preload" href="{{ asset('fonts/anton-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="{{ asset('fonts/inter-latin-400-normal.woff2') }}" as="font" type="font/woff2" crossorigin>
+  {% if page.template == 'home' %}<link rel="preload" as="image" href="{{ asset('photos/summit-800.webp') }}" imagesrcset="{{ asset('photos/summit-800.webp') }} 800w, {{ asset('photos/summit-1600.webp') }} 1600w, {{ asset('photos/summit-2000.webp') }} 2000w" imagesizes="100vw" fetchpriority="high">{% endif %}
+  <script>(function(d){var lite=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;d.classList.add(lite?'motion-lite':'motion-ok');try{if(!lite&&!sessionStorage.getItem('sht-intro')){sessionStorage.setItem('sht-intro','1');d.classList.add('is-intro')}}catch(e){}})(document.documentElement)</script>
+  <link rel="stylesheet" href="{{ asset('site.css') }}">
+  {% if page.template == 'proposal' %}<link rel="stylesheet" href="{{ asset('proposal.css') }}">{% endif %}
+  {% if schema %}<script type="application/ld+json">{{ schema|tojson }}</script>{% endif %}
+</head>
+<body data-page="{{ page.template }}">
+<a class="skip-link" href="#main">Skip to content</a>
+<div class="intro" id="intro" aria-hidden="true">
+  <div class="intro-inner">{{ logo('intro-logo') }}
+    <p class="intro-line intro-line-1">Remember the warm air when the door opened?</p>
+    <p class="intro-line intro-line-2">Imagine it every <em>morning.</em></p>
+  </div>
+</div>
+<script>(function(){var d=document.documentElement,o=document.getElementById('intro');if(!d.classList.contains('is-intro')){o.remove();return}
+var done=false,timer;function fly(){if(done)return;done=true;clearTimeout(timer);var mark=document.querySelector('.header .brand-mark'),logo=o.querySelector('.intro-logo');
+if(mark&&logo&&window.scrollY<80){var a=logo.getBoundingClientRect(),b=mark.getBoundingClientRect(),s=b.width/a.width;logo.style.color=getComputedStyle(mark).color;
+logo.style.transform='translate('+(b.left+b.width/2-(a.left+a.width/2))+'px,'+(b.top+b.height/2-(a.top+a.height/2))+'px) scale('+s+')'}
+o.classList.add('is-out');setTimeout(function(){d.classList.remove('is-intro');o.remove()},720)}
+timer=setTimeout(fly,3000);o.addEventListener('click',fly);addEventListener('keydown',fly,{once:true});addEventListener('wheel',fly,{once:true,passive:true});addEventListener('touchmove',fly,{once:true,passive:true})})()</script>
+<div class="boon-loader" id="boon-loader" aria-hidden="true" hidden>
+  <div class="boon-loader-inner"><div class="boon-figure" data-loader-figure>{{ boon('puzzled', 'boon-pose is-on') }}{{ boon('success', 'boon-pose') }}</div>
+  <p class="boon-loader-say"><span class="boon-loader-404">404?</span><span class="boon-loader-joke">Just kidding! Nearly there.</span></p>
+  <div class="boon-loader-bar"><span></span></div></div>
+</div>
+<div class="progress" aria-hidden="true"><span data-page-progress></span></div>
+<header class="header">
+  <div class="frame header-inner">
+    <a class="brand" href="{{ url('') }}" aria-label="Second Home Thailand home">
+      {{ logo('brand-mark') }}
+      <span class="brand-name">Second Home<small>Thailand · Residency concierge</small></span>
+    </a>
+    <button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="Open navigation"><span></span><span></span></button>
+    <nav id="navigation" class="navigation" aria-label="Main navigation">
+      {% for name, path in [('Concierge','concierge'),('Routes','visas'),('Homes','properties'),('Approach','approach'),('Library','library')] %}<a href="{{ url(path ~ '/') }}"{% if page.slug == path or (path == 'visas' and page.slug.startswith('visas/')) or (path == 'library' and page.shared and not page.slug.startswith('visas')) or (path == 'properties' and page.slug.startswith('properties')) %} aria-current="page"{% endif %}>{{ name }}</a>{% endfor %}
+      <a class="nav-cta" href="{{ url('contact/') }}">Consultation</a>
+    </nav>
+  </div>
+</header>
+<main id="main">
+<!--sht-content-start-->
+{% block content %}{% endblock %}
+<!--sht-content-end-->
+</main>
+<footer class="footer">
+  <div class="frame">
+    <div class="footer-cta">
+      {{ mono('Begin with a conversation') }}
+      <a class="footer-big" href="{{ url('contact/') }}"><span>Schedule</span> <span>consultation</span> {{ icon('arrow') }}</a>
+    </div>
+    <div class="footer-grid">
+      <div><p class="footer-lede">A private residency desk for people making Thailand their second home. Route, home, paperwork and arrival, planned once and agreed in writing.</p></div>
+      <div>{{ mono('Concierge') }}<a href="{{ url('concierge/') }}">Engagements</a><a href="{{ url('approach/') }}">Our approach</a><a href="{{ url('contact/') }}">Consultation</a><a href="{{ url('proposal/') }}">The Second Home Plan</a><a href="{{ url('faq/') }}">Questions &amp; answers</a><a href="{{ url('properties/') }}">Homes for sale &amp; rent</a>{% for key in ['properties/jomtien', 'properties/pratumnak', 'properties/east-pattaya'] if key in home_hubs %}<a href="{{ url(key ~ '/') }}">{{ home_hubs[key].heading }}</a>{% endfor %}<a data-whatsapp hidden href="#">WhatsApp</a></div>
+      <div>{{ mono('Routes') }}{% for spec in route_specs %}<a href="{{ url('visas/' ~ spec.slug ~ '/') }}">{{ spec.name }}</a>{% endfor %}<a href="{{ url('tools/visa-finder/') }}">Visa Finder</a></div>
+      <div>{{ mono('Library') }}{% for name, slug in hubs[1:] %}<a href="{{ url(slug ~ '/') }}">{{ name }}</a>{% endfor %}</div>
+    </div>
+    <p class="footer-note">Our guide library is shared with our sister site, <a href="{{ sister }}" rel="noopener">Move In Thailand</a>. Visa and immigration decisions are made by the responsible Thai authorities.</p>
+    <div class="footer-wordmark" aria-hidden="true"><span>Second</span><span>Home</span></div>
+    <p class="footer-boon">{{ boon('welcome', 'boon-mini') }}<span>Khun Boon is at your service.</span></p>
+    <div class="footer-bottom"><span>© {{ '2026' }} Second Home Thailand</span><span data-local-time>Pattaya · ICT</span><a href="{{ url('privacy/') }}">Privacy</a></div>
+  </div>
+</footer>
+{% if page.template == 'home' %}{% include 'boon-note.html.j2' %}{% endif %}
+{% if page.template == 'listing' %}<a class="mobile-cta" href="#enquire">Request a viewing · {{ page.home.ref }} {{ icon('arrow') }}</a>{% else %}<a class="mobile-cta" href="{{ url('contact/') }}">Schedule consultation {{ icon('arrow') }}</a>{% endif %}
+<script id="sht-config" type="application/json">{{ config|tojson }}</script>
+<script defer src="{{ asset('site.js') }}"></script>
+<script defer src="{{ asset('motion.js') }}"></script>
+<script defer src="{{ asset('boon.js') }}"></script>
+{% if page.template == 'proposal' %}<script defer src="{{ asset('proposal.js') }}"></script>{% endif %}
+</body>
+</html>

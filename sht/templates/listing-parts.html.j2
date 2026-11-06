@@ -1,0 +1,7 @@
+{% macro card(h, eager=False) %}<article class="home-card" data-home data-deal="{{ h.deal }}" data-type="{{ h.type_slug }}" data-area="{{ h.area_slug }}" data-beds="{{ h.beds if h.beds is not none else '' }}" data-price="{{ h.price }}" data-ref="{{ h.ref }}">
+  <a class="home-card-link" href="{{ url(h.slug ~ '/') }}">
+    <span class="home-card-img"><img src="{{ asset(h.thumb) }}" width="480" height="{{ (480 * h.img_h / h.img_w)|round|int }}" alt="{{ h.h1 }}{{ ' at ' ~ h.project if h.project else '' }}" loading="{{ 'eager' if eager else 'lazy' }}" decoding="async"><span class="home-card-deal mono">{{ h.deal_label }}</span></span>
+    <span class="home-card-body"><span class="home-card-price">{{ h.price_text }}</span><span class="home-card-title">{{ h.h1 }}</span>{% if h.project %}<span class="home-card-project">{{ h.project }}</span>{% endif %}<span class="home-card-meta mono">{{ h.area }} · {{ h.ref }}{% if h.stale %} · older listing{% endif %}</span></span>
+  </a>
+  <button class="home-save" type="button" data-save="{{ h.ref }}" aria-pressed="false" aria-label="Save {{ h.ref }} to my shortlist"><span aria-hidden="true"></span></button>
+</article>{% endmacro %}

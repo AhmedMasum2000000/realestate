@@ -1,0 +1,208 @@
+#!/usr/bin/env python3
+"""Search Console for every site on the VPS, owned by almasum5495@gmail.com.
+
+Ownership is proved with Google's HTML-file method, so it works whatever DNS
+provider a domain uses, as long as the domain already points at the VPS.
+
+    bin/gsc-vps prepare domains.txt OUT   check DNS and the live host, ask
+                                          Google for each verification file
+                                          and write it to OUT/<domain>/
+    bin/gsc-vps verify                    (after the files are on the VPS)
+                                          verify, add the property, submit
+                                          the sitemaps, record the result
+
+Credentials come from the environment, never the command line:
+  GOOGLE_SERVICE_ACCOUNT_JSON   verifies, then adds GSC_OWNER (default
+                                almasum5495@gmail.com) as a verified owner
+  or GSC_CLIENT_ID, GSC_CLIENT_SECRET, GSC_REFRESH_TOKEN to act as the owner
+
+State lives in data/gsc-vps.json, one entry per domain.
+"""
+
+import argparse
+import json
+import os
+import re
+import socket
+import sys
+import time
+from pathlib import Path
+from urllib.parse import urlparse
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / "src"))
+
+from rep.gsc import GscError, SearchConsole  # noqa: E402
+
+VPS_IP = "187.127.141.173"
+OWNER = os.environ.get("GSC_OWNER", "almasum5495@gmail.com")
+STATE = ROOT / "data" / "gsc-vps.json"
+FILE_RE = re.compile(r"^google[0-9a-f]+\.html$")
+FALLBACK_SITEMAPS = ["/sitemap.xml", "/sitemap_index.xml", "/wp-sitemap.xml"]
+
+
+def load_state() -> dict:
+    return json.loads(STATE.read_text()) if STATE.exists() else {}
+
+
+def save_state(state: dict) -> None:
+    STATE.write_text(json.dumps(state, indent=2, sort_keys=True) + "\n")
+
+
+def client() -> SearchConsole:
+    """OAuth as the owner when GSC_* are set, else the repo's service account
+    (which then adds OWNER as a verified owner of each site)."""
+    env = os.environ
+    oauth = ("GSC_CLIENT_ID", "GSC_CLIENT_SECRET", "GSC_REFRESH_TOKEN")
+    if all(env.get(k) for k in oauth):
+        return SearchConsole.from_refresh_token(*(env[k] for k in oauth))
+    if env.get("GOOGLE_SERVICE_ACCOUNT_JSON"):
+        return SearchConsole(env["GOOGLE_SERVICE_ACCOUNT_JSON"])
+    raise SystemExit("error: set GOOGLE_SERVICE_ACCOUNT_JSON, or GSC_CLIENT_ID/SECRET/REFRESH_TOKEN")
+
+
+def resolves_to_vps(host: str) -> bool:
+    try:
+        return VPS_IP in socket.gethostbyname_ex(host)[2]
+    except OSError:
+        return False
+
+
+def live_host(domain: str, http=None) -> str:
+    """The host https://<domain>/ settles on: the domain itself or its www."""
+    import requests
+    http = http or requests
+    resp = http.get(f"https://{domain}/", timeout=20, allow_redirects=True)
+    host = (urlparse(resp.url).hostname or "").lower()
+    return host if host in (domain, f"www.{domain}") else ""
+
+
+def sitemaps_for(base: str, http=None) -> list[str]:
+    """Sitemaps listed in robots.txt; otherwise the usual paths that answer 200."""
+    import requests
+    http = http or requests
+    found = []
+    try:
+        robots = http.get(f"{base}robots.txt", timeout=20)
+        if robots.status_code == 200:
+            for line in robots.text.splitlines():
+                if line.lower().startswith("sitemap:"):
+                    url = line.split(":", 1)[1].strip()
+                    if urlparse(url).hostname == urlparse(base).hostname and url not in found:
+                        found.append(url)
+    except requests.RequestException:
+        pass
+    if found:
+        return found
+    for path in FALLBACK_SITEMAPS:
+        url = base + path.lstrip("/")
+        try:
+            r = http.get(url, timeout=20)
+        except requests.RequestException:
+            continue
+        if r.status_code == 200 and "<" in r.text[:200]:
+            return [url]
+    return []
+
+
+def prepare(domains: list[str], out: Path, gsc: SearchConsole, http=None) -> dict:
+    state = load_state()
+    for domain in domains:
+        entry = state.setdefault(domain, {})
+        if not resolves_to_vps(domain):
+            entry.update(status="skipped: DNS does not point at the VPS yet")
+            print(f"{domain}: skipped, DNS not on the VPS")
+            continue
+        try:
+            host = live_host(domain, http)
+        except Exception as exc:  # network errors of any kind
+            entry.update(status=f"skipped: site did not answer ({str(exc)[:80]})")
+            print(f"{domain}: skipped, site did not answer")
+            continue
+        if not host:
+            entry.update(status="skipped: home page redirects to another domain")
+            print(f"{domain}: skipped, redirects elsewhere")
+            continue
+        site = f"https://{host}/"
+        name = entry.get("file") if entry.get("property") == site else None
+        if not name:
+            name = gsc.token("SITE", site, "FILE")
+        if not FILE_RE.match(name):
+            raise SystemExit(f"{domain}: unexpected verification file name {name!r}")
+        folder = out / domain
+        folder.mkdir(parents=True, exist_ok=True)
+        (folder / name).write_text(f"google-site-verification: {name}")
+        entry.update(property=site, file=name, status="file prepared")
+        print(f"{domain}: {site} -> {name}")
+    save_state(state)
+    return state
+
+
+def verify_all(gsc: SearchConsole, http=None, attempts: int = 4, pause: int = 30) -> int:
+    import requests
+    http = http or requests
+    state = load_state()
+    failures = 0
+    for domain, entry in sorted(state.items()):
+        if entry.get("status") != "file prepared":
+            continue
+        site, name = entry["property"], entry["file"]
+        try:
+            live = http.get(site + name, timeout=20)
+            if live.status_code != 200 or name not in live.text:
+                raise GscError(f"{site}{name} answers {live.status_code}, not the verification file")
+            for i in range(attempts):
+                try:
+                    resource = gsc.verify("SITE", site, "FILE")
+                    break
+                except GscError:
+                    if i == attempts - 1:
+                        raise
+                    time.sleep(pause)
+            gsc.add_site(site)
+            if gsc.email.endswith("gserviceaccount.com"):
+                gsc.add_owner(resource.get("id", site), OWNER)
+            submitted = []
+            for sitemap in sitemaps_for(site, http):
+                gsc.submit_sitemap(site, sitemap)
+                submitted.append(sitemap)
+            entry.update(status="verified", verified=resource.get("id", site), sitemaps=submitted)
+            print(f"{domain}: verified, {len(submitted)} sitemap(s) submitted")
+        except (GscError, requests.RequestException) as exc:
+            failures += 1
+            entry.update(status=f"failed: {str(exc)[:200]}")
+            print(f"{domain}: FAILED {exc}")
+        save_state(state)
+    return 1 if failures else 0
+
+
+def summary() -> str:
+    rows = ["| Domain | Property | Status | Sitemaps |", "|---|---|---|---|"]
+    for domain, e in sorted(load_state().items()):
+        rows.append(f"| {domain} | {e.get('property', '')} | {e.get('status', '')} | "
+                    f"{len(e.get('sitemaps', []))} |")
+    return "\n".join(rows)
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("prepare")
+    p.add_argument("domains", type=Path, help="file with one domain per line")
+    p.add_argument("out", type=Path)
+    sub.add_parser("verify")
+    sub.add_parser("summary")
+    args = ap.parse_args()
+    if args.cmd == "summary":
+        print(summary())
+        return 0
+    gsc = client()
+    if args.cmd == "prepare":
+        domains = [d.strip().lower() for d in args.domains.read_text().split() if d.strip()]
+        prepare(domains, args.out, gsc)
+        return 0
+    return verify_all(gsc)
+
+
+if __name__ == "__main__":
+    sys.exit(main())

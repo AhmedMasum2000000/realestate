@@ -1,0 +1,51 @@
+{% extends "base.html.j2" %}
+{% import "macros.html.j2" as m %}
+
+{% block content %}
+<div class="wrap">{{ m.crumbs([('Home', '/')], page_h1) }}</div>
+
+<section class="sec" style="padding-top:.5rem">
+  <div class="wrap split">
+    <div>
+      <span class="kick">{{ kicker }}</span>
+      <h1 class="d2" style="color:var(--navy)">{{ page_h1 }}</h1>
+    </div>
+    <div>
+      {%- for para in intro %}
+      <p class="lead"{% if not loop.first %} style="margin-top:1.2rem"{% endif %}>{{ para }}</p>
+      {%- endfor %}
+      <a class="btn btn--navy" href="tel:{{ brand.phone_href }}" style="margin-top:1.8rem">Call {{ brand.phone_display }}</a>
+    </div>
+  </div>
+</section>
+
+{%- if blocks %}
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="seg" style="grid-template-columns:repeat(auto-fit,minmax(17rem,1fr))">
+      {%- for b in blocks %}
+      <div class="seg__c">
+        <h3>{{ b.title }}</h3>
+        <p>{{ b.text }}</p>
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+{%- endif %}
+
+{%- if cards %}
+<section class="sec" style="background:var(--paper-2);padding-top:clamp(2.6rem,5vw,4rem)">
+  <div class="wrap">
+    <span class="kick">{{ cards_kicker }}</span>
+    <h2 class="d2" style="color:var(--navy)">{{ cards_heading }}</h2>
+    {{ m.card_grid(cards) }}
+    <a class="btn btn--navy" href="/properties/" style="margin-top:2.4rem">See all properties</a>
+  </div>
+</section>
+{%- endif %}
+
+{%- if show_form %}
+{% include "contact.html.j2" %}
+{%- endif %}
+{% endblock %}

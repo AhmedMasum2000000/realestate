@@ -1,0 +1,33 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, cta, crumbs, sources with context %}{% from 'boon.html.j2' import boon %}
+{% block content %}
+<section class="page-hero faq-hero">
+  <div class="frame">
+    {{ crumbs(page) }}
+    <div class="page-hero-grid">
+      <div>{{ mono('Frequently asked questions') }}<h1 class="display page-title" data-reveal-words>Moving to Thailand: <em>your questions, answered.</em></h1></div>
+      <div class="page-hero-side"><p class="lede">{{ faq_count }} straight answers about long-stay visas, staying legal, buying or renting a home, daily costs and working with us. Each answer starts with the short version, then links to the full guide and the official source.</p>
+        <p class="mono">Figures checked {{ checked }}</p></div>
+    </div>
+    <div class="faq-tools">
+      <label class="faq-search" for="faq-filter"><span class="mono">Search the answers</span><input id="faq-filter" type="search" placeholder="Try “retirement”, “condo” or “90-day”" autocomplete="off" data-faq-filter></label>
+      <nav class="faq-jump" aria-label="FAQ topics">{% for anchor, heading, intro, items, keys in faq_groups %}<a href="#{{ anchor }}">{{ heading }} <span>{{ items|length }}</span></a>{% endfor %}</nav>
+    </div>
+  </div>
+</section>
+<div class="frame faq-page" data-faq-page>
+  {% for anchor, heading, intro, items, keys in faq_groups %}
+  <section class="faq-group" id="{{ anchor }}" aria-labelledby="{{ anchor }}-title" data-faq-group>
+    <div class="faq-group-head">{{ mono('%02d'|format(loop.index) ~ ' · ' ~ items|length ~ ' questions') }}<h2 id="{{ anchor }}-title" class="display">{{ heading }}</h2><p>{{ intro }}</p></div>
+    <div class="faq-list">{% for question, short, more in items %}<details id="{{ slugify(question) }}" data-faq-item{% if loop.first %} open{% endif %}>
+<summary><h3>{{ question }}</h3><span class="faq-plus" aria-hidden="true"></span></summary>
+<div class="faq-answer"><p class="faq-short">{{ short }}</p><p>{{ more|md }}</p></div>
+</details>{% endfor %}
+    {% if keys %}{{ sources(keys) }}{% endif %}</div>
+  </section>
+  {% endfor %}
+  <p class="faq-none" data-faq-none hidden>No answer matches that yet. Ask us instead: <a href="{{ url('contact/') }}">schedule a consultation</a>.</p>
+  <aside class="faq-ask boon-helper">{{ boon('guide') }}<div class="boon-bubble"><p>Can’t find your question? Ask it in your first conversation, or let the <a href="{{ url('tools/visa-finder/') }}">Visa Finder</a> point you to a starting route in about two minutes.</p></div></aside>
+</div>
+{{ cta() }}
+{% endblock %}

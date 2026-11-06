@@ -1,0 +1,90 @@
+name: Search Console (VPS sites)
+
+# Adds every site on the VPS to Search Console for almasum5495@gmail.com:
+# fetch each site's verification file from Google, put it in the web root,
+# verify, add the property and submit its sitemaps. Safe to run again: sites
+# already verified are simply re-checked and their sitemaps resubmitted.
+# Domains whose DNS does not point at the VPS yet are skipped and listed.
+#
+# Google access: the repo's service account (GOOGLE_SERVICE_ACCOUNT_JSON), which
+# adds almasum5495@gmail.com as a verified owner of each site. If GSC_CLIENT_ID,
+# GSC_CLIENT_SECRET and GSC_REFRESH_TOKEN are all set, it acts as that account
+# directly instead. Also needs VPS_PASSWORD.
+
+on:
+  workflow_dispatch:
+    inputs:
+      domains:
+        description: "Domains, space separated (blank = every site on the VPS)"
+        required: false
+        default: ""
+
+permissions:
+  contents: write   # commits data/gsc-vps.json
+
+concurrency:
+  group: gsc-vps
+  cancel-in-progress: false
+
+jobs:
+  gsc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      SSHPASS: ${{ secrets.VPS_PASSWORD }}
+      VPS: root@187.127.141.173
+      GSC_CLIENT_ID: ${{ secrets.GSC_CLIENT_ID }}
+      GSC_CLIENT_SECRET: ${{ secrets.GSC_CLIENT_SECRET }}
+      GSC_REFRESH_TOKEN: ${{ secrets.GSC_REFRESH_TOKEN }}
+      GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+
+      - run: pip install -r requirements.txt && sudo apt-get install -y -qq sshpass >/dev/null
+
+      - name: List the sites
+        env:
+          DOMAINS: ${{ inputs.domains }}
+        run: |
+          if [ -n "$DOMAINS" ]; then
+            echo "$DOMAINS" | tr ' ,' '\n\n' | sed '/^$/d' > domains.txt
+          else
+            sshpass -e scp -q -o StrictHostKeyChecking=accept-new vps/gsc-list.sh "$VPS:/root/gsc-list.sh"
+            sshpass -e ssh "$VPS" "bash /root/gsc-list.sh" > domains.txt
+          fi
+          echo "$(wc -l < domains.txt) domains"; cat domains.txt
+
+      - name: Get the verification files from Google
+        run: bin/gsc-vps prepare domains.txt gsc-files
+
+      - name: Put the files on the VPS
+        run: |
+          [ -d gsc-files ] && [ -n "$(ls -A gsc-files)" ] || { echo "nothing to place"; exit 0; }
+          sshpass -e ssh -o StrictHostKeyChecking=accept-new "$VPS" "rm -rf /root/migration/gsc-files && mkdir -p /root/migration/vps"
+          sshpass -e scp -q -r gsc-files "$VPS:/root/migration/gsc-files"
+          sshpass -e scp -q vps/gsc-files.sh "$VPS:/root/migration/vps/gsc-files.sh"
+          sshpass -e ssh "$VPS" "bash /root/migration/vps/gsc-files.sh"
+
+      - name: Verify, add and submit sitemaps
+        run: bin/gsc-vps verify
+
+      - name: Summary
+        if: always()
+        run: bin/gsc-vps summary | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Save state
+        if: always()
+        run: |
+          [ -f data/gsc-vps.json ] || exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/gsc-vps.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Record Search Console status for VPS sites"
+          for i in 1 2 3; do git pull --rebase -q && git push && exit 0; sleep $((i * 5)); done
+          exit 1

@@ -1,0 +1,82 @@
+<svg viewBox="28 36 1212 476" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="LED AD PRO"><title>LED AD PRO</title><style>#letters path,#letters rect{stroke:#0A5C99;stroke-width:1.4;stroke-linejoin:round;paint-order:stroke}#letters .face{stroke:#4FA9D8}</style>
+<defs>
+  <linearGradient id="dk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFFFF"></stop><stop offset="1" stop-color="#E4F4FD"></stop></linearGradient>
+  <linearGradient id="lt" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9FDDF6"></stop><stop offset="1" stop-color="#5EC0EC"></stop></linearGradient>
+  <linearGradient id="scr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#C9EEFB"></stop><stop offset=".55" stop-color="#9AD8F1"></stop><stop offset="1" stop-color="#7CC6E8"></stop></linearGradient>
+  <radialGradient id="ocean" cx=".38" cy=".34" r=".75"><stop offset="0" stop-color="#5CC2F5"></stop><stop offset=".55" stop-color="#1673C4"></stop><stop offset="1" stop-color="#062C5E"></stop></radialGradient>
+  <linearGradient id="land" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C7E86A"></stop><stop offset=".6" stop-color="#4FB35A"></stop><stop offset="1" stop-color="#1E7A4A"></stop></linearGradient>
+  <radialGradient id="shade" cx=".35" cy=".3" r=".85"><stop offset=".5" stop-color="#000" stop-opacity="0"></stop><stop offset="1" stop-color="#021530" stop-opacity=".55"></stop></radialGradient>
+  <radialGradient id="glow" r=".5"><stop offset="0" stop-color="#8AD5F2" stop-opacity=".9"></stop><stop offset="1" stop-color="#8AD5F2" stop-opacity="0"></stop></radialGradient>
+  <linearGradient id="sweep" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"></stop><stop offset=".5" stop-color="#fff" stop-opacity=".55"></stop><stop offset="1" stop-color="#fff" stop-opacity="0"></stop></linearGradient>
+  <clipPath id="gclip"><circle cx="0" cy="0" r="66"></circle></clipPath>
+  <clipPath id="scrclip"><path id="scrpath" d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z"></path></clipPath>
+  <clipPath id="lettersclip"><rect x="0" y="0" width="1300" height="560"></rect></clipPath>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#06345E" flood-opacity=".18"></feDropShadow></filter>
+</defs>
+
+
+
+<!-- billboard (behind letters so the legs tuck into R and O) -->
+<g id="board">
+  <rect id="legL" x="882" y="205" width="10" height="112" fill="#FFFFFF" transform="translate(0 0)"></rect>
+  <rect id="legR" x="1096" y="190" width="10" height="127" fill="#FFFFFF" transform="translate(0 0)"></rect>
+  <g id="screen">
+    <path d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z" fill="url(#scr)" opacity="1"></path>
+    <g clip-path="url(#scrclip)"></g>
+    <path id="frame" d="M848 92 Q846 76 862 75 L1138 52 Q1156 51 1156 68 L1154 178 Q1154 194 1138 195 L862 214 Q848 215 848 200 Z" fill="none" stroke="#FFFFFF" stroke-width="11" stroke-linejoin="round"></path>
+  </g>
+</g>
+
+<g id="letters">
+  <!-- row 1 -->
+  <g id="L" data-x="45" data-y="55" transform="translate(45 55) scale(1)">
+    <rect x="0" y="0" width="60" height="185" rx="4" fill="url(#dk)"></rect>
+    <path class="face" d="M60 140 H210 L184 185 H60 Z" fill="url(#lt)" opacity="1"></path>
+  </g>
+  <g id="E" data-x="275" data-y="55" transform="translate(275 55) scale(1)">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)" opacity="1"></path>
+    <rect x="0" y="45" width="62" height="140" fill="url(#dk)"></rect>
+    <path d="M62 84 H200 L212 122 H62 Z" fill="url(#dk)"></path>
+    <path d="M0 146 H215 V181 Q215 185 211 185 H4 Q0 185 0 181 Z" fill="url(#dk)"></path>
+  </g>
+  <g id="D1" data-x="510" data-y="55" transform="translate(510 55) scale(1)">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)" opacity="1"></path>
+    <path d="M0 45 H215 V160 Q215 185 190 185 H4 Q0 185 0 181 Z M62 45 V140 H153 V45 Z" fill="url(#dk)" fill-rule="evenodd"></path>
+  </g>
+  <!-- row 2 -->
+  <g id="A" data-x="40" data-y="315" transform="translate(40 315) scale(1)">
+    <path class="face" d="M0 4 Q0 0 4 0 H180 L205 45 H0 Z" fill="url(#lt)" opacity="1"></path>
+    <path d="M0 45 H205 V185 H147 V135 H58 V185 H0 Z M58 45 V95 H147 V45 Z" fill="url(#dk)" fill-rule="evenodd"></path>
+  </g>
+  <g id="D2" data-x="275" data-y="315" transform="translate(275 315) scale(1)">
+    <path class="face" d="M0 4 Q0 0 4 0 H190 L215 45 H0 Z" fill="url(#lt)" opacity="1"></path>
+    <path d="M0 45 H215 V160 Q215 185 190 185 H4 Q0 185 0 181 Z M62 45 V140 H153 V45 Z" fill="url(#dk)" fill-rule="evenodd"></path>
+  </g>
+  <g id="P" data-x="548" data-y="315" transform="translate(548 315) scale(1)">
+    <path class="face" d="M0 14 L56 0 V185 L0 171 Z" fill="url(#lt)" opacity="1"></path>
+    <path d="M56 0 H210 Q230 0 230 20 V115 Q230 135 210 135 H56 V95 H172 V45 H56 Z" fill="url(#dk)"></path>
+  </g>
+  <g id="R" data-x="790" data-y="315" transform="translate(790 315) scale(1)">
+    <path d="M0 4 Q0 0 4 0 H190 Q210 0 210 20 V105 Q210 128 188 132 L214 185 H150 L126 135 H60 V185 H0 Z M60 45 V92 H150 V45 Z" fill="url(#dk)" fill-rule="evenodd"></path>
+    
+  </g>
+  <g id="O" data-x="1015" data-y="315" transform="translate(1015 315) scale(1)">
+    <path d="M18 0 H197 Q215 0 215 18 V167 Q215 185 197 185 H18 Q0 185 0 167 V18 Q0 0 18 0 Z" fill="url(#dk)"></path>
+    <circle cx="107" cy="92" r="72" fill="#0B3E73"></circle>
+  </g>
+  
+</g>
+
+<!-- globe -->
+<g id="globe" transform="translate(1122 407)">
+  
+  
+  <circle r="66" fill="url(#ocean)"></circle>
+  <g clip-path="url(#gclip)"><g id="lands" transform="translate(0 0)"><path d="M-60 -40 q14 -12 30 -6 q8 10 2 18 q-10 4 -8 16 q10 8 6 22 q-6 16 -2 30 q-8 4 -12 -6 q-6 -18 -16 -26 q-10 -14 0 -30 z M-8 -50 q10 -6 22 -2 q4 8 -6 10 q-12 0 -16 -8 z M40 -36 q16 -8 30 0 q10 10 0 18 q8 14 2 30 q-8 22 -18 30 q-6 -10 -8 -24 q-12 -10 -10 -26 q-4 -16 4 -28 z M95 -44 q30 -10 56 2 q12 14 -4 22 q-14 2 -20 14 q-18 4 -24 -10 q-14 -14 -8 -28 z M120 22 q14 -4 22 6 q-2 12 -14 12 q-12 -4 -8 -18 z" fill="url(#land)" transform="translate(-220 0)"></path><path d="M-60 -40 q14 -12 30 -6 q8 10 2 18 q-10 4 -8 16 q10 8 6 22 q-6 16 -2 30 q-8 4 -12 -6 q-6 -18 -16 -26 q-10 -14 0 -30 z M-8 -50 q10 -6 22 -2 q4 8 -6 10 q-12 0 -16 -8 z M40 -36 q16 -8 30 0 q10 10 0 18 q8 14 2 30 q-8 22 -18 30 q-6 -10 -8 -24 q-12 -10 -10 -26 q-4 -16 4 -28 z M95 -44 q30 -10 56 2 q12 14 -4 22 q-14 2 -20 14 q-18 4 -24 -10 q-14 -14 -8 -28 z M120 22 q14 -4 22 6 q-2 12 -14 12 q-12 -4 -8 -18 z" fill="url(#land)" transform="translate(0 0)"></path><path d="M-60 -40 q14 -12 30 -6 q8 10 2 18 q-10 4 -8 16 q10 8 6 22 q-6 16 -2 30 q-8 4 -12 -6 q-6 -18 -16 -26 q-10 -14 0 -30 z M-8 -50 q10 -6 22 -2 q4 8 -6 10 q-12 0 -16 -8 z M40 -36 q16 -8 30 0 q10 10 0 18 q8 14 2 30 q-8 22 -18 30 q-6 -10 -8 -24 q-12 -10 -10 -26 q-4 -16 4 -28 z M95 -44 q30 -10 56 2 q12 14 -4 22 q-14 2 -20 14 q-18 4 -24 -10 q-14 -14 -8 -28 z M120 22 q14 -4 22 6 q-2 12 -14 12 q-12 -4 -8 -18 z" fill="url(#land)" transform="translate(220 0)"></path></g></g>
+  <circle r="66" fill="url(#shade)"></circle>
+  <ellipse cx="-22" cy="-28" rx="26" ry="14" fill="#fff" opacity=".35" transform="rotate(-30 -22 -28)"></ellipse>
+  <circle r="66" fill="none" stroke="#BFEFFF" stroke-width="3" opacity=".9"></circle>
+</g>
+
+
+<style>#letters path,#letters rect{stroke:none}</style></svg>

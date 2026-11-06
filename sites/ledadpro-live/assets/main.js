@@ -1,0 +1,246 @@
+// LED AD PRO v2: hero slider, scroll effects, service image peek, dotted map with pins.
+(() => {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+
+  // Header: solid after scrolling, burger menu on phones
+  const hdr = $('.hdr');
+  const onScroll = () => hdr.classList.toggle('solid', scrollY > 40);
+  addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  // Full-screen menu
+  const menu = $('#menu'), burger = $('.burger');
+  function setMenu(open) {
+    menu.classList.toggle('open', open); menu.setAttribute('aria-hidden', !open);
+    burger.setAttribute('aria-expanded', open); document.body.classList.toggle('locked', open);
+    if (open) setTimeout(() => $('.menu-x').focus(), 300); else burger.focus({ preventScroll: true });
+  }
+  burger.addEventListener('click', () => setMenu(true));
+  $('.menu-x').addEventListener('click', () => setMenu(false));
+  $$('.menu a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+  addEventListener('keydown', e => { if (e.key === 'Escape' && menu.classList.contains('open')) setMenu(false); });
+
+  // Hero crossfade slider with dash progress
+  const slides = $$('.slide'), dashes = $('.dashes'), DUR = 6000, rot = $('.h-rot'), capEl = $('.slide-cap');
+  // The second hero word changes with each photo: old letters leave, new ones come in one by one.
+  let swapT;
+  function swapWord(w) {
+    if (rot.dataset.w === w) return;
+    const put = () => {
+      rot.classList.remove('out'); rot.dataset.w = w;
+      rot.innerHTML = [...w].map((c, i) => `<span class="ch" style="animation-delay:${reduce ? 0 : i * 45}ms">${c === ' ' ? ' ' : c}</span>`).join('');
+    };
+    clearTimeout(swapT);
+    if (!rot.dataset.w || reduce) return put();
+    rot.classList.add('out'); swapT = setTimeout(put, 330);
+  }
+  let cur = 0, timer;
+  slides.forEach((_, i) => {
+    const b = document.createElement('button');
+    b.className = 'dash'; b.setAttribute('aria-label', `Slide ${i + 1}`);
+    b.style.setProperty('--dur', DUR + 'ms'); b.innerHTML = '<i></i>';
+    b.addEventListener('click', () => go(i));
+    dashes.appendChild(b);
+  });
+  const ds = $$('.dash');
+  function go(i) {
+    slides[cur].classList.remove('on'); ds[cur].classList.remove('on');
+    cur = (i + slides.length) % slides.length;
+    slides[cur].classList.add('on');
+    swapWord(slides[cur].dataset.word || ''); capEl.textContent = slides[cur].dataset.cap || '';
+    void ds[cur].offsetWidth; ds[cur].classList.add('on');
+    clearTimeout(timer); if (!reduce) timer = setTimeout(() => go(cur + 1), DUR);
+  }
+  go(0);
+
+  // Fit the hero words to the screen: size the heading so the longest word (fixed or
+  // swapping) fits the available width, so nothing is cut off on phones.
+  const heroH = $('.hero-h');
+  function fitHero() {
+    heroH.style.fontSize = '';
+    const box = $('.hero-in'), cs = getComputedStyle(box);
+    const avail = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    const probe = document.createElement('span');
+    probe.className = 'display'; probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:' + getComputedStyle(heroH).fontSize;
+    document.body.appendChild(probe);
+    let widest = 0;
+    [$('.h-fixed').textContent, ...slides.map(s => s.dataset.word || '')].forEach(w => { probe.textContent = w; widest = Math.max(widest, probe.getBoundingClientRect().width); });
+    probe.remove();
+    if (widest > avail) heroH.style.fontSize = (parseFloat(getComputedStyle(heroH).fontSize) * avail / widest * .97) + 'px';
+  }
+  fitHero(); addEventListener('resize', fitHero);
+  document.fonts && document.fonts.ready.then(fitHero);
+
+  // Reveal on scroll
+  const io = new IntersectionObserver(es => es.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+  }), { threshold: .15 });
+  $$('.rv').forEach(el => io.observe(el));
+
+  // Statement fill and cyan-band word reveal, both driven by scroll position
+  const st = $('.statement h2'), band = $('.band h2');
+  band.innerHTML = band.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+  const words = $$('.w', band);
+  const prog = el => { const r = el.getBoundingClientRect(); return Math.min(1, Math.max(0, (innerHeight - r.top) / (innerHeight + r.height * .2))); };
+  function tick() {
+    st.style.setProperty('--p', (reduce ? 100 : Math.round(prog(st) * 130 - 15)) + '%');
+    const n = reduce ? words.length : Math.floor(prog(band) * 1.6 * words.length);
+    words.forEach((w, i) => w.classList.toggle('on', i < n));
+  }
+  addEventListener('scroll', () => requestAnimationFrame(tick), { passive: true }); tick();
+
+  // THINK BIG: words cut out of a navy layer (SVG mask). Scrolling zooms into the "I" of BIG
+  // until the photo fills the screen, then a caption comes in.
+  const think = $('.think'), svg = $('.think-svg'), g = $('.tb-g'), t1 = $('.tb-t1'), t2 = $('.tb-t2'),
+        timg = $('.think-img'), cap = $('.think-cap'), cover = $('.tb-cover'), shade = $('.think-shade');
+  let tw, th, origin = [0, 0];
+  function thinkLayout() {
+    tw = innerWidth; th = think.querySelector('.think-pin').clientHeight;
+    svg.setAttribute('viewBox', `0 0 ${tw} ${th}`);
+    $$('rect', svg).forEach(r => { r.setAttribute('width', tw); r.setAttribute('height', th); });
+    const fs = Math.min(tw * .27, th * .36);
+    [t1, t2].forEach(t => { t.setAttribute('x', tw / 2); t.style.fontSize = fs + 'px'; t.style.letterSpacing = (-fs * .02) + 'px'; });
+    t1.setAttribute('y', th / 2 - fs * .06); t2.setAttribute('y', th / 2 + fs * .78);
+    try { const b = t2.getExtentOfChar(1); origin = [b.x + b.width / 2, b.y + b.height * .55]; }
+    catch (e) { origin = [tw / 2, th / 2 + fs * .45]; }
+  }
+  function thinkTick() {
+    const r = think.getBoundingClientRect(), span = think.offsetHeight - th;
+    const p = reduce ? 0 : Math.min(1, Math.max(0, -r.top / span));
+    // Text that is scaled very large inside a mask stops rendering in some browsers, so the zoom
+    // is capped at 9x and the navy layer fades out over the second half instead.
+    const z = Math.min(1, p / .78), s = 1 + Math.pow(z, 2) * 8;
+    g.setAttribute('transform', `translate(${origin[0]} ${origin[1]}) scale(${s}) translate(${-origin[0]} ${-origin[1]})`);
+    cover.style.opacity = 1 - Math.min(1, Math.max(0, (z - .45) / .5));
+    timg.style.transform = `scale(${1.25 - .25 * p})`;
+    cap.classList.toggle('in', reduce || p > .8); shade.classList.toggle('in', reduce || p > .8);
+  }
+  thinkLayout(); thinkTick();
+  document.fonts && document.fonts.ready.then(() => { thinkLayout(); thinkTick(); });
+  addEventListener('resize', () => { thinkLayout(); thinkTick(); });
+  addEventListener('scroll', () => requestAnimationFrame(thinkTick), { passive: true });
+
+  // Service rows: image follows the pointer
+  const peek = $('.svc-peek'), pimg = $('img', peek);
+  $$('.svc-row').forEach(r => {
+    r.addEventListener('mouseenter', () => { pimg.src = r.dataset.img; peek.classList.add('on'); });
+    r.addEventListener('mouseleave', () => peek.classList.remove('on'));
+  });
+  addEventListener('mousemove', e => { peek.style.left = e.clientX + 'px'; peek.style.top = e.clientY + 'px'; });
+
+  // Locations directory: area list, dotted map with pins, side card, and an area detail grid.
+  const LOCS = window.LOCS || [], STATIC = window.STATIC || [];
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const ledCount = LOCS.reduce((n, a) => n + a.p.length, 0);
+  const cities = new Set(LOCS.map(a => a.kind === 'dhaka' ? 'Dhaka' : a.name)).size;
+  $$('[data-count]').forEach(el => el.textContent = { led: ledCount, static: STATIC.length, cities }[el.dataset.count]);
+
+  const cv = $('#map'), ctx = cv.getContext('2d'), list = $('.loc-list');
+  const SHAPE = [[88.03,24.66],[88.14,24.92],[88.45,25.17],[88.68,25.22],[88.95,25.18],[89.01,25.29],[88.83,25.48],[88.56,25.53],[88.44,25.85],[88.65,26.13],[88.95,26.29],[89.12,26.03],[89.33,26.02],[89.55,26.23],[89.84,25.97],[89.86,25.42],[90.12,25.26],[90.6,25.17],[91.1,25.2],[91.66,25.14],[92.04,25.18],[92.47,24.98],[92.22,24.5],[91.92,24.33],[91.73,24.15],[91.37,24.1],[91.16,23.62],[91.37,23.19],[91.6,22.95],[91.82,23.36],[92.15,23.73],[92.29,23.68],[92.36,22.95],[92.58,22.04],[92.66,21.32],[92.33,20.67],[92.08,21.19],[92.03,21.7],[91.82,22.18],[91.47,22.47],[91.03,22.68],[90.6,22.39],[90.27,21.84],[89.84,21.86],[89.6,22.14],[89.03,22.06],[88.89,22.88],[88.53,23.63],[88.7,24.23],[88.03,24.66]];
+  const B = { x0: 86.1, x1: 92.9, y0: 20.4, y1: 26.7 };
+  const DK = { x0: 90.33, x1: 90.47, y0: 23.69, y1: 23.87 };
+  let W, H, dots = [], idots = [], inset, filter = 'dhaka', shown = [], active = null;
+  const proj = (lon, lat) => [(lon - B.x0) / (B.x1 - B.x0) * W, (B.y1 - lat) / (B.y1 - B.y0) * H];
+  const inDhaka = a => a.kind === 'dhaka';
+  function pinXY(a) {
+    if (!inDhaka(a)) return proj(a.lon, a.lat);
+    const k = inset.r * 2 / (DK.x1 - DK.x0);
+    return [inset.x + (a.lon - (DK.x0 + DK.x1) / 2) * k, inset.y - (a.lat - (DK.y0 + DK.y1) / 2) * k];
+  }
+  function inside(x, y, poly) {
+    let c = false;
+    for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+      const [xi, yi] = poly[i], [xj, yj] = poly[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+    }
+    return c;
+  }
+  function layout() {
+    const dpr = devicePixelRatio || 1, r = cv.getBoundingClientRect();
+    W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const poly = SHAPE.map(([a, b]) => proj(a, b)), step = Math.max(6, W / 60);
+    dots = [];
+    for (let y = step / 2; y < H; y += step) for (let x = step / 2; x < W; x += step) if (inside(x, y, poly)) dots.push([x, y]);
+    inset = { x: W * .19, y: H * .8, r: W * .165 };
+    idots = []; const s2 = step * .8;
+    for (let y = inset.y - inset.r; y < inset.y + inset.r; y += s2) for (let x = inset.x - inset.r; x < inset.x + inset.r; x += s2)
+      if (Math.hypot(x - inset.x, y - inset.y) < inset.r - 6) idots.push([x, y]);
+  }
+  function draw(t) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(143,163,196,.35)';
+    for (const [x, y] of dots) { ctx.beginPath(); ctx.arc(x, y, 1.6, 0, 7); ctx.fill(); }
+    const [dx, dy] = proj(90.40, 23.78);
+    ctx.strokeStyle = 'rgba(255,31,110,.5)'; ctx.lineWidth = 1; ctx.setLineDash([4, 4]);
+    ctx.beginPath(); ctx.moveTo(dx, dy); ctx.lineTo(inset.x + inset.r * .7, inset.y - inset.r * .7); ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = 'rgba(7,18,43,.94)'; ctx.strokeStyle = 'rgba(255,31,110,.6)'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.arc(inset.x, inset.y, inset.r, 0, 7); ctx.fill(); ctx.stroke();
+    ctx.fillStyle = 'rgba(143,163,196,.18)';
+    for (const [x, y] of idots) { ctx.beginPath(); ctx.arc(x, y, 1.1, 0, 7); ctx.fill(); }
+    ctx.fillStyle = '#fff'; ctx.font = '800 11px Inter, sans-serif'; ctx.fillText('DHAKA', inset.x - 20, inset.y + inset.r + 16);
+    LOCS.forEach((a, i) => {
+      const [x, y] = pinXY(a), on = a === active, vis = shown.includes(a), ph = ((t / 1600) + i * .29) % 1;
+      if (!vis && !on) { ctx.fillStyle = 'rgba(255,31,110,.35)'; ctx.beginPath(); ctx.arc(x, y, 3, 0, 7); ctx.fill(); return; }
+      if (!reduce) { ctx.strokeStyle = `rgba(255,31,110,${(1 - ph) * .8})`; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(x, y, 5 + ph * (on ? 26 : 12), 0, 7); ctx.stroke(); }
+      ctx.fillStyle = on ? '#ffd60a' : '#3FC1F0'; ctx.beginPath(); ctx.arc(x, y, on ? 7 : 4.5, 0, 7); ctx.fill();
+      if (on) {
+        const label = a.name.toUpperCase(); ctx.font = '800 12px Inter, sans-serif';
+        const w = ctx.measureText(label).width, lx = Math.max(4, Math.min(x + 12, W - w - 4));
+        ctx.fillStyle = '#fff'; ctx.fillText(label, lx, y - 12);
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  const card = $('.loc-card'), cimg = $('.loc-photo img', card);
+  function setActive(a) {
+    if (!a || a === active) return;
+    active = a;
+    $$('li', list).forEach(li => li.classList.toggle('on', li.dataset.id === a.id));
+    card.classList.remove('in'); void card.offsetWidth; card.classList.add('in');
+    cimg.src = a.img; cimg.alt = a.name;
+    $('.loc-kind', card).textContent = inDhaka(a) ? 'Dhaka' : 'Bangladesh';
+    $('.loc-name', card).textContent = a.name;
+    $('.loc-count', card).textContent = `${a.p.length} LED ${a.p.length === 1 ? 'screen' : 'screens'}`;
+    $('.loc-sample', card).innerHTML = a.p.slice(0, 3).map(p => `<li>${esc(p.n)}</li>`).join('') + (a.p.length > 3 ? `<li class="more">+ ${a.p.length - 3} more</li>` : '');
+  }
+  function renderList() {
+    shown = LOCS.filter(a => filter === 'all' || a.kind === filter);
+    list.innerHTML = shown.map(a => `<li data-id="${a.id}" tabindex="0" role="button"><span>${esc(a.name)}</span><small>${a.p.length}</small><a class="sr-only" href="/locations/${a.id}/">${esc(a.name)} LED billboards</a></li>`).join('');
+    $$('li', list).forEach((li, i) => {
+      li.style.animationDelay = (i * 35) + 'ms';
+      const a = LOCS.find(x => x.id === li.dataset.id);
+      li.addEventListener('mouseenter', () => setActive(a));
+      li.addEventListener('focus', () => setActive(a));
+      li.addEventListener('click', () => openArea(a));
+      li.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openArea(a); } });
+    });
+    active = null; setActive(shown.find(a => a.id === 'gulshan') || shown[0]);
+  }
+  $$('.loc-filter button').forEach(b => b.addEventListener('click', () => {
+    filter = b.dataset.f; $$('.loc-filter button').forEach(x => x.classList.toggle('on', x === b)); renderList();
+  }));
+  // Area detail: every screen in the area as a photo card, fading in one after another
+  const area = $('#area');
+  function openArea(a) {
+    setActive(a);
+    $('.area-h', area).innerHTML = `${esc(a.name)} <span>${a.p.length} LED ${a.p.length === 1 ? 'screen' : 'screens'} · <a href="/locations/${a.id}/">Open the ${esc(a.name)} page &#9656;</a></span>`;
+    $('.area-grid', area).innerHTML = a.p.map((p, i) => `<figure class="pcard" style="animation-delay:${i * 70}ms"><div class="pimg"><img loading="lazy" src="${p.i}" alt="${esc(p.n)}"></div><figcaption><b>${esc(p.n)}</b>${p.f ? `<span>Facing: ${esc(p.f)}</span>` : ''}${p.ref ? '<em>Area photo</em>' : ''}</figcaption></figure>`).join('');
+    area.hidden = false; area.classList.remove('in'); void area.offsetWidth; area.classList.add('in');
+    area.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+  }
+  $('.loc-open').addEventListener('click', () => active && openArea(active));
+  $('.area-back').addEventListener('click', () => { area.hidden = true; $('#locations').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' }); });
+  addEventListener('resize', layout); layout(); renderList(); requestAnimationFrame(draw);
+
+  // Static billboards grid, revealed one card after another
+  $('.static-grid').innerHTML = STATIC.map((s, i) => `<figure class="pcard rv" style="transition-delay:${(i % 4) * 90}ms"><div class="pimg"><img src="${s.i}" alt="${esc(s.n)}"></div><figcaption><b>${esc(s.n)}</b><span>Static billboard</span></figcaption></figure>`).join('');
+  $$('.static-grid .rv').forEach(el => io.observe(el));
+
+  // Logos replay their light-up animation each time they come into view (and when the menu opens).
+  const replay = img => { const base = img.dataset.src || (img.dataset.src = img.getAttribute('src')); img.src = base + '#r' + Date.now(); };
+  const logoIO = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting && !reduce) replay(e.target); }), { threshold: .6 });
+  $$('img[data-replay]').forEach(i => logoIO.observe(i));
+  burger.addEventListener('click', () => { const m = $('.menu .logo img'); if (m && !reduce) replay(m); });
+
+  $('#yr').textContent = new Date().getFullYear();
+})();

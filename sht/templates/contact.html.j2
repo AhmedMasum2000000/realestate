@@ -1,0 +1,54 @@
+{% extends 'base.html.j2' %}
+{% from 'parts.html.j2' import mono, crumbs, hero_photo with context %}{% from 'boon.html.j2' import boon %}
+{% block content %}
+<section class="page-hero">
+  <div class="frame">
+    {{ crumbs(page) }}
+    <div class="page-hero-grid">
+      <div>{{ mono('Consultation') }}<h1 class="display page-title" data-reveal-words>Begin with a <em>conversation.</em></h1></div>
+      <div class="page-hero-side"><p class="lede">Tell us where you are now and the move you have in mind. You do not need every answer, only the questions that matter to you.</p></div>
+    </div>
+    {{ hero_photo(sht.PAGE_PHOTOS['contact']) }}
+  </div>
+</section>
+<section class="section contact">
+  <div class="frame contact-grid">
+    <form id="move-enquiry" class="form" action="{{ url('wp-json/sht/v1/enquiries') }}" method="post">
+      <fieldset><legend class="mono">01 · About you</legend>
+        <div class="field-grid">
+          <label for="enquiry-name">Your name<input id="enquiry-name" name="name" autocomplete="name" maxlength="120" required></label>
+          <label for="enquiry-email">Email<input id="enquiry-email" name="email" type="email" autocomplete="email" maxlength="200" required></label>
+          <label for="enquiry-phone">Phone or messaging <span>Optional</span><input id="enquiry-phone" name="phone" type="tel" autocomplete="tel" maxlength="40" placeholder="With country code"></label>
+          <label for="enquiry-interest">Where should we start?<select id="enquiry-interest" name="interest" required><option value="">Choose one</option><option value="visa">Which residency route fits me</option><option value="thailand-privilege">Thailand Privilege</option><option value="ltr">Long-Term Resident (LTR)</option><option value="retirement">Retirement</option><option value="dtv">DTV / remote work</option><option value="marriage">Marriage & family</option><option value="education">Study & activities</option><option value="homes">Renting or buying a home</option><option value="business">Business & investment</option><option value="care">Residency Care (reports, extensions)</option><option value="fees">A written scope and fee</option><option value="budget">My first-year budget</option><option value="privacy">A privacy request</option><option value="other">The whole move</option></select></label>
+        </div>
+      </fieldset>
+      <fieldset><legend class="mono">02 · The move</legend>
+        <div class="field-grid">
+          <label for="enquiry-timeline">When?<select id="enquiry-timeline" name="timeline" required><option value="">Approximate timeline</option><option value="soon">Within 3 months</option><option value="later">In 3–6 months</option><option value="year">In 6–12 months</option><option value="exploring">Still exploring</option><option value="already">Already in Thailand</option></select></label>
+          <label for="enquiry-budget">Monthly living budget <span>Optional · THB</span><input id="enquiry-budget" name="budget" type="number" min="0" max="10000000" placeholder="An estimate is enough"></label>
+        </div>
+        <label for="enquiry-message">What would you like to understand?<textarea id="enquiry-message" name="message" rows="5" maxlength="3000" placeholder="Who is moving, why Thailand, and what feels uncertain."></textarea></label>
+      </fieldset>
+      <p class="fineprint">Please leave passports, bank statements and other sensitive documents out of this first message.</p>
+      <div class="honeypot" aria-hidden="true"><label>Leave this blank<input name="website" tabindex="-1" autocomplete="off"></label></div>
+      <label class="check"><input name="consent" type="checkbox" required value="yes"><span>I agree to be contacted about my enquiry and have read the <a href="{{ url('privacy/') }}">privacy information</a>.</span></label>
+      <label class="check"><input name="marketing" type="checkbox" value="yes"><span>Send me occasional residency updates. Optional; unsubscribe any time.</span></label>
+      <button class="button" type="submit"><span>Schedule consultation</span>{{ icon('arrow') }}</button>
+      <p id="enquiry-status" class="form-status" role="status" aria-live="polite"></p>
+      <noscript><p>This form needs JavaScript to submit securely. Enable JavaScript and reload the page.</p></noscript>
+    </form>
+    <aside class="aside">
+      <div class="boon-helper" data-boon-helper>
+        <div class="boon-figure" data-boon-figure>{{ boon('notes', 'boon-pose is-on') }}{{ boon('success', 'boon-pose') }}{{ boon('puzzled', 'boon-pose') }}</div>
+        <p class="boon-bubble" data-boon-say aria-live="polite">Just the essentials for now. I’ll keep notes as you go.</p>
+      </div>
+      <div class="aside-card">
+        {{ mono('What happens next') }}
+        <ol class="steps steps-tight"><li><strong>We read your priorities.</strong> Your timeline and the questions that matter most.</li><li><strong>We arrange the consultation.</strong> A time that suits you, and who you will speak with.</li><li><strong>You receive a written scope.</strong> Only if you want paid help, and before any work begins.</li></ol>
+        <p class="fineprint">Visa approvals and legal outcomes are decided by the responsible authorities and professionals.</p>
+        <a class="text-arrow" data-whatsapp hidden href="#">Message us on WhatsApp {{ icon('arrow') }}</a>
+      </div>
+    </aside>
+  </div>
+</section>
+{% endblock %}

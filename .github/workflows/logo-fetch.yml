@@ -1,0 +1,100 @@
+name: Fetch brand logos
+
+# Read-only. For each line of data/client-logos.txt (Name|Wikipedia page|simple-icons slug|website)
+# finds the brand's logo (Wikipedia infobox logo, then Simple Icons, then the site's own logo/icon)
+# and prints it into the log as base64 between LOGO-BEGIN and LOGO-END.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch
+        run: |
+          cat > fetch.py <<'EOF'
+          import base64, json, re, urllib.parse, urllib.request
+          UA = {'User-Agent': 'LEDADPRO-site-builder/1.0 (https://ledadpro.com)'}
+          def get(u, n=4_000_000):
+              with urllib.request.urlopen(urllib.request.Request(u, headers=UA), timeout=25) as r:
+                  return r.read(n), r.headers.get('content-type', ''), r.geturl()
+          def wiki(page):
+              q = urllib.parse.urlencode({'action': 'parse', 'page': page, 'prop': 'wikitext', 'format': 'json', 'redirects': 1})
+              t = json.loads(get('https://en.wikipedia.org/w/api.php?' + q)[0])['parse']['wikitext']['*']
+              m = re.search(r'\|\s*logo\s*=\s*(?:\[\[)?(?:File:|Image:)?([^|\]\n{}]+\.(?:svg|png|jpg|jpeg|webp))', t, re.I)
+              if not m: return None
+              f = m.group(1).strip()
+              # non-free logos live on en.wikipedia, free ones on Commons; this path serves both
+              return f, 'https://en.wikipedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
+          def commons_file(f):
+              u = 'https://commons.wikimedia.org/wiki/Special:FilePath/' + urllib.parse.quote(f.replace(' ', '_'))
+              return f, u if f.lower().endswith('.svg') else u + '?width=2400'
+          def commons_search(q):
+              a = urllib.parse.urlencode({'action': 'query', 'list': 'search', 'srsearch': q + ' logo', 'srnamespace': 6, 'format': 'json', 'srlimit': 8})
+              hits = [h['title'][5:] for h in json.loads(get('https://commons.wikimedia.org/w/api.php?' + a)[0])['query']['search']]
+              print('   commons hits for', q, ':', hits)
+              hits = [h for h in hits if h.lower().endswith('.svg')] or hits
+              return commons_file(hits[0]) if hits else None
+          def photo(q, minw=2400):
+              a = urllib.parse.urlencode({'action': 'query', 'generator': 'search', 'gsrsearch': q + ' filetype:bitmap', 'gsrnamespace': 6, 'gsrlimit': 25,
+                                          'prop': 'imageinfo', 'iiprop': 'url|size|extmetadata', 'iiurlwidth': 2400, 'format': 'json'})
+              pages = json.loads(get('https://commons.wikimedia.org/w/api.php?' + a)[0]).get('query', {}).get('pages', {})
+              best = []
+              for pg in sorted(pages.values(), key=lambda x: x.get('index', 99)):
+                  ii = pg['imageinfo'][0]; md = ii.get('extmetadata', {})
+                  lic = md.get('LicenseShortName', {}).get('value', '?'); art = re.sub('<[^>]+>', '', md.get('Artist', {}).get('value', '?'))[:60]
+                  print(f"   cand {pg['title'][5:]} {ii['width']}x{ii['height']} {lic} by {art}")
+                  if ii['width'] >= minw and ii['width'] >= ii['height']: best.append((pg['title'][5:] + f' | {lic} | {art}', ii.get('thumburl') or ii['url']))
+              return best[:2]
+          def site(dom):
+              h = get('https://' + dom)[0].decode('utf8', 'ignore')
+              print('   logo-like images on', dom, ':', re.findall(r'(?:src|href|content)="([^"]*logo[^"]*)"', h, re.I)[:8])
+              for pat in [r'<img[^>]+(?:class|id|alt)="[^"]*logo[^"]*"[^>]+src="([^"]+)"', r'<img[^>]+src="([^"]+logo[^"]+)"',
+                          r'<link[^>]+rel="apple-touch-icon[^"]*"[^>]+href="([^"]+)"', r'<meta[^>]+property="og:image"[^>]+content="([^"]+)"']:
+                  m = re.search(pat, h, re.I)
+                  if m: return m.group(1), urllib.parse.urljoin('https://' + dom + '/', m.group(1))
+          for line in open('data/client-logos.txt'):
+              line = line.strip()
+              if not line or line.startswith('#'): continue
+              name, page, slug, dom = (line.split('|') + ['', '', ''])[:4]
+              tries = []
+              if page.startswith('photo:') and name.endswith('?'):
+                  try: photo(page[6:])
+                  except Exception as ex: print(f'-- {name}: photo error {ex}')
+                  continue
+              if page.startswith('photo:'):
+                  try:
+                      for i, (title, u) in enumerate(photo(page[6:])):
+                          data, ct, final = get(u, 12_000_000)
+                          print(f'LOGO-BEGIN {name}-{i + 1}|photo|jpg|{title}'); print(base64.b64encode(data).decode()); print('LOGO-END')
+                  except Exception as ex:
+                      print(f'-- {name}: photo error {ex}')
+                  continue
+              if page.startswith('https://'): tries.append(('url', lambda: (page.rsplit('/', 1)[-1], page)))
+              elif page.startswith('File:'): tries.append(('commons-file', lambda: commons_file(page[5:])))
+              elif page: tries.append(('wikipedia', lambda: wiki(page)))
+              if slug == 'search': tries.append(('commons-search', lambda: commons_search(name))); slug = ''
+              if slug: tries.append(('simple-icons', lambda: (slug, f'https://cdn.jsdelivr.net/npm/simple-icons@13.21.0/icons/{slug}.svg')))
+              if dom: tries.append(('site', lambda: site(dom)))
+              ok = False
+              for src, fn in tries:
+                  try:
+                      r = fn()
+                      if not r: print(f'-- {name}: {src} no logo'); continue
+                      print(f'   {name}: {src} trying {r[0]}')
+                      data, ct, final = get(r[1])
+                      if len(data) < 200: print(f'-- {name}: {src} tiny'); continue
+                      ext = 'svg' if ('svg' in ct or final.lower().endswith('.svg')) else ct.split('/')[-1].split(';')[0]
+                      print(f'LOGO-BEGIN {name}|{src}|{ext}|{r[0]}'); print(base64.b64encode(data).decode()); print('LOGO-END')
+                      ok = True; break
+                  except Exception as ex:
+                      print(f'-- {name}: {src} error {ex}')
+              if not ok: print(f'-- {name}: NOT FOUND')
+          EOF
+          python3 fetch.py

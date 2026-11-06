@@ -1,0 +1,46 @@
+name: SSL and DNS probe (read-only)
+
+# From the public internet: every A record of each domain, and for each address what http and
+# https answer there (status, redirect, page title, certificate names and expiry). Changes nothing.
+
+on:
+  workflow_dispatch:
+    inputs:
+      domains:
+        description: "Domains, space-separated"
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Probe
+        env:
+          DOMAINS: ${{ inputs.domains }}
+        run: |
+          set +e
+          for d in $DOMAINS; do
+            echo "## $d" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "NS: $(dig +short NS $d | sort | tr '\n' ' ')" | tee -a "$GITHUB_STEP_SUMMARY"
+            ips=$(dig +short A $d @1.1.1.1 | grep -E '^[0-9.]+$' | sort -u)
+            wips=$(dig +short A www.$d @1.1.1.1 | grep -E '^[0-9.]+$' | sort -u | tr '\n' ' ')
+            echo "A: $(echo $ips | tr '\n' ' ') | www A: ${wips:-none}" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "| Address | http | https | Title | Certificate | Valid until |" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "|---|---|---|---|---|---|" | tee -a "$GITHUB_STEP_SUMMARY"
+            for ip in $ips; do
+              h=$(curl -s -m 20 -o /dev/null -w '%{http_code} %{redirect_url}' --resolve "$d:80:$ip" "http://$d/")
+              s=$(curl -s -m 20 -o /tmp/p.html -w '%{http_code}' --resolve "$d:443:$ip" "https://$d/"); err=""
+              [ "$s" = "000" ] && err=$(curl -sS -m 20 -o /dev/null --resolve "$d:443:$ip" "https://$d/" 2>&1 | sed 's/curl: ([0-9]*) //' | head -1 | cut -c1-60)
+              [ "$s" = "000" ] && { s2=$(curl -sk -m 20 -o /tmp/p.html -w '%{http_code}' --resolve "$d:443:$ip" "https://$d/"); s="$s ($err; ignoring cert: $s2)"; }
+              t=$(grep -oi "<title>[^<]*" /tmp/p.html 2>/dev/null | head -1 | sed 's/<title>//I' | cut -c1-50); rm -f /tmp/p.html
+              cert=$(echo | timeout 20 openssl s_client -servername "$d" -connect "$ip:443" 2>/dev/null | openssl x509 -noout -subject -enddate -ext subjectAltName 2>/dev/null)
+              cn=$(echo "$cert" | grep -o 'CN *= *[^,/]*' | head -1 | sed 's/CN *= *//'); san=$(echo "$cert" | grep -o 'DNS:[^,]*' | sed 's/DNS://' | head -6 | tr '\n' ' ')
+              exp=$(echo "$cert" | grep notAfter | sed 's/notAfter=//')
+              echo "| $ip | $h | $s | $t | ${cn:-none} ${san:+($san)} | ${exp:-} |" | tee -a "$GITHUB_STEP_SUMMARY"
+            done
+            [ -z "$ips" ] && echo "| no A record | | | | | |" | tee -a "$GITHUB_STEP_SUMMARY"
+            echo | tee -a "$GITHUB_STEP_SUMMARY"
+          done

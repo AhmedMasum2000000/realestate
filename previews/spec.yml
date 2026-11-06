@@ -1,0 +1,340 @@
+# ---------------------------------------------------------------------------
+# Front-end specification for each site. `bin/build-previews` renders these
+# into standalone HTML pages, and the same copy feeds the WordPress pages once
+# provisioning runs.
+#
+# Every site gets its own palette, type pairing and layout archetype -- these
+# are eight different businesses, not one template with the name swapped.
+#
+# archetype:
+#   listings  -- property-forward: search, featured properties, areas
+#   advisory  -- service-forward: what we do, how it works, credentials
+#   product   -- explainer-forward: the concept, the mechanics, the numbers
+# ---------------------------------------------------------------------------
+
+sites:
+
+  - domain: pattayahomespro.com
+    name: "Pattaya Homes Pro"
+    archetype: listings
+    tagline: "Condos, houses and villas across Pattaya"
+    hero_title: "Find your place on the Eastern Seaboard"
+    hero_text: >
+      Sea-view condos in Pratumnak, pool villas in Jomtien, family houses out
+      east. Every listing checked, with the paperwork explained before you
+      commit.
+    cta: "Browse properties"
+    cta_secondary: "Talk to an agent"
+    fonts:
+      display: "Playfair Display:wght@500;600"
+      body: "Source Sans 3:wght@400;600"
+      display_stack: "'Playfair Display', Georgia, serif"
+      body_stack: "'Source Sans 3', system-ui, sans-serif"
+    palette:
+      ink: "#12211F"
+      accent: "#0F5F58"
+      accent2: "#C08A2E"
+      ground: "#F6F5F1"
+      surface: "#FFFFFF"
+      ink_dark: "#E9EEEC"
+      accent_dark: "#59BFB2"
+      accent2_dark: "#E0AE55"
+      ground_dark: "#0D1413"
+      surface_dark: "#161F1D"
+    illustration: tower
+    areas: ["Pratumnak", "Jomtien", "Wongamat", "Central Pattaya", "Naklua", "East Pattaya", "Huai Yai", "Bang Saray"]
+    points:
+      - title: "Every listing verified"
+        text: "Title deed, ownership quota and outstanding fees checked before a property goes on the site."
+      - title: "Foreign ownership, explained"
+        text: "Freehold, leasehold and company structures — what each actually means for you, in plain terms."
+      - title: "One agent throughout"
+        text: "The same person from first viewing to key handover. No hand-offs mid-purchase."
+
+  - domain: pattayahomepro.com
+    name: "Pattaya Home Pro"
+    archetype: listings
+    tagline: "Pattaya property specialists"
+    hero_title: "Property in Pattaya, without the runaround"
+    hero_text: >
+      A working brokerage covering sales, rentals and business transfers across
+      Pattaya and Jomtien. Straight answers on price, fees and what a place is
+      really worth.
+    cta: "See what's available"
+    cta_secondary: "Book a viewing"
+    fonts:
+      display: "Outfit:wght@500;700"
+      body: "Lora:wght@400;600"
+      display_stack: "Outfit, system-ui, sans-serif"
+      body_stack: "Lora, Georgia, serif"
+    palette:
+      ink: "#1B1614"
+      accent: "#B4472C"
+      accent2: "#2F6E7E"
+      ground: "#F7F4F1"
+      surface: "#FFFFFF"
+      ink_dark: "#F0EAE6"
+      accent_dark: "#E8836A"
+      accent2_dark: "#6FB3C4"
+      ground_dark: "#150F0D"
+      surface_dark: "#1F1815"
+    illustration: town
+    areas: ["Jomtien", "Pratumnak", "Central Pattaya", "North Pattaya", "Naklua", "Bang Saray", "Sattahip", "Ban Amphur"]
+    points:
+      - title: "Sales, rentals and businesses"
+        text: "Condos and houses to buy or rent, plus bars, restaurants and shops changing hands."
+      - title: "Priced against real sales"
+        text: "Valuations from what has actually transacted nearby, not what sellers are asking."
+      - title: "Rental management"
+        text: "Tenant finding, deposits, maintenance and renewals handled if you are not in the country."
+
+  - domain: thaihomespro.com
+    name: "Thai Homes Pro"
+    archetype: listings
+    tagline: "Property across Thailand"
+    hero_title: "Beyond Pattaya, across the Kingdom"
+    hero_text: >
+      Bangkok apartments, Chiang Mai houses, island villas and Isaan land.
+      One team, the same standards, wherever in Thailand you are looking.
+    cta: "Explore by region"
+    cta_secondary: "Tell us what you need"
+    fonts:
+      display: "Bitter:wght@500;700"
+      body: "Karla:wght@400;600"
+      display_stack: "Bitter, Georgia, serif"
+      body_stack: "Karla, system-ui, sans-serif"
+    palette:
+      ink: "#16201A"
+      accent: "#2C6E49"
+      accent2: "#B8860B"
+      ground: "#F4F6F2"
+      surface: "#FFFFFF"
+      ink_dark: "#E8EEE9"
+      accent_dark: "#6BBE8F"
+      accent2_dark: "#DFBB5C"
+      ground_dark: "#0D130F"
+      surface_dark: "#151E18"
+    illustration: islands
+    areas: ["Bangkok", "Chiang Mai", "Phuket", "Koh Samui", "Hua Hin", "Pattaya", "Krabi", "Udon Thani"]
+    points:
+      - title: "Every region covered"
+        text: "City apartments, beach villas, mountain houses and agricultural land, on one site."
+      - title: "Local knowledge, centrally held"
+        text: "Agents who live in the region they sell, working to one set of standards."
+      - title: "Remote purchase supported"
+        text: "Video viewings, power of attorney and escrow so a purchase can complete from abroad."
+
+  - domain: secondhomethailand.com
+    name: "Second Home Thailand"
+    archetype: advisory
+    tagline: "Your second home in the Kingdom"
+    hero_title: "A second home that works when you are not in it"
+    hero_text: >
+      Choosing the property is the easy part. We handle the visa that lets you
+      stay, the structure that lets you own, and the management that keeps it
+      earning while you are away.
+    cta: "Start the conversation"
+    cta_secondary: "How it works"
+    fonts:
+      display: "Cormorant Garamond:wght@500;600"
+      body: "Jost:wght@300;400;500"
+      display_stack: "'Cormorant Garamond', Georgia, serif"
+      body_stack: "Jost, system-ui, sans-serif"
+    palette:
+      ink: "#232821"
+      accent: "#6B7F5C"
+      accent2: "#A8763E"
+      ground: "#F7F6F1"
+      surface: "#FFFFFF"
+      ink_dark: "#ECEEE8"
+      accent_dark: "#9CB489"
+      accent2_dark: "#D3A165"
+      ground_dark: "#12140F"
+      surface_dark: "#1B1E18"
+    illustration: villa
+    steps:
+      - title: "Work out what you actually need"
+        text: "How long you want to stay each year decides the visa, and the visa often decides the property."
+      - title: "Choose the ownership structure"
+        text: "Freehold condo, leasehold land or a company. Each has trade-offs on cost, control and resale."
+      - title: "Buy with the checks done"
+        text: "Title search, encumbrances, building permits and outstanding fees, before money moves."
+      - title: "Leave it in safe hands"
+        text: "Letting, cleaning, bills and maintenance managed while you are in another country."
+    points:
+      - title: "Visa and property together"
+        text: "Most advisers do one or the other. The decisions are connected, so we handle both."
+      - title: "Fixed fees, quoted up front"
+        text: "You know the cost of the whole process before you start, not per letter and per call."
+
+  - domain: mysecondhomepro.com
+    name: "My Second Home Pro"
+    archetype: advisory
+    tagline: "Buying abroad, handled properly"
+    hero_title: "Buying property in a country you do not live in"
+    hero_text: >
+      Different rules, a different language, and a legal system that will not
+      warn you about the thing it assumes you know. We do the part that goes
+      wrong when nobody is watching it.
+    cta: "Book a consultation"
+    cta_secondary: "See the process"
+    fonts:
+      display: "Spectral:wght@500;600"
+      body: "Manrope:wght@400;600"
+      display_stack: "Spectral, Georgia, serif"
+      body_stack: "Manrope, system-ui, sans-serif"
+    palette:
+      ink: "#231C26"
+      accent: "#5B3A6E"
+      accent2: "#B07C3F"
+      ground: "#F6F4F6"
+      surface: "#FFFFFF"
+      ink_dark: "#EDE8EE"
+      accent_dark: "#B08FC4"
+      accent2_dark: "#DBAB6D"
+      ground_dark: "#120E14"
+      surface_dark: "#1C161F"
+    illustration: documents
+    steps:
+      - title: "Establish what you can own"
+        text: "Foreign ownership rules differ by country and by property type. This decides everything after it."
+      - title: "Structure it before you offer"
+        text: "Personal name, company, trust or lease. Changing it later is expensive or impossible."
+      - title: "Independent due diligence"
+        text: "Our lawyer, not the seller's. Title, debts, planning and access checked separately."
+      - title: "Completion and after"
+        text: "Funds transfer, registration, tax registration and the reporting obligations that follow."
+    points:
+      - title: "We are not the selling agent"
+        text: "No commission from the seller, so there is no reason to talk you into a particular property."
+      - title: "Written advice you can act on"
+        text: "Each stage ends with a document setting out what was checked and what it found."
+
+  - domain: secondpassportpro.com
+    name: "Second Passport Pro"
+    archetype: advisory
+    tagline: "Residency and second-citizenship guidance"
+    hero_title: "A second residency, assessed honestly"
+    hero_text: >
+      Programmes change, and a lot of what is written about them is out of date
+      or sold by someone with an interest. We assess which routes you actually
+      qualify for, and say when the answer is none.
+    cta: "Check your eligibility"
+    cta_secondary: "Compare programmes"
+    fonts:
+      display: "Libre Baskerville:wght@400;700"
+      body: "Public Sans:wght@400;600"
+      display_stack: "'Libre Baskerville', Georgia, serif"
+      body_stack: "'Public Sans', system-ui, sans-serif"
+    palette:
+      ink: "#151C28"
+      accent: "#1D3B6E"
+      accent2: "#8C2F39"
+      ground: "#F4F5F7"
+      surface: "#FFFFFF"
+      ink_dark: "#E6EAF0"
+      accent_dark: "#6D9AD8"
+      accent2_dark: "#D4737C"
+      ground_dark: "#0C1017"
+      surface_dark: "#141A24"
+    illustration: passport
+    steps:
+      - title: "Eligibility assessment"
+        text: "Your nationality, finances, family and travel history against what each programme requires."
+      - title: "Shortlist and costs"
+        text: "The routes you qualify for, with the real total: government fees, advisers, and time."
+      - title: "Documents and filing"
+        text: "Collecting, translating and legalising what is needed, then filing and tracking it."
+      - title: "After approval"
+        text: "Renewals, physical presence requirements, and the tax questions that follow."
+    points:
+      - title: "We will tell you no"
+        text: "If no programme fits your situation, that is the advice. It is cheaper to hear it early."
+      - title: "Total cost, up front"
+        text: "Government fees, legal fees, due diligence and ours — quoted together, before you commit."
+
+  - domain: moveinthailand.com
+    name: "Move In Thailand"
+    archetype: advisory
+    tagline: "Relocation, visas and property in Thailand"
+    hero_title: "Everything between deciding and actually living here"
+    hero_text: >
+      The visa, the bank account, the lease, the driving licence, the school
+      place and the health cover. Individually simple, collectively the reason
+      people give up.
+    cta: "Plan your move"
+    cta_secondary: "What's involved"
+    fonts:
+      display: "Sora:wght@500;700"
+      body: "Newsreader:wght@400;500"
+      display_stack: "Sora, system-ui, sans-serif"
+      body_stack: "Newsreader, Georgia, serif"
+    palette:
+      ink: "#1A1B2E"
+      accent: "#33417E"
+      accent2: "#C2762B"
+      ground: "#F5F5F8"
+      surface: "#FFFFFF"
+      ink_dark: "#E8E9F2"
+      accent_dark: "#8592D8"
+      accent2_dark: "#E3A65C"
+      ground_dark: "#0E0F1A"
+      surface_dark: "#181A2A"
+    illustration: journey
+    steps:
+      - title: "Pick the right visa"
+        text: "Retirement, marriage, business, education or the long-term resident routes — each with different strings."
+      - title: "Land and settle"
+        text: "Airport, 90-day reporting, a bank account that will actually open, and somewhere to live."
+      - title: "Set up daily life"
+        text: "Driving licence, phone and internet, health insurance, schools if the family is coming."
+      - title: "Stay compliant"
+        text: "Renewals, re-entry permits, tax residency and the reporting nobody mentions until it is late."
+    points:
+      - title: "Visa and housing together"
+        text: "A lease in the wrong name or the wrong province can cost you the visa. They are one problem."
+      - title: "We live here"
+        text: "Advice from people who have done the queues, not compiled from forum posts."
+
+  - domain: propertiesshare.com
+    name: "Properties Share"
+    archetype: product
+    tagline: "Shared and fractional property ownership"
+    hero_title: "Own a share of somewhere you would actually go"
+    hero_text: >
+      A whole holiday home costs more than most people can justify for six
+      weeks a year. Fractional ownership splits the purchase, the running costs
+      and the calendar between a small, fixed group of owners.
+    cta: "See how shares work"
+    cta_secondary: "Current opportunities"
+    fonts:
+      display: "Epilogue:wght@500;700"
+      body: "IBM Plex Serif:wght@400;500"
+      display_stack: "Epilogue, system-ui, sans-serif"
+      body_stack: "'IBM Plex Serif', Georgia, serif"
+    palette:
+      ink: "#101E24"
+      accent: "#0B6E8C"
+      accent2: "#C25E3A"
+      ground: "#F2F6F7"
+      surface: "#FFFFFF"
+      ink_dark: "#E4EDF0"
+      accent_dark: "#4EB2CE"
+      accent2_dark: "#E28963"
+      ground_dark: "#0A1216"
+      surface_dark: "#121D22"
+    illustration: shares
+    steps:
+      - title: "A property is bought by a company"
+        text: "The company owns the property outright. Shares in that company are what you buy."
+      - title: "Shares set your time and costs"
+        text: "An eighth share means six to seven weeks a year and an eighth of the standing costs."
+      - title: "Time is allocated by rota"
+        text: "A rotating schedule so nobody has every school holiday, and peak weeks are shared fairly."
+      - title: "You can sell your share"
+        text: "Shares transfer like any company shareholding, to another owner or on the open market."
+    points:
+      - title: "The costs are visible"
+        text: "Purchase price, annual charges, management fee and exit terms, published per share."
+      - title: "A small, fixed group"
+        text: "Eight owners maximum, agreed in advance. Not a timeshare and not a rental pool."
