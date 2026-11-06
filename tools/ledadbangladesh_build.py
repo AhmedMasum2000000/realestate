@@ -197,8 +197,8 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;paddin
 .dot{width:9px;height:9px;border-radius:50%;background:currentColor;display:inline-block}
 .hero .contact{justify-self:end}
 .hero .scroll{position:absolute;left:50%;top:48%;transform:translateX(-50%);z-index:2}
-.hero .mark{position:absolute;left:0;right:0;bottom:-.06em;z-index:2;font-weight:500;letter-spacing:-.045em;line-height:.86;white-space:nowrap;pointer-events:none}
-.hero .mark .fit{display:inline-block;white-space:nowrap;padding:0 .02em}
+.hero .mark{position:absolute;left:0;right:0;bottom:-.06em;z-index:2;font-weight:500;line-height:.86;white-space:nowrap;pointer-events:none}
+.hero .mark .fit{display:inline-block;letter-spacing:-.045em;white-space:nowrap;padding:0 .04em 0 .02em}
 @media (max-width:760px){
   .hero .bar{grid-template-columns:1fr auto}
   .hero .where{display:none}

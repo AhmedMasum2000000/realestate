@@ -30,8 +30,8 @@ h2{font-weight:400;font-size:inherit}
 body.menu-open{overflow:hidden}
 
 /* wordmark */
-.mark{font:900 100px/.84 Archivo,Inter,sans-serif;letter-spacing:-.045em;white-space:nowrap;overflow:hidden;line-height:.84}
-.mark span{display:inline-block;padding:0 .06em 0 .02em;transform:translateY(110%);animation:rise 1s cubic-bezier(.2,.9,.2,1) .15s forwards}
+.mark{font:900 100px/.84 Archivo,Inter,sans-serif;white-space:nowrap;overflow:hidden;line-height:.84}
+.mark span{display:inline-block;letter-spacing:-.045em;padding:0 .06em 0 .02em;transform:translateY(110%);animation:rise 1s cubic-bezier(.2,.9,.2,1) .15s forwards}
 @keyframes rise{to{transform:none}}
 .foot .mark span{animation:none;transform:none}
 
