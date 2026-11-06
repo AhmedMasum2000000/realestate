@@ -11,9 +11,19 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'tools'))
 from ledadpro_extra import CLIENTS, CASES  # noqa: E402
 
+import argparse
+ap = argparse.ArgumentParser(description='Build a one-page typographic site; the defaults build ledadbangladesh.com')
+ap.add_argument('--brand', default='LED AD Bangladesh'); ap.add_argument('--mark', default='LED AD Bangladesh')
+ap.add_argument('--l1', default='LED AD'); ap.add_argument('--l2', default='Bangladesh')  # the two lines of the wordmark on phones
+ap.add_argument('--domain', default='ledadbangladesh.com'); ap.add_argument('--out', default='ledadbangladesh')
+ap.add_argument('--about', default='LED billboard advertising company based in Dhaka, Bangladesh.')
+ap.add_argument('--word', default='LED AD ', help='letters of the background pattern')
+ap.add_argument('--title', default='LED AD Bangladesh: LED Billboard Advertising across Bangladesh')
+A = ap.parse_args()
+BRAND, MARK = A.brand, A.mark
 V2 = ROOT / 'sites/ledadpro-v2'
-OUT = ROOT / 'sites/ledadbangladesh'
-SITE = 'https://ledadbangladesh.com'
+OUT = ROOT / 'sites' / A.out
+SITE = f'https://{A.domain}'
 PHONE, PHONE_TXT = '+8801958503753', '+880 1958-503753'   # Sales and Marketing
 OFFICE, OFFICE_TXT = '+8801316743003', '+880 1316-743003'  # office
 EMAIL = 'info@ledadpro.com'
@@ -91,7 +101,7 @@ logos_html = ''.join(f'<li><img loading="lazy" decoding="async" src="img/clients
 more_names = [c for c in CLIENTS if not logo_file(c)]
 
 schema = json.dumps({
-    "@context": "https://schema.org", "@type": "AdvertisingAgency", "name": "LED AD Bangladesh", "url": SITE + '/',
+    "@context": "https://schema.org", "@type": "AdvertisingAgency", "name": BRAND, "url": SITE + '/',
     "telephone": PHONE, "email": EMAIL,
     "address": {"@type": "PostalAddress", "streetAddress": "Flat A1, House 99, Road 10/2, Block D, Niketon", "addressLocality": "Gulshan 1, Dhaka", "addressCountry": "BD"},
     "areaServed": "Bangladesh", "parentOrganization": {"@type": "Organization", "name": "LED AD PRO", "url": "https://ledadpro.com/"},
@@ -102,10 +112,10 @@ html = f'''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LED AD Bangladesh: LED Billboard Advertising across Bangladesh</title>
-<meta name="description" content="LED AD Bangladesh runs {SCREENS} LED billboard screens in {AREAS} areas and {CITIES} cities, from Gulshan and Dhanmondi to Sylhet, Chattogram and Cox’s Bazar. Campaigns for 400+ brands since 2015. Call +880 1958-503753.">
+<title>{e(A.title)}</title>
+<meta name="description" content="{e(BRAND)} runs {SCREENS} LED billboard screens in {AREAS} areas and {CITIES} cities, from Gulshan and Dhanmondi to Sylhet, Chattogram and Cox’s Bazar. Campaigns for 400+ brands since 2015. Call +880 1958-503753.">
 <link rel="canonical" href="{SITE}/">
-<meta property="og:title" content="LED AD Bangladesh">
+<meta property="og:title" content="{e(BRAND)}">
 <meta property="og:description" content="{SCREENS} LED screens. {AREAS} areas. {CITIES} cities. One call.">
 <meta property="og:image" content="{SITE}/img/work/royal-enfield-gulshan-2.jpg">
 <meta property="og:url" content="{SITE}/">
@@ -118,15 +128,15 @@ html = f'''<!doctype html>
 </head>
 <body>
 <header class="hero" id="home">
-  <canvas id="pattern" aria-hidden="true"></canvas>
+  <canvas id="pattern" data-word="{e(A.word)}" aria-hidden="true"></canvas>
   <div class="bar">
-    <p class="about">LED billboard advertising company based in Dhaka, Bangladesh.</p>
+    <p class="about">{e(A.about)}</p>
     <p class="where"><span>Everywhere in Bangladesh</span><span class="mut">({CITIES} cities)</span></p>
     <p class="clock"><i class="dot" aria-hidden="true"></i><time id="clock" datetime="">--:--:--</time></p>
     <a class="contact" href="#contact">Contact</a>
   </div>
   <a class="scroll" href="#work">scroll down</a>
-  <h1 class="mark" aria-label="LED AD Bangladesh"><span class="fit" data-fit>LED AD Bangladesh</span></h1>
+  <h1 class="mark" aria-label="{e(BRAND)}"><span class="fit" data-fit data-l1="{e(A.l1)}" data-l2="{e(A.l2)}">{e(MARK)}</span></h1>
 </header>
 
 <main class="page">
@@ -134,7 +144,7 @@ html = f'''<!doctype html>
     <p class="links"><a href="#home">Home</a>, <a href="#work">Work</a>, <a href="#screens">Screens</a>, <a href="#clients">Clients</a></p>
     <a href="#contact">Contact</a>
   </nav>
-  <p class="title" aria-hidden="true">LED AD Bangladesh</p>
+  <p class="title" aria-hidden="true">{e(MARK)}</p>
 
   <section id="work" class="sec">
     <div class="sec-h"><h2>Work</h2><p class="tog"><button type="button" data-toggle="work-list" aria-expanded="true" aria-controls="work-list">Show</button> &ndash; <button type="button" data-toggle="work-list" data-hide aria-controls="work-list">Hide</button></p></div>
@@ -155,7 +165,7 @@ html = f'''<!doctype html>
 
   <section id="clients" class="sec text">
     <h2 class="lbl">Selected clients</h2>
-    <p class="lead">Our team has planned and run outdoor and LED campaigns for 400+ brands since 2015, from BMW, Emirates and Coca-Cola to Aarong, Walton and Square. LED AD Bangladesh works with the LED AD PRO team, the official LED partner to AD Pro.</p>
+    <p class="lead">Our team has planned and run outdoor and LED campaigns for 400+ brands since 2015, from BMW, Emirates and Coca-Cola to Aarong, Walton and Square. {e(BRAND)} works with the LED AD PRO team, the official LED partner to AD Pro.</p>
     <ul class="logos">{logos_html}<li class="more">And <span>more</span></li></ul>
     <p class="fine">Also: {e(', '.join(more_names[:9]))} and others.</p>
   </section>
@@ -163,10 +173,10 @@ html = f'''<!doctype html>
   <footer id="contact" class="foot">
     <p class="where"><span>Dhaka, Bangladesh</span><span class="mut">(Gulshan 1)</span><span class="clock"><i class="dot" aria-hidden="true"></i><time data-clock>--:--:--</time></span></p>
     <div class="cols">
-      <p><span class="lbl">&copy; LED AD Bangladesh</span>Team since 2015<br>Official LED partner to AD Pro</p>
+      <p><span class="lbl">&copy; {e(BRAND)}</span>Team since 2015<br>Official LED partner to AD Pro</p>
       <p><span class="lbl">Let&rsquo;s talk</span><a href="tel:{PHONE}">{PHONE_TXT}</a><br><a href="mailto:{EMAIL}">{EMAIL}</a></p>
       <p><span class="lbl">Office</span>{e(ADDRESS)}<br><a href="tel:{OFFICE}">{OFFICE_TXT}</a></p>
-      <p><span class="lbl">Elsewhere</span><a href="https://ledadpro.com/" rel="noopener">ledadpro.com</a><br><a href="https://wa.me/{PHONE[1:]}?text={e('Hi LED AD Bangladesh, I want to advertise.').replace(' ', '%20')}" rel="noopener" target="_blank">WhatsApp</a></p>
+      <p><span class="lbl">Elsewhere</span><a href="https://ledadpro.com/" rel="noopener">ledadpro.com</a><br><a href="https://wa.me/{PHONE[1:]}?text={e(f'Hi {BRAND}, I want to advertise.').replace(' ', '%20')}" rel="noopener" target="_blank">WhatsApp</a></p>
     </div>
   </footer>
 </main>
@@ -272,14 +282,15 @@ js = r'''(function () {
   function fitMark() {
     if (!fit) return;
     var box = mark.clientWidth; if (!box) return;
-    if (innerWidth <= 760) { // two lines on phones: fit the longer word
-      fit.innerHTML = 'LED AD<br>Bangladesh';
+    var l1 = fit.dataset.l1, l2 = fit.dataset.l2;
+    if (innerWidth <= 760) { // two lines on phones: fit the longer line
+      fit.innerHTML = l1 + '<br>' + l2;
       fit.style.fontSize = '100px';
-      var probe = d.createElement('span'); probe.textContent = 'Bangladesh'; probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:100px';
-      mark.appendChild(probe); var w = probe.offsetWidth; mark.removeChild(probe);
+      var probe = d.createElement('span'); probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:100px;letter-spacing:-.045em';
+      probe.textContent = l1; mark.appendChild(probe); var w = probe.offsetWidth; probe.textContent = l2; w = Math.max(w, probe.offsetWidth); mark.removeChild(probe);
       fit.style.fontSize = Math.floor(100 * (box - 24) / w) + 'px';
     } else {
-      fit.textContent = 'LED AD Bangladesh';
+      fit.textContent = l1 + ' ' + l2;
       fit.style.fontSize = '100px';
       fit.style.fontSize = Math.floor(100 * box / fit.offsetWidth * 0.995) + 'px';
     }
@@ -292,7 +303,7 @@ js = r'''(function () {
   // signal going out; each letter has its own brightness; the pointer lights letters up
   var c = d.getElementById('pattern'), hero = c && c.parentNode;
   if (c && c.getContext) {
-    var X = c.getContext('2d'), WORD = 'LED AD ', dpr = Math.min(2, devicePixelRatio || 1);
+    var X = c.getContext('2d'), WORD = c.dataset.word || 'LED AD ', dpr = Math.min(2, devicePixelRatio || 1);
     var cw, ch, cols, rows, W, H, mx = -1e4, my = -1e4, visible = true, last = 0, t0 = performance.now();
     function size() {
       W = hero.clientWidth; H = hero.clientHeight; c.width = W * dpr; c.height = H * dpr;
@@ -315,7 +326,7 @@ js = r'''(function () {
           var px = x - mx, py = y - my, dist = Math.sqrt(px * px + py * py);
           if (dist < r) a += (1 - dist / r) * 0.9;
           if (a < 0.08) continue;
-          var ch1 = WORD[(x + (y >> 1)) % 7]; if (ch1 === ' ') continue;
+          var ch1 = WORD[(x + (y >> 1)) % WORD.length]; if (ch1 === ' ') continue;
           X.fillStyle = 'rgba(17,17,17,' + Math.min(0.85, a * (0.45 + 0.55 * hash(x, y))).toFixed(3) + ')';
           X.fillText(ch1, (x + 0.5) * cw, (y + 0.5) * ch);
         }
@@ -368,6 +379,7 @@ ExpiresByType application/javascript "access plus 7 days"
 </IfModule>
 '''
 
+htaccess = htaccess.replace('ledadbangladesh\\.com', A.domain.replace('.', '\\.')).replace('ledadbangladesh.com', A.domain)
 (OUT / 'index.html').write_text(html)
 (OUT / 'style.css').write_text(css)
 (OUT / 'main.js').write_text(js)

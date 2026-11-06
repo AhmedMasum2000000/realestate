@@ -15,14 +15,15 @@
   function fitMark() {
     if (!fit) return;
     var box = mark.clientWidth; if (!box) return;
-    if (innerWidth <= 760) { // two lines on phones: fit the longer word
-      fit.innerHTML = 'LED AD<br>Bangladesh';
+    var l1 = fit.dataset.l1, l2 = fit.dataset.l2;
+    if (innerWidth <= 760) { // two lines on phones: fit the longer line
+      fit.innerHTML = l1 + '<br>' + l2;
       fit.style.fontSize = '100px';
-      var probe = d.createElement('span'); probe.textContent = 'Bangladesh'; probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:100px';
-      mark.appendChild(probe); var w = probe.offsetWidth; mark.removeChild(probe);
+      var probe = d.createElement('span'); probe.style.cssText = 'position:absolute;visibility:hidden;white-space:nowrap;font-size:100px;letter-spacing:-.045em';
+      probe.textContent = l1; mark.appendChild(probe); var w = probe.offsetWidth; probe.textContent = l2; w = Math.max(w, probe.offsetWidth); mark.removeChild(probe);
       fit.style.fontSize = Math.floor(100 * (box - 24) / w) + 'px';
     } else {
-      fit.textContent = 'LED AD Bangladesh';
+      fit.textContent = l1 + ' ' + l2;
       fit.style.fontSize = '100px';
       fit.style.fontSize = Math.floor(100 * box / fit.offsetWidth * 0.995) + 'px';
     }
@@ -35,7 +36,7 @@
   // signal going out; each letter has its own brightness; the pointer lights letters up
   var c = d.getElementById('pattern'), hero = c && c.parentNode;
   if (c && c.getContext) {
-    var X = c.getContext('2d'), WORD = 'LED AD ', dpr = Math.min(2, devicePixelRatio || 1);
+    var X = c.getContext('2d'), WORD = c.dataset.word || 'LED AD ', dpr = Math.min(2, devicePixelRatio || 1);
     var cw, ch, cols, rows, W, H, mx = -1e4, my = -1e4, visible = true, last = 0, t0 = performance.now();
     function size() {
       W = hero.clientWidth; H = hero.clientHeight; c.width = W * dpr; c.height = H * dpr;
@@ -58,7 +59,7 @@
           var px = x - mx, py = y - my, dist = Math.sqrt(px * px + py * py);
           if (dist < r) a += (1 - dist / r) * 0.9;
           if (a < 0.08) continue;
-          var ch1 = WORD[(x + (y >> 1)) % 7]; if (ch1 === ' ') continue;
+          var ch1 = WORD[(x + (y >> 1)) % WORD.length]; if (ch1 === ' ') continue;
           X.fillStyle = 'rgba(17,17,17,' + Math.min(0.85, a * (0.45 + 0.55 * hash(x, y))).toFixed(3) + ')';
           X.fillText(ch1, (x + 0.5) * cw, (y + 0.5) * ch);
         }

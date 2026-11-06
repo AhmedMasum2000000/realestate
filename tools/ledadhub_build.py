@@ -11,14 +11,23 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / 'tools'))
 from ledadpro_extra import CLIENTS, CASES  # noqa: E402
 
+import argparse
+from urllib.parse import quote
+ap = argparse.ArgumentParser(description='Build a one-page agency-style site; the defaults build ledadhub.com')
+ap.add_argument('--brand', default='LED AD Hub'); ap.add_argument('--mark', default='LED AD HUB'); ap.add_argument('--domain', default='ledadhub.com')
+ap.add_argument('--out', default='ledadhub'); ap.add_argument('--tag', default='The LED billboard hub of Bangladesh')
+ap.add_argument('--line1', default='Billboards, Metro,<br>Caravans.'); ap.add_argument('--line2', default='LED advertising network<br>across Bangladesh.')
+ap.add_argument('--title', default='LED AD Hub: Book LED Billboards across Bangladesh')
+A = ap.parse_args()
+BRAND, MARK = A.brand, A.mark
 V2 = ROOT / 'sites/ledadpro-v2'
-OUT = ROOT / 'sites/ledadhub'
-SITE = 'https://ledadhub.com'
+OUT = ROOT / 'sites' / A.out
+SITE = f'https://{A.domain}'
 PHONE, PHONE_TXT = '+8801958503753', '+880 1958-503753'
 OFFICE, OFFICE_TXT = '+8801316743003', '+880 1316-743003'
 EMAIL = 'info@ledadpro.com'
 ADDRESS = 'Flat A1, House 99 (1st floor), Road 10/2, Block D, Niketon, Gulshan 1, Dhaka'
-WA = f'https://wa.me/{PHONE[1:]}?text=' + 'Hi%20LED%20AD%20Hub%2C%20I%20want%20to%20book%20LED%20screens.'
+WA = f'https://wa.me/{PHONE[1:]}?text=' + quote(f'Hi {BRAND}, I want to book LED screens.')
 
 src = (V2 / 'locations.js').read_text()
 LOCS, _ = json.JSONDecoder().raw_decode(src, src.index('window.LOCS=') + len('window.LOCS='))
@@ -77,7 +86,7 @@ for i in range(24):
         mosaic_html += f'<p>{e(WORDS[(i // 2) % len(WORDS)])}</p>'
 
 schema = json.dumps({
-    "@context": "https://schema.org", "@type": "AdvertisingAgency", "name": "LED AD Hub", "url": SITE + '/', "telephone": PHONE, "email": EMAIL,
+    "@context": "https://schema.org", "@type": "AdvertisingAgency", "name": BRAND, "url": SITE + '/', "telephone": PHONE, "email": EMAIL,
     "address": {"@type": "PostalAddress", "streetAddress": "Flat A1, House 99, Road 10/2, Block D, Niketon", "addressLocality": "Gulshan 1, Dhaka", "addressCountry": "BD"},
     "areaServed": "Bangladesh", "parentOrganization": {"@type": "Organization", "name": "LED AD PRO", "url": "https://ledadpro.com/"},
     "contactPoint": [{"@type": "ContactPoint", "telephone": PHONE, "contactType": "sales", "areaServed": "BD"}]}, ensure_ascii=False)
@@ -87,10 +96,10 @@ html = f'''<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>LED AD Hub: Book LED Billboards across Bangladesh</title>
-<meta name="description" content="LED AD Hub is the one place to book LED billboard advertising in Bangladesh: {SCREENS} screens in {AREAS} areas and {CITIES} cities, Metro Rail LED and LED caravans, planned and run by the LED AD PRO team. Call +880 1958-503753.">
+<title>{e(A.title)}</title>
+<meta name="description" content="{e(BRAND)} is the one place to book LED billboard advertising in Bangladesh: {SCREENS} screens in {AREAS} areas and {CITIES} cities, Metro Rail LED and LED caravans, planned and run by the LED AD PRO team. Call +880 1958-503753.">
 <link rel="canonical" href="{SITE}/">
-<meta property="og:title" content="LED AD Hub"><meta property="og:description" content="{SCREENS} LED screens. {AREAS} areas. {CITIES} cities. One call."><meta property="og:image" content="{SITE}/img/work/royal-enfield-gulshan-2.jpg"><meta property="og:url" content="{SITE}/">
+<meta property="og:title" content="{e(BRAND)}"><meta property="og:description" content="{SCREENS} LED screens. {AREAS} areas. {CITIES} cities. One call."><meta property="og:image" content="{SITE}/img/work/royal-enfield-gulshan-2.jpg"><meta property="og:url" content="{SITE}/">
 <meta name="theme-color" content="#0b0b0b">
 <link rel="icon" href="/favicon.ico" sizes="any"><link rel="icon" href="brand/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="brand/favicon-180.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -100,7 +109,7 @@ html = f'''<!doctype html>
 </head>
 <body>
 <header class="bar" id="bar">
-  <p class="tag"><span class="t1">The LED billboard hub of Bangladesh</span><span class="t2" aria-hidden="true">LED AD HUB</span></p>
+  <p class="tag"><span class="t1">{e(A.tag)}</span><span class="t2" aria-hidden="true">{e(MARK)}</span></p>
   <button type="button" class="menu-btn" id="menu-btn" aria-expanded="false" aria-controls="menu"><span>Menu</span><span>Close</span></button>
 </header>
 <nav class="menu" id="menu" hidden>
@@ -116,10 +125,10 @@ html = f'''<!doctype html>
 
 <main id="top">
   <section class="hero">
-    <h1 class="mark" aria-label="LED AD Hub"><span data-fit>LED AD HUB</span></h1>
+    <h1 class="mark" aria-label="{e(BRAND)}"><span data-fit>{e(MARK)}</span></h1>
     <div class="hero-row">
-      <p>Billboards, Metro,<br>Caravans.</p>
-      <p>LED advertising network<br>across Bangladesh.</p>
+      <p>{A.line1}</p>
+      <p>{A.line2}</p>
       <a class="down" href="#reel" aria-label="Scroll down">&darr;</a>
     </div>
   </section>
@@ -154,9 +163,9 @@ html = f'''<!doctype html>
   </section>
 
   <section class="glance rv" id="screens">
-    <div class="row"><h2>LED AD Hub at a glance.</h2><a href="mailto:{EMAIL}">{EMAIL}</a></div>
+    <div class="row"><h2>{e(BRAND)} at a glance.</h2><a href="mailto:{EMAIL}">{EMAIL}</a></div>
     <div class="cards">
-      <div class="gc dark"><p><b>{SCREENS}</b> LED screens in {AREAS} areas of Dhaka and {CITIES - 1} more cities</p><span>LED AD HUB</span></div>
+      <div class="gc dark"><p><b>{SCREENS}</b> LED screens in {AREAS} areas of Dhaka and {CITIES - 1} more cities</p><span>{e(MARK)}</span></div>
       <figure class="gc photo"><img loading="lazy" decoding="async" src="img/loc/mirpur-10-circle-4-screens-1200.webp" alt="LED screens at Mirpur-10 circle" width="1200" height="800"><figcaption>Mirpur-10<br>Four screens, one roundabout</figcaption></figure>
       <div class="gc light"><p><b>400+</b> brands served by our team since 2015</p></div>
       <div class="gc light"><p><b>11</b> years on air on 1 December 2026</p></div>
@@ -182,9 +191,9 @@ html = f'''<!doctype html>
     <p><span>New business</span><a href="tel:{PHONE}">{PHONE_TXT}</a><a href="mailto:{EMAIL}">{EMAIL}</a></p>
     <p><span>Office</span>{e(ADDRESS)}<a href="tel:{OFFICE}">{OFFICE_TXT}</a></p>
     <p><span>Talk to us now</span><a href="{WA}" rel="noopener" target="_blank">WhatsApp &nearr;</a><a href="https://ledadpro.com/" rel="noopener">ledadpro.com &nearr;</a></p>
-    <p><span>Dhaka, Bangladesh</span>Official LED partner to AD Pro<br>&copy;15&ndash;26 LED AD Hub</p>
+    <p><span>Dhaka, Bangladesh</span>Official LED partner to AD Pro<br>&copy;15&ndash;26 {e(BRAND)}</p>
   </div>
-  <p class="mark" aria-hidden="true"><span data-fit>LED AD HUB</span></p>
+  <p class="mark" aria-hidden="true"><span data-fit>{e(MARK)}</span></p>
 </footer>
 <script src="main.js?v=1" defer></script>
 </body>
@@ -390,6 +399,7 @@ ExpiresByType application/javascript "access plus 7 days"
 </IfModule>
 '''
 
+htaccess = htaccess.replace('ledadhub\\.com', A.domain.replace('.', '\\.')).replace('ledadhub.com', A.domain)
 (OUT / 'index.html').write_text(html)
 (OUT / 'style.css').write_text(css)
 (OUT / 'main.js').write_text(js)
