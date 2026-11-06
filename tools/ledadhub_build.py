@@ -338,7 +338,9 @@ js = r'''(function () {
       s.style.fontSize = '100px'; s.style.fontSize = (100 * box / s.offsetWidth * 0.995).toFixed(1) + 'px';
     });
   }
-  fit(); addEventListener('resize', fit); if (d.fonts && d.fonts.ready) d.fonts.ready.then(fit);
+  fit(); addEventListener('resize', fit);
+  if (d.fonts) { d.fonts.ready.then(fit); d.fonts.addEventListener('loadingdone', fit); if (d.fonts.load) d.fonts.load('900 100px Archivo').then(fit, fit); }
+  setTimeout(fit, 2500);
 
   // top bar swaps the tagline for the small wordmark once the hero is gone
   var bar = d.getElementById('bar'), hero = d.querySelector('.hero');

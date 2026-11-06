@@ -28,7 +28,8 @@
     }
   }
   fitMark(); addEventListener('resize', fitMark);
-  if (d.fonts && d.fonts.ready) d.fonts.ready.then(fitMark);
+  if (d.fonts) { d.fonts.ready.then(fitMark); d.fonts.addEventListener('loadingdone', fitMark); if (d.fonts.load) d.fonts.load('500 100px Inter').then(fitMark, fitMark); }
+  setTimeout(fitMark, 2500);
 
   // ---- letter pattern: nested diamonds of our letters spreading out from two points, like a
   // signal going out; each letter has its own brightness; the pointer lights letters up
