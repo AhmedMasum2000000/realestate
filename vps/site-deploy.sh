@@ -15,6 +15,6 @@ rsync -a --delete --exclude .well-known "$SRC"/ "$R"/
 chown -R "$U:$U" "$R"; find "$R" -type d -exec chmod 755 {} + ; find "$R" -type f -exec chmod 644 {} +
 echo "Published $SRC -> $R ($(find "$R" -type f | wc -l) files, $(du -sh "$R" | cut -f1))"
 for p in / /style.css /main.js /favicon.ico; do
-  echo "https://$D$p -> $(curl -s --max-time 15 -o /dev/null -w '%{http_code}' --resolve "$D:443:127.0.0.1" "https://$D$p")"
+  echo "https://$D$p -> $(curl -sk --max-time 15 -o /dev/null -w '%{http_code}' --resolve "$D:443:127.0.0.1" "https://$D$p")"
 done
 echo "http://www.$D/ -> $(curl -s --max-time 15 -o /dev/null -w '%{http_code} %{redirect_url}' --resolve "www.$D:80:127.0.0.1" "http://www.$D/")"
