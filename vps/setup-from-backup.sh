@@ -13,8 +13,17 @@ if [ ! -d "$X" ] || [ "$T" -nt "$X" ]; then
   echo "Unpacking the newest backup"; rm -rf "$X.new"; mkdir -p "$X.new"; tar xzf "$T" -C "$X.new" --strip-components=1 && { rm -rf "$X"; mv "$X.new" "$X"; }
 fi
 MAIN=$(grep -E '^main_domain:' $X/userdata/main | awk '{print $2}')
-if [ "$D" = "$MAIN" ]; then SRC=$X/homedir/public_html; else SRC=$X/homedir/$D; fi
-[ -d "$SRC" ] || { echo "No web root for $D in the backup ($SRC)"; exit 1; }
+if [ "$D" = "$MAIN" ]; then REL=homedir/public_html; else REL=homedir/$D; fi
+SRC=$X/$REL
+if [ ! -d "$SRC" ]; then
+  # Not in the unpacked copy: pull just that folder out of the tarball (an earlier unpack may have skipped it)
+  TOP=$(tar tzf "$T" | head -1 | cut -d/ -f1)
+  echo "Extracting $TOP/$REL from the tarball"; tar xzf "$T" -C "$X" --strip-components=1 "$TOP/$REL" 2>&1 | tail -2
+fi
+if [ ! -d "$SRC" ]; then
+  echo "No web root for $D in the backup ($SRC). homedir holds:"; ls -la "$X/homedir" | head -30
+  echo "Entries in the tarball mentioning public_html: $(tar tzf "$T" | grep -c 'homedir/public_html')"; exit 1
+fi
 echo "Web root: $SRC ($(find "$SRC" -type f | wc -l) files, $(du -sh "$SRC" | cut -f1), newest file $(find "$SRC" -type f -printf '%TY-%Tm-%Td\n' | sort | tail -1))"
 DUMP=""
 if [ -f "$SRC/wp-config.php" ]; then
